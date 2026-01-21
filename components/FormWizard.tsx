@@ -16,6 +16,7 @@ export default function FormWizard() {
     goToPreviousStep,
     goToStep,
     signatures,
+    updateFieldValue,
   } = useFormStore();
 
   const [generating, setGenerating] = useState(false);
