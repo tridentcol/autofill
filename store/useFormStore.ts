@@ -6,6 +6,7 @@ import type {
   Signature,
   WizardStep,
   FieldData,
+  UserPreset,
 } from '@/types';
 
 interface FormStore {
@@ -37,6 +38,13 @@ interface FormStore {
   removeSignature: (id: string) => void;
   getSignatureById: (id: string) => Signature | undefined;
 
+  // Presets guardados
+  presets: UserPreset[];
+  addPreset: (preset: UserPreset) => void;
+  removePreset: (id: string) => void;
+  getPresetById: (id: string) => UserPreset | undefined;
+  applyPreset: (presetId: string) => void;
+
   // Utilidades
   resetForm: () => void;
   isFormComplete: () => boolean;
@@ -51,6 +59,7 @@ export const useFormStore = create<FormStore>()(
       currentStep: 0,
       wizardSteps: [],
       signatures: [],
+      presets: [],
 
       // Setters
       setSelectedFormat: (format) => set({ selectedFormat: format }),
@@ -126,6 +135,56 @@ export const useFormStore = create<FormStore>()(
         return signatures.find((s) => s.id === id);
       },
 
+      addPreset: (preset) => {
+        const { presets } = get();
+        set({ presets: [...presets, preset] });
+      },
+
+      removePreset: (id) => {
+        const { presets } = get();
+        set({ presets: presets.filter((p) => p.id !== id) });
+      },
+
+      getPresetById: (id) => {
+        const { presets } = get();
+        return presets.find((p) => p.id === id);
+      },
+
+      applyPreset: (presetId) => {
+        const { presets, currentFormData, selectedFormat, updateFieldValue } = get();
+        const preset = presets.find((p) => p.id === presetId);
+
+        if (!preset || !currentFormData || !selectedFormat) return;
+
+        // Buscar y rellenar campos que coincidan con los datos del preset
+        for (let sheetIndex = 0; sheetIndex < selectedFormat.sheets.length; sheetIndex++) {
+          const sheet = selectedFormat.sheets[sheetIndex];
+
+          for (let sectionIndex = 0; sectionIndex < sheet.sections.length; sectionIndex++) {
+            const section = sheet.sections[sectionIndex];
+
+            for (const field of section.fields) {
+              const label = field.label.toLowerCase();
+
+              // Mapear etiquetas a datos del preset
+              if (label.includes('realizado por') && preset.data.realizadoPor) {
+                updateFieldValue(sheetIndex, sectionIndex, field.id, preset.data.realizadoPor);
+              } else if (label.includes('cargo') && preset.data.cargo) {
+                updateFieldValue(sheetIndex, sectionIndex, field.id, preset.data.cargo);
+              } else if (label.includes('lugar') && preset.data.lugarZonaTrabajo) {
+                updateFieldValue(sheetIndex, sectionIndex, field.id, preset.data.lugarZonaTrabajo);
+              }
+            }
+          }
+        }
+
+        // Actualizar last used
+        const updatedPresets = presets.map((p) =>
+          p.id === presetId ? { ...p, lastUsed: new Date() } : p
+        );
+        set({ presets: updatedPresets });
+      },
+
       resetForm: () => {
         set({
           selectedFormat: null,
@@ -155,6 +214,7 @@ export const useFormStore = create<FormStore>()(
       name: 'autofill-storage',
       partialize: (state) => ({
         signatures: state.signatures,
+        presets: state.presets,
       }),
     }
   )

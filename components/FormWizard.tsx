@@ -29,14 +29,36 @@ export default function FormWizard() {
 
   // Aplicar llenado rápido
   const applyQuickFill = (value: string) => {
-    if (!currentWizardStep) return;
+    if (!currentWizardStep || !currentFormData || !selectedFormat) return;
 
-    const checkboxFields = currentWizardStep.section.fields.filter(
-      (f) => f.type === 'checkbox'
+    // Encontrar índices de sheet y section actual
+    let targetSheetIndex = 0;
+    let targetSectionIndex = 0;
+
+    for (let sheetIndex = 0; sheetIndex < selectedFormat.sheets.length; sheetIndex++) {
+      const sheet = selectedFormat.sheets[sheetIndex];
+      const sectionIndex = sheet.sections.findIndex(
+        (s) => s.id === currentWizardStep.section.id
+      );
+
+      if (sectionIndex !== -1) {
+        targetSheetIndex = sheetIndex;
+        targetSectionIndex = sectionIndex;
+        break;
+      }
+    }
+
+    // Filtrar solo los campos radio/checkbox (no observaciones)
+    const radioFields = currentWizardStep.section.fields.filter(
+      (f) => f.type === 'radio' || f.type === 'checkbox'
     );
 
-    // TODO: Implementar lógica para aplicar valor a todos los checkboxes
-    console.log('Quick fill:', value, 'to', checkboxFields.length, 'fields');
+    // Aplicar el valor a todos los campos
+    radioFields.forEach((field) => {
+      updateFieldValue(targetSheetIndex, targetSectionIndex, field.id, value);
+    });
+
+    alert(`Se han marcado ${radioFields.length} items como "${value}"`);
   };
 
   // Generar archivo Excel rellenado

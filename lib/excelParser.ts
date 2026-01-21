@@ -230,20 +230,34 @@ export class ExcelParser {
       const hasKeyword = keywords.some((kw) => text.includes(kw));
 
       if (hasKeyword && text.includes(':')) {
+        // Ignorar fechas fijas del formato (version, fecha de expedición)
+        const isFixedDate = text.includes('version:') ||
+                           text.includes('pagina') ||
+                           (text.includes('fecha:') && /\d{1,2}[-/]\d{1,2}[-/]\d{2,4}/.test(text));
+
+        if (isFixedDate) continue;
+
         // Esta celda contiene un label, buscar la celda siguiente que esté vacía
         const nextCell = cells.find(
           (c) => c.row === cell.row && c.col === cell.col + 1
         );
 
-        if (nextCell && nextCell.isEmpty) {
+        // También verificar si la celda de abajo está vacía
+        const belowCell = cells.find(
+          (c) => c.row === cell.row + 1 && c.col === cell.col
+        );
+
+        const targetCell = nextCell?.isEmpty ? nextCell : belowCell?.isEmpty ? belowCell : null;
+
+        if (targetCell) {
           const fieldType = this.detectFieldType(text);
           fields.push({
-            id: `basic_${nextCell.ref}`,
+            id: `basic_${targetCell.ref}`,
             label: text.replace(':', '').trim(),
             type: fieldType,
-            cellRef: nextCell.ref,
-            row: nextCell.row,
-            col: nextCell.col,
+            cellRef: targetCell.ref,
+            row: targetCell.row,
+            col: targetCell.col,
             required: true,
           });
 
@@ -477,27 +491,45 @@ export class ExcelParser {
       const text = String(cell.value).toLowerCase();
       const hasObsKeyword = obsKeywords.some((kw) => text.includes(kw));
 
+      // Buscar específicamente "OBSERVACIONES GENERALES" o similar
+      const isGeneralObs = text.includes('general') ||
+                          text.includes('observ') && cell.isMerged;
+
       if (hasObsKeyword) {
-        // Buscar celda grande debajo o al lado
-        const belowCell = worksheet.getCell(cell.row + 1, cell.col);
+        // Para observaciones generales, buscar un área más grande
+        let targetRow = cell.row + 1;
+        let rowSpan = isGeneralObs ? 10 : 5; // Más espacio para observaciones generales
+
+        // Buscar si hay celdas combinadas grandes debajo
+        const mergedCellsBelow = cells.filter(
+          (c) => c.row > cell.row && c.row <= cell.row + 10 && c.isMerged && c.isEmpty
+        );
+
+        if (mergedCellsBelow.length > 0) {
+          const firstMerged = mergedCellsBelow[0];
+          targetRow = firstMerged.row;
+          rowSpan = Math.max(rowSpan, mergedCellsBelow.length);
+        }
+
+        const belowCell = worksheet.getCell(targetRow, cell.col);
 
         return {
           id: 'observations',
           type: 'observations',
-          title: 'Observaciones',
+          title: isGeneralObs ? 'Observaciones Generales' : 'Observaciones',
           fields: [
             {
-              id: `obs_${belowCell.address}`,
-              label: text,
+              id: `obs_general_${belowCell.address}`,
+              label: 'Observaciones',
               type: 'textarea',
               cellRef: belowCell.address,
-              row: cell.row + 1,
+              row: targetRow,
               col: cell.col,
               required: false,
             },
           ],
           startRow: cell.row,
-          endRow: cell.row + 5,
+          endRow: cell.row + rowSpan,
           startCol: cell.col,
           endCol: worksheet.columnCount,
         };
