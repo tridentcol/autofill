@@ -42,8 +42,8 @@ export class ExcelGenerator {
                 workbook,
                 worksheet,
                 signature,
-                cell.row,
-                cell.col
+                Number(cell.row),
+                Number(cell.col)
               );
             }
           } else if (field.type === 'checkbox') {
@@ -87,11 +87,18 @@ export class ExcelGenerator {
     try {
       // Convertir base64 a buffer
       const base64Data = signature.dataUrl.replace(/^data:image\/\w+;base64,/, '');
-      const buffer = Buffer.from(base64Data, 'base64');
+
+      // Convertir base64 a ArrayBuffer para ExcelJS
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const buffer = Buffer.from(bytes);
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
-        buffer,
+        buffer: buffer as any,
         extension: 'png',
       });
 
