@@ -12,32 +12,46 @@ export class ExcelGenerator {
   async generateFilledExcel(
     originalFileBuffer: ArrayBuffer,
     formData: FormData,
-    signatures: Map<string, Signature>
+    signatures: Map<string, Signature>,
+    excelFormat: any
   ): Promise<Blob> {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(originalFileBuffer);
 
+    // Crear un mapa de fields por ID para búsqueda rápida
+    const fieldsMap = new Map<string, any>();
+    if (excelFormat?.sheets) {
+      for (const sheet of excelFormat.sheets) {
+        for (const section of sheet.sections) {
+          for (const field of section.fields) {
+            fieldsMap.set(field.id, field);
+          }
+        }
+      }
+    }
+
     // Rellenar cada hoja con los datos
-    for (const sheetData of formData.sheets) {
+    for (let sheetIndex = 0; sheetIndex < formData.sheets.length; sheetIndex++) {
+      const sheetData = formData.sheets[sheetIndex];
       const worksheet = workbook.getWorksheet(sheetData.sheetName);
       if (!worksheet) continue;
 
       // Rellenar cada sección
-      for (const sectionData of sheetData.sections) {
+      for (let sectionIndex = 0; sectionIndex < sheetData.sections.length; sectionIndex++) {
+        const sectionData = sheetData.sections[sectionIndex];
+
         for (const fieldData of sectionData.fields) {
-          if (!fieldData.completed || !fieldData.value) continue;
+          if (!fieldData.completed || fieldData.value === null || fieldData.value === undefined) continue;
 
-          // Buscar el field original para obtener cellRef
-          const field = this.findFieldById(fieldData.fieldId, formData);
+          // Buscar el field original
+          const field = fieldsMap.get(fieldData.fieldId);
           if (!field) continue;
-
-          // Rellenar la celda
-          const cell = worksheet.getCell(field.cellRef);
 
           if (field.type === 'signature') {
             // Insertar firma como imagen
             const signature = signatures.get(fieldData.value);
-            if (signature) {
+            if (signature && field.cellRef) {
+              const cell = worksheet.getCell(field.cellRef);
               await this.insertSignature(
                 workbook,
                 worksheet,
@@ -46,22 +60,49 @@ export class ExcelGenerator {
                 Number(cell.col)
               );
             }
+          } else if (field.type === 'radio') {
+            // Para radio buttons (checklistscon SI/NO/N/A)
+            // Obtener el mapeo de opciones a celdas
+            if (field.validation?.pattern) {
+              try {
+                const cellRefs = JSON.parse(field.validation.pattern);
+                const selectedCellRef = cellRefs[fieldData.value];
+
+                if (selectedCellRef) {
+                  const cell = worksheet.getCell(selectedCellRef);
+                  cell.value = 'X';
+                  cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                }
+              } catch (e) {
+                console.error('Error parsing radio cellRefs:', e);
+              }
+            }
           } else if (field.type === 'checkbox') {
-            // Marcar checkbox (agregar X o marca)
-            if (fieldData.value) {
+            // Checkbox individual
+            if (fieldData.value && field.cellRef) {
+              const cell = worksheet.getCell(field.cellRef);
               cell.value = 'X';
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'date') {
             // Formatear fecha
-            cell.value = new Date(fieldData.value);
-            cell.numFmt = 'dd/mm/yyyy';
+            if (field.cellRef) {
+              const cell = worksheet.getCell(field.cellRef);
+              cell.value = new Date(fieldData.value);
+              cell.numFmt = 'dd/mm/yyyy';
+            }
           } else if (field.type === 'time') {
             // Formatear hora
-            cell.value = fieldData.value;
+            if (field.cellRef) {
+              const cell = worksheet.getCell(field.cellRef);
+              cell.value = fieldData.value;
+            }
           } else {
             // Texto o número normal
-            cell.value = fieldData.value;
+            if (field.cellRef) {
+              const cell = worksheet.getCell(field.cellRef);
+              cell.value = fieldData.value;
+            }
           }
         }
       }

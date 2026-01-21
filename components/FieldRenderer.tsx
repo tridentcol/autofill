@@ -89,19 +89,20 @@ export default function FieldRenderer({
         );
 
       case 'checkbox':
+      case 'radio':
         return (
-          <div className="flex gap-4">
+          <div className="flex gap-3">
             {(field.options || ['SI', 'NO', 'N/A']).map((option) => (
               <label
                 key={option}
                 className={`flex items-center justify-center px-6 py-3 border-2 rounded-md cursor-pointer transition-all ${
                   value === option
                     ? option === 'SI'
-                      ? 'border-green-500 bg-green-50 text-green-700'
+                      ? 'border-green-500 bg-green-50 text-green-700 font-semibold'
                       : option === 'NO'
-                      ? 'border-red-500 bg-red-50 text-red-700'
-                      : 'border-gray-500 bg-gray-50 text-gray-700'
-                    : 'border-gray-300 hover:border-gray-400'
+                      ? 'border-red-500 bg-red-50 text-red-700 font-semibold'
+                      : 'border-gray-500 bg-gray-50 text-gray-700 font-semibold'
+                    : 'border-gray-300 hover:border-gray-400 bg-white'
                 }`}
               >
                 <input
@@ -112,10 +113,10 @@ export default function FieldRenderer({
                   onChange={(e) => handleChange(e.target.value)}
                   className="sr-only"
                 />
-                <span className="font-medium">{option}</span>
+                <span className="font-medium text-sm">{option}</span>
                 {value === option && (
                   <svg
-                    className="w-5 h-5 ml-2"
+                    className="w-4 h-4 ml-2"
                     fill="currentColor"
                     viewBox="0 0 20 20"
                   >

@@ -58,7 +58,8 @@ export default function FormWizard() {
       const blob = await generator.generateFilledExcel(
         originalBuffer,
         currentFormData,
-        signaturesMap
+        signaturesMap,
+        selectedFormat
       );
 
       const fileName = `${selectedFormat.name}_rellenado_${new Date().toISOString().slice(0, 10)}.xlsx`;

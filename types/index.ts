@@ -106,6 +106,20 @@ export interface Signature {
   createdAt: Date;
 }
 
+// Preset para información común
+export interface UserPreset {
+  id: string;
+  name: string;
+  data: {
+    realizadoPor?: string;
+    cargo?: string;
+    lugarZonaTrabajo?: string;
+    [key: string]: any;
+  };
+  createdAt: Date;
+  lastUsed?: Date;
+}
+
 export interface WizardStep {
   stepNumber: number;
   title: string;

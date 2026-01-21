@@ -326,29 +326,37 @@ export class ExcelParser {
 
         if (itemCell.value) {
           emptyRows = 0;
-          const itemText = String(itemCell.value);
+          const itemText = String(itemCell.value).trim();
 
-          // Crear field para cada checkbox
+          // Crear UN SOLO field tipo radio para el item con las celdas de cada opción
+          const checkboxCellRefs: Record<string, string> = {};
           for (const checkCell of headerCells) {
             const fieldCell = worksheet.getCell(currentRow, checkCell.col);
-            fields.push({
-              id: `check_${fieldCell.address}`,
-              label: `${itemText} - ${checkCell.value}`,
-              type: 'checkbox',
-              cellRef: fieldCell.address,
-              row: currentRow,
-              col: checkCell.col,
-              required: false,
-              options: ['SI', 'NO', 'N/A'],
-            });
+            const optionName = String(checkCell.value).toUpperCase().trim();
+            checkboxCellRefs[optionName] = fieldCell.address;
           }
+
+          fields.push({
+            id: `item_${currentRow}_${itemCol}`,
+            label: itemText,
+            type: 'radio',
+            cellRef: headerCells[0] ? worksheet.getCell(currentRow, headerCells[0].col).address : '',
+            row: currentRow,
+            col: itemCol,
+            required: false,
+            options: ['SI', 'NO', 'N/A'],
+            // Guardar las referencias de celda para cada opción
+            validation: {
+              pattern: JSON.stringify(checkboxCellRefs),
+            },
+          });
 
           // Agregar campo de observaciones si existe
           if (obsCol) {
             const obsCell = worksheet.getCell(currentRow, obsCol);
             fields.push({
               id: `obs_${obsCell.address}`,
-              label: `Observaciones: ${itemText}`,
+              label: `Observaciones`,
               type: 'textarea',
               cellRef: obsCell.address,
               row: currentRow,
