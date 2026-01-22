@@ -193,13 +193,22 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Centrar la imagen entre columnas A (0) y L (11)
-      // La imagen debe empezar en la columna A y la fila especificada
+      // Centrar la imagen horizontalmente entre columnas A (0) y L (11)
+      // Calcular el offset horizontal para centrar la imagen
+      const horizontalOffset = (totalWidth - imgWidth) / 2;
+
+      // ExcelJS soporta colOff/rowOff pero los tipos TypeScript no lo incluyen
+      // Usar 'as any' para incluir el offset
       worksheet.addImage(imageId, {
-        tl: { col: 0, row: row - 1 }, // top-left: columna A, fila especificada
+        tl: {
+          col: 0,           // Comienza en columna A
+          colOff: horizontalOffset,  // Offset en píxeles para centrar
+          row: row - 1,     // Fila especificada
+          rowOff: 0
+        } as any,
         ext: { width: imgWidth, height: imgHeight },
         editAs: 'oneCell'
-      });
+      } as any);
     } catch (error) {
       console.error('Error inserting signature:', error);
       // Si falla, insertar texto alternativo

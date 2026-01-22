@@ -192,7 +192,7 @@ export default function FormWizard() {
         )}
 
         {/* Fields */}
-        <div className="space-y-6">
+        <div className={currentWizardStep.section.type === 'checklist' ? 'space-y-3' : 'space-y-6'}>
           {currentWizardStep.section.fields.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <p>No se detectaron campos para rellenar en esta sección.</p>
@@ -200,7 +200,79 @@ export default function FormWizard() {
                 Esta sección puede ser informativa o de solo lectura.
               </p>
             </div>
+          ) : currentWizardStep.section.type === 'checklist' ? (
+            // Renderizado especial para checklists: agrupar radio + observaciones
+            (() => {
+              // Agrupar campos por fila (radio con su observación)
+              const groupedFields: Array<{ radio: Field; observation?: Field }> = [];
+              const processedIds = new Set<string>();
+
+              currentWizardStep.section.fields.forEach((field) => {
+                if (processedIds.has(field.id)) return;
+
+                if (field.type === 'radio') {
+                  // Buscar observación correspondiente
+                  const rowMatch = field.id.match(/item_(\d+)/);
+                  if (rowMatch) {
+                    const row = rowMatch[1];
+                    const obsField = currentWizardStep.section.fields.find(
+                      (f) => f.id === `obs_I${row}` && f.type === 'textarea'
+                    );
+
+                    groupedFields.push({ radio: field, observation: obsField });
+                    processedIds.add(field.id);
+                    if (obsField) processedIds.add(obsField.id);
+                  } else {
+                    groupedFields.push({ radio: field });
+                    processedIds.add(field.id);
+                  }
+                } else if (field.type !== 'textarea' || !field.id.startsWith('obs_I')) {
+                  // Otros campos que no son observaciones
+                  groupedFields.push({ radio: field });
+                  processedIds.add(field.id);
+                }
+              });
+
+              return groupedFields.map((group, index) => (
+                <div
+                  key={group.radio.id}
+                  className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors bg-white"
+                >
+                  <div className="flex flex-col lg:flex-row gap-4 items-start">
+                    {/* Columna izquierda: Nombre y botones */}
+                    <div className="flex-1 min-w-0">
+                      <label className="block text-sm font-medium text-gray-900 mb-3">
+                        {index + 1}. {group.radio.label}
+                      </label>
+                      <FieldRenderer
+                        field={group.radio}
+                        sheetIndex={0}
+                        sectionIndex={currentStep}
+                        hideLabel={true}
+                      />
+                    </div>
+
+                    {/* Columna derecha: Observaciones (más pequeña) */}
+                    {group.observation && (
+                      <div className="w-full lg:w-72 flex-shrink-0">
+                        <label className="block text-xs font-medium text-gray-600 mb-2">
+                          Observaciones
+                        </label>
+                        <FieldRenderer
+                          field={group.observation}
+                          sheetIndex={0}
+                          sectionIndex={currentStep}
+                          hideLabel={true}
+                          compact={true}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ));
+            })()
           ) : (
+            // Renderizado normal para otras secciones
             currentWizardStep.section.fields.map((field) => (
               <FieldRenderer
                 key={field.id}

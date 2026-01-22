@@ -8,12 +8,16 @@ interface FieldRendererProps {
   field: Field;
   sheetIndex: number;
   sectionIndex: number;
+  hideLabel?: boolean;
+  compact?: boolean;
 }
 
 export default function FieldRenderer({
   field,
   sheetIndex,
   sectionIndex,
+  hideLabel = false,
+  compact = false,
 }: FieldRendererProps) {
   const { currentFormData, updateFieldValue, signatures } = useFormStore();
   const [value, setValue] = useState<any>(field.value || '');
@@ -81,9 +85,11 @@ export default function FieldRenderer({
           <textarea
             value={value}
             onChange={(e) => handleChange(e.target.value)}
-            rows={4}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            placeholder={`Ingrese ${field.label.toLowerCase()}`}
+            rows={compact ? 2 : 4}
+            className={`w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+              compact ? 'px-3 py-1.5 text-sm' : 'px-4 py-2'
+            }`}
+            placeholder={compact ? 'Agregar observaciones...' : `Ingrese ${field.label.toLowerCase()}`}
             required={field.required}
           />
         );
@@ -203,16 +209,18 @@ export default function FieldRenderer({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium text-gray-700">
-          {field.label}
-          {field.required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-        <span className="text-xs text-gray-500 font-mono">{field.cellRef}</span>
-      </div>
+    <div className={compact ? '' : 'space-y-2'}>
+      {!hideLabel && (
+        <div className="flex items-center justify-between">
+          <label className="block text-sm font-medium text-gray-700">
+            {field.label}
+            {field.required && <span className="text-red-500 ml-1">*</span>}
+          </label>
+          {!compact && <span className="text-xs text-gray-500 font-mono">{field.cellRef}</span>}
+        </div>
+      )}
       {renderField()}
-      {field.validation && (
+      {!compact && field.validation && (
         <p className="text-xs text-gray-500">
           {field.validation.minLength && `Mínimo ${field.validation.minLength} caracteres. `}
           {field.validation.maxLength && `Máximo ${field.validation.maxLength} caracteres. `}
