@@ -168,20 +168,13 @@ export class ExcelGenerator {
       const img = await this.getImageDimensions(signature.dataUrl);
       const aspectRatio = img.width / img.height;
 
-      // Calcular el ancho total disponible entre columnas A y L (12 columnas)
-      // Ancho aproximado de una columna en Excel: 64 píxeles
-      const totalWidth = 12 * 64; // ~768 píxeles
-      const maxHeight = 80; // Altura máxima deseada para la firma
+      // Altura máxima deseada para la firma
+      const maxHeight = 80;
 
       // Calcular dimensiones manteniendo la relación de aspecto
-      let imgWidth = totalWidth * 0.8; // Usar 80% del ancho disponible
-      let imgHeight = imgWidth / aspectRatio;
-
-      // Si la altura excede el máximo, ajustar
-      if (imgHeight > maxHeight) {
-        imgHeight = maxHeight;
-        imgWidth = imgHeight * aspectRatio;
-      }
+      // Empezar con la altura máxima
+      let imgHeight = maxHeight;
+      let imgWidth = imgHeight * aspectRatio;
 
       // Ajustar la altura de la fila 39 para que quepa la imagen
       const excelRow = worksheet.getRow(row);
@@ -193,18 +186,24 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Centrar la imagen horizontalmente entre columnas A (0) y L (11)
-      // Calcular el offset horizontal para centrar la imagen
-      const horizontalOffset = (totalWidth - imgWidth) / 2;
+      // Para centrar entre columnas A (0) y L (11), usar tl y br
+      // Calcular cuántas columnas necesitamos para la imagen
+      const columnWidth = 64; // Ancho aproximado de columna en píxeles
+      const totalColumns = 12; // A hasta L
+      const totalWidth = totalColumns * columnWidth;
+
+      // Calcular posición de inicio para centrar
+      const startOffset = (totalWidth - imgWidth) / 2;
+      const startCol = Math.floor(startOffset / columnWidth);
+      const colOffset = startOffset % columnWidth;
 
       // ExcelJS soporta colOff/rowOff pero los tipos TypeScript no lo incluyen
-      // Usar 'as any' para incluir el offset
       worksheet.addImage(imageId, {
         tl: {
-          col: 0,           // Comienza en columna A
-          colOff: horizontalOffset,  // Offset en píxeles para centrar
-          row: row - 1,     // Fila especificada
-          rowOff: 0
+          col: startCol,
+          colOff: colOffset,
+          row: row - 1,
+          rowOff: 5  // Pequeño margen vertical
         } as any,
         ext: { width: imgWidth, height: imgHeight },
         editAs: 'oneCell'
