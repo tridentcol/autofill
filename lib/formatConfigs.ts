@@ -611,8 +611,546 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
   },
 
   'inspeccion-grua': (worksheetData?: any) => {
-    // TODO: Implementar configuración específica para inspección de grúa
-    return [];
+    const sections: Section[] = [];
+
+    // 1. INFORMACIÓN BÁSICA (Filas 6-8)
+    sections.push({
+      id: 'basic_info',
+      type: 'basic_info',
+      title: 'Información Básica del Equipo',
+      fields: [
+        {
+          id: 'basic_A6',
+          label: 'REALIZADO POR',
+          type: 'text',
+          cellRef: 'A6',
+          row: 6,
+          col: 1,
+          required: true,
+        },
+        {
+          id: 'basic_A7',
+          label: 'CARGO',
+          type: 'text',
+          cellRef: 'A7',
+          row: 7,
+          col: 1,
+          required: true,
+        },
+        {
+          id: 'basic_A8',
+          label: 'KILOMETRAJE ACTUAL',
+          type: 'number',
+          cellRef: 'A8',
+          row: 8,
+          col: 1,
+          required: true,
+        },
+        {
+          id: 'basic_H7',
+          label: 'PLACA',
+          type: 'text',
+          cellRef: 'H7',
+          row: 7,
+          col: 8,
+          required: true,
+        },
+        {
+          id: 'basic_H8',
+          label: 'ULTIMO CAMBIO DE ACEITE FECHA',
+          type: 'date',
+          cellRef: 'H8',
+          row: 8,
+          col: 8,
+          required: false,
+        },
+        {
+          id: 'basic_I6',
+          label: 'MARCA',
+          type: 'text',
+          cellRef: 'I6',
+          row: 6,
+          col: 9,
+          required: true,
+        },
+        {
+          id: 'basic_I7',
+          label: 'MODELO',
+          type: 'text',
+          cellRef: 'I7',
+          row: 7,
+          col: 9,
+          required: true,
+        },
+        {
+          id: 'basic_P6',
+          label: 'LINEA',
+          type: 'text',
+          cellRef: 'P6',
+          row: 6,
+          col: 16,
+          required: true,
+        },
+        {
+          id: 'basic_P7',
+          label: 'FECHA',
+          type: 'date',
+          cellRef: 'P7',
+          row: 7,
+          col: 16,
+          required: true,
+        },
+        {
+          id: 'basic_O8',
+          label: 'KILOMETRAJE CAMBIO DE ACEITE',
+          type: 'number',
+          cellRef: 'O8',
+          row: 8,
+          col: 15,
+          required: false,
+        },
+      ],
+      startRow: 6,
+      endRow: 8,
+      startCol: 1,
+      endCol: 16,
+    });
+
+    // 2. CHECKLIST COLUMNA IZQUIERDA
+    const checklistLeftFields: Field[] = [];
+
+    // DOCUMENTACION DEL EQUIPO (filas 11-13)
+    const documentacion = [
+      'PERMISO DE CIRCULACION AL DIA',
+      'REVISION TECNOMECANICA AL DIA',
+      'SOAT VIGENTE',
+    ];
+
+    documentacion.forEach((req, index) => {
+      const row = 11 + index;
+      checklistLeftFields.push({
+        id: `left_item_${row}`,
+        label: req,
+        type: 'radio',
+        cellRef: `D${row}`,
+        row: row,
+        col: 2,
+        required: false,
+        options: ['SI', 'NO', 'N/A'],
+        validation: {
+          pattern: JSON.stringify({
+            SI: `D${row}`,
+            NO: `E${row}`,
+            'N/A': `F${row}`,
+          }),
+        },
+      });
+    });
+
+    // Firma para DOCUMENTACION (G11-G13 combinadas)
+    checklistLeftFields.push({
+      id: 'sig_G11_documentacion',
+      label: 'Firma Inspector - Documentación',
+      type: 'signature',
+      cellRef: 'G11',
+      row: 11,
+      col: 7,
+      required: false,
+      validation: {
+        mergedRows: 3, // G11-G13
+      },
+    });
+
+    // LUCES (filas 17-27)
+    const luces = [
+      'ALTAS',
+      'BAJAS',
+      'RETROCESO',
+      'LATERAL DERECHA DELANTERA',
+      'LATERAL IZQUIERDA DELANTERA',
+      'LATERAL DERECHA TRASERA',
+      'LATERAL IZQUIERDA TRASERA',
+      'FRENO',
+      'ESTACIONAMIENTO',
+      'CABINA INTERIOR',
+      'EMERGENCIA',
+    ];
+
+    luces.forEach((req, index) => {
+      const row = 17 + index;
+      checklistLeftFields.push({
+        id: `left_item_${row}`,
+        label: req,
+        type: 'radio',
+        cellRef: `D${row}`,
+        row: row,
+        col: 2,
+        required: false,
+        options: ['SI', 'NO', 'N/A'],
+        validation: {
+          pattern: JSON.stringify({
+            SI: `D${row}`,
+            NO: `E${row}`,
+            'N/A': `F${row}`,
+          }),
+        },
+      });
+    });
+
+    // Firma para LUCES (G17-G27 combinadas)
+    checklistLeftFields.push({
+      id: 'sig_G17_luces',
+      label: 'Firma Inspector - Luces',
+      type: 'signature',
+      cellRef: 'G17',
+      row: 17,
+      col: 7,
+      required: false,
+      validation: {
+        mergedRows: 11, // G17-G27
+      },
+    });
+
+    // NEUMATICOS (filas 31-37)
+    const neumaticos = [
+      'DELANTERO IZQUIERDO',
+      'DELANTERO DERECHO',
+      'TRASERO INTERNO DERECHO',
+      'TRASERO INTERNO IZQUIERDO',
+      'TRASERO DERECHO',
+      'TRASERO IZQUIERDO',
+      'REPUESTOS',
+    ];
+
+    neumaticos.forEach((req, index) => {
+      const row = 31 + index;
+      checklistLeftFields.push({
+        id: `left_item_${row}`,
+        label: req,
+        type: 'radio',
+        cellRef: `D${row}`,
+        row: row,
+        col: 2,
+        required: false,
+        options: ['SI', 'NO', 'N/A'],
+        validation: {
+          pattern: JSON.stringify({
+            SI: `D${row}`,
+            NO: `E${row}`,
+            'N/A': `F${row}`,
+          }),
+        },
+      });
+    });
+
+    // Firma para NEUMATICOS (G31-G37 combinadas)
+    checklistLeftFields.push({
+      id: 'sig_G31_neumaticos',
+      label: 'Firma Inspector - Neumáticos',
+      type: 'signature',
+      cellRef: 'G31',
+      row: 31,
+      col: 7,
+      required: false,
+      validation: {
+        mergedRows: 7, // G31-G37
+      },
+    });
+
+    // ESPEJOS (filas 43-45)
+    const espejos = [
+      'LATERAL IZQUIERDO',
+      'LATERAL DERECHO',
+      'FRONTAL CABINA',
+    ];
+
+    espejos.forEach((req, index) => {
+      const row = 43 + index;
+      checklistLeftFields.push({
+        id: `left_item_${row}`,
+        label: req,
+        type: 'radio',
+        cellRef: `D${row}`,
+        row: row,
+        col: 2,
+        required: false,
+        options: ['SI', 'NO', 'N/A'],
+        validation: {
+          pattern: JSON.stringify({
+            SI: `D${row}`,
+            NO: `E${row}`,
+            'N/A': `F${row}`,
+          }),
+        },
+      });
+    });
+
+    // Firma para ESPEJOS (G43-G45 combinadas)
+    checklistLeftFields.push({
+      id: 'sig_G43_espejos',
+      label: 'Firma Inspector - Espejos',
+      type: 'signature',
+      cellRef: 'G43',
+      row: 43,
+      col: 7,
+      required: false,
+      validation: {
+        mergedRows: 3, // G43-G45
+      },
+    });
+
+    sections.push({
+      id: 'checklist_left',
+      type: 'checklist',
+      title: 'Inspección - Parte 1',
+      fields: checklistLeftFields,
+      startRow: 11,
+      endRow: 45,
+      startCol: 1,
+      endCol: 7,
+    });
+
+    // 3. CHECKLIST COLUMNA DERECHA
+    const checklistRightFields: Field[] = [];
+
+    // OPERADOR (filas 11-13)
+    const operador = [
+      'LICENCIA MUNICIPAL',
+      'CURSO DE OPERADOR',
+      'LICENCIA INTERNA',
+    ];
+
+    operador.forEach((req, index) => {
+      const row = 11 + index;
+      checklistRightFields.push({
+        id: `right_item_${row}`,
+        label: req,
+        type: 'radio',
+        cellRef: `L${row}`,
+        row: row,
+        col: 10,
+        required: false,
+        options: ['SI', 'NO', 'N/A'],
+        validation: {
+          pattern: JSON.stringify({
+            SI: `L${row}`,
+            NO: `M${row}`,
+            'N/A': `N${row}`,
+          }),
+        },
+      });
+
+      // Observaciones por fila en columna P
+      checklistRightFields.push({
+        id: `obs_P${row}`,
+        label: 'Observaciones',
+        type: 'textarea',
+        cellRef: `P${row}`,
+        row: row,
+        col: 16,
+        required: false,
+      });
+    });
+
+    // Firma para OPERADOR (O11-O13 combinadas)
+    checklistRightFields.push({
+      id: 'sig_O11_operador',
+      label: 'Firma Inspector - Operador',
+      type: 'signature',
+      cellRef: 'O11',
+      row: 11,
+      col: 15,
+      required: false,
+      validation: {
+        mergedRows: 3, // O11-O13
+      },
+    });
+
+    // ACCESORIO Y SEGURIDAD (filas 17-25)
+    const accesorios = [
+      'EXTINTOR',
+      'BOTIQUIN',
+      'CONOS',
+      'BOCINA',
+      'SIRENA',
+      'ESCALERAS',
+      'INDICADOR DE CAPACIDAD',
+      'CORTACORRIENTES',
+      'SISTEMA DE COMUNICACIÓN O RADIO',
+    ];
+
+    accesorios.forEach((req, index) => {
+      const row = 17 + index;
+      checklistRightFields.push({
+        id: `right_item_${row}`,
+        label: req,
+        type: 'radio',
+        cellRef: `L${row}`,
+        row: row,
+        col: 10,
+        required: false,
+        options: ['SI', 'NO', 'N/A'],
+        validation: {
+          pattern: JSON.stringify({
+            SI: `L${row}`,
+            NO: `M${row}`,
+            'N/A': `N${row}`,
+          }),
+        },
+      });
+
+      // Observaciones por fila en columna P
+      checklistRightFields.push({
+        id: `obs_P${row}`,
+        label: 'Observaciones',
+        type: 'textarea',
+        cellRef: `P${row}`,
+        row: row,
+        col: 16,
+        required: false,
+      });
+    });
+
+    // Firma para ACCESORIO Y SEGURIDAD (O17-O25 combinadas)
+    checklistRightFields.push({
+      id: 'sig_O17_accesorios',
+      label: 'Firma Inspector - Accesorios y Seguridad',
+      type: 'signature',
+      cellRef: 'O17',
+      row: 17,
+      col: 15,
+      required: false,
+      validation: {
+        mergedRows: 9, // O17-O25
+      },
+    });
+
+    // GENERAL (filas 31-39)
+    const general = [
+      'ESTABILIZADORES',
+      'BRAZO GIRATORIO',
+      'ESCALERA DE ACCESO',
+      'SISTEMA OPERACIONAL',
+      'CANASTA',
+      'POLEAS',
+      'CABLES',
+      'GANCHOS',
+      'SEGURO GANCHOS',
+    ];
+
+    general.forEach((req, index) => {
+      const row = 31 + index;
+      checklistRightFields.push({
+        id: `right_item_${row}`,
+        label: req,
+        type: 'radio',
+        cellRef: `L${row}`,
+        row: row,
+        col: 10,
+        required: false,
+        options: ['SI', 'NO', 'N/A'],
+        validation: {
+          pattern: JSON.stringify({
+            SI: `L${row}`,
+            NO: `M${row}`,
+            'N/A': `N${row}`,
+          }),
+        },
+      });
+
+      // Observaciones por fila en columna P
+      checklistRightFields.push({
+        id: `obs_P${row}`,
+        label: 'Observaciones',
+        type: 'textarea',
+        cellRef: `P${row}`,
+        row: row,
+        col: 16,
+        required: false,
+      });
+    });
+
+    // Firma para GENERAL (O31-O39 combinadas)
+    checklistRightFields.push({
+      id: 'sig_O31_general',
+      label: 'Firma Inspector - General',
+      type: 'signature',
+      cellRef: 'O31',
+      row: 31,
+      col: 15,
+      required: false,
+      validation: {
+        mergedRows: 9, // O31-O39
+      },
+    });
+
+    // VIDRIOS (filas 43-47)
+    const vidrios = [
+      'PARABRISAS',
+      'IZQUIERDO',
+      'DERECHO',
+      'LUNETAS',
+      'TRASERO',
+    ];
+
+    vidrios.forEach((req, index) => {
+      const row = 43 + index;
+      checklistRightFields.push({
+        id: `right_item_${row}`,
+        label: req,
+        type: 'radio',
+        cellRef: `L${row}`,
+        row: row,
+        col: 10,
+        required: false,
+        options: ['SI', 'NO', 'N/A'],
+        validation: {
+          pattern: JSON.stringify({
+            SI: `L${row}`,
+            NO: `M${row}`,
+            'N/A': `N${row}`,
+          }),
+        },
+      });
+
+      // Observaciones por fila en columna P
+      checklistRightFields.push({
+        id: `obs_P${row}`,
+        label: 'Observaciones',
+        type: 'textarea',
+        cellRef: `P${row}`,
+        row: row,
+        col: 16,
+        required: false,
+      });
+    });
+
+    // Firma para VIDRIOS (O43-O47 combinadas)
+    checklistRightFields.push({
+      id: 'sig_O43_vidrios',
+      label: 'Firma Inspector - Vidrios',
+      type: 'signature',
+      cellRef: 'O43',
+      row: 43,
+      col: 15,
+      required: false,
+      validation: {
+        mergedRows: 5, // O43-O47
+      },
+    });
+
+    sections.push({
+      id: 'checklist_right',
+      type: 'checklist',
+      title: 'Inspección - Parte 2',
+      fields: checklistRightFields,
+      startRow: 11,
+      endRow: 47,
+      startCol: 9,
+      endCol: 16,
+    });
+
+    return sections;
   },
 };
 

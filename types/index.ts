@@ -70,6 +70,7 @@ export interface FieldValidation {
   maxLength?: number;
   min?: number;
   max?: number;
+  mergedRows?: number; // Para firmas en celdas combinadas verticalmente
 }
 
 export interface FormData {

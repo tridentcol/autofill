@@ -52,12 +52,14 @@ export class ExcelGenerator {
             const signature = signatures.get(fieldData.value);
             if (signature && field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
+              const mergedRows = field.validation?.mergedRows || 1;
               await this.insertSignature(
                 workbook,
                 worksheet,
                 signature,
                 Number(cell.row),
-                Number(cell.col)
+                Number(cell.col),
+                mergedRows
               );
             }
           } else if (field.type === 'radio') {
@@ -150,7 +152,8 @@ export class ExcelGenerator {
     worksheet: ExcelJS.Worksheet,
     signature: Signature,
     row: number,
-    col: number
+    col: number,
+    mergedRows: number = 1
   ): Promise<void> {
     try {
       // Convertir base64 a buffer
@@ -168,17 +171,27 @@ export class ExcelGenerator {
       const img = await this.getImageDimensions(signature.dataUrl);
       const aspectRatio = img.width / img.height;
 
-      // Altura máxima deseada para la firma
-      const maxHeight = 80;
+      // Calcular el alto total disponible basado en mergedRows
+      let totalHeight = 0;
+      for (let i = 0; i < mergedRows; i++) {
+        const currentRow = worksheet.getRow(row + i);
+        // Altura por defecto en Excel es ~15 puntos = ~20 píxeles
+        const rowHeight = currentRow.height || 15;
+        totalHeight += rowHeight * 1.33; // Convertir puntos a píxeles (1 punto ≈ 1.33 píxeles)
+      }
+
+      // Altura máxima deseada (usar 80% del espacio disponible para margen)
+      const maxHeight = totalHeight * 0.8;
 
       // Calcular dimensiones manteniendo la relación de aspecto
-      // Empezar con la altura máxima
       let imgHeight = maxHeight;
       let imgWidth = imgHeight * aspectRatio;
 
-      // Ajustar la altura de la fila 39 para que quepa la imagen
-      const excelRow = worksheet.getRow(row);
-      excelRow.height = imgHeight * 0.75; // Convertir píxeles a puntos (1 punto = ~1.33 píxeles)
+      // Para firmas en una sola fila, ajustar la altura de la fila
+      if (mergedRows === 1) {
+        const excelRow = worksheet.getRow(row);
+        excelRow.height = Math.max(imgHeight * 0.75, 15); // Convertir píxeles a puntos, mínimo 15 puntos
+      }
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
@@ -186,24 +199,17 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Para centrar entre columnas A (0) y L (11), usar tl y br
-      // Calcular cuántas columnas necesitamos para la imagen
-      const columnWidth = 64; // Ancho aproximado de columna en píxeles
-      const totalColumns = 12; // A hasta L
-      const totalWidth = totalColumns * columnWidth;
+      // Calcular offset vertical para centrar en celdas combinadas
+      const verticalOffset = (totalHeight - imgHeight) / 2;
 
-      // Calcular posición de inicio para centrar
-      const startOffset = (totalWidth - imgWidth) / 2;
-      const startCol = Math.floor(startOffset / columnWidth);
-      const colOffset = startOffset % columnWidth;
-
-      // ExcelJS soporta colOff/rowOff pero los tipos TypeScript no lo incluyen
+      // Para firmas en columna única (G u O), centrar en esa columna
+      // No necesitamos centrar horizontalmente porque la celda ya es única
       worksheet.addImage(imageId, {
         tl: {
-          col: startCol,
-          colOff: colOffset,
-          row: row - 1,
-          rowOff: 5  // Pequeño margen vertical
+          col: col - 1,  // ExcelJS usa índice 0
+          colOff: 5,     // Pequeño margen horizontal
+          row: row - 1,  // ExcelJS usa índice 0
+          rowOff: Math.max(verticalOffset, 5) // Centrar verticalmente, mínimo 5px de margen
         } as any,
         ext: { width: imgWidth, height: imgHeight },
         editAs: 'oneCell'
