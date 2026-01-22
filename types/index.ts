@@ -71,6 +71,7 @@ export interface FieldValidation {
   min?: number;
   max?: number;
   mergedRows?: number; // Para firmas en celdas combinadas verticalmente
+  applyToAll?: boolean; // Para replicar la firma en múltiples ubicaciones
 }
 
 export interface FormData {

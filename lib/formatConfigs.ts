@@ -745,20 +745,17 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           }),
         },
       });
-    });
 
-    // Firma para DOCUMENTACION (G11-G13 combinadas)
-    checklistLeftFields.push({
-      id: 'sig_G11_documentacion',
-      label: 'Firma Inspector - Documentación',
-      type: 'signature',
-      cellRef: 'G11',
-      row: 11,
-      col: 7,
-      required: false,
-      validation: {
-        mergedRows: 3, // G11-G13
-      },
+      // Observaciones en columna H
+      checklistLeftFields.push({
+        id: `obs_H${row}`,
+        label: 'Observaciones',
+        type: 'textarea',
+        cellRef: `H${row}`,
+        row: row,
+        col: 8,
+        required: false,
+      });
     });
 
     // LUCES (filas 17-27)
@@ -795,20 +792,17 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           }),
         },
       });
-    });
 
-    // Firma para LUCES (G17-G27 combinadas)
-    checklistLeftFields.push({
-      id: 'sig_G17_luces',
-      label: 'Firma Inspector - Luces',
-      type: 'signature',
-      cellRef: 'G17',
-      row: 17,
-      col: 7,
-      required: false,
-      validation: {
-        mergedRows: 11, // G17-G27
-      },
+      // Observaciones en columna H
+      checklistLeftFields.push({
+        id: `obs_H${row}`,
+        label: 'Observaciones',
+        type: 'textarea',
+        cellRef: `H${row}`,
+        row: row,
+        col: 8,
+        required: false,
+      });
     });
 
     // NEUMATICOS (filas 31-37)
@@ -841,20 +835,17 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           }),
         },
       });
-    });
 
-    // Firma para NEUMATICOS (G31-G37 combinadas)
-    checklistLeftFields.push({
-      id: 'sig_G31_neumaticos',
-      label: 'Firma Inspector - Neumáticos',
-      type: 'signature',
-      cellRef: 'G31',
-      row: 31,
-      col: 7,
-      required: false,
-      validation: {
-        mergedRows: 7, // G31-G37
-      },
+      // Observaciones en columna H
+      checklistLeftFields.push({
+        id: `obs_H${row}`,
+        label: 'Observaciones',
+        type: 'textarea',
+        cellRef: `H${row}`,
+        row: row,
+        col: 8,
+        required: false,
+      });
     });
 
     // ESPEJOS (filas 43-45)
@@ -883,20 +874,17 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           }),
         },
       });
-    });
 
-    // Firma para ESPEJOS (G43-G45 combinadas)
-    checklistLeftFields.push({
-      id: 'sig_G43_espejos',
-      label: 'Firma Inspector - Espejos',
-      type: 'signature',
-      cellRef: 'G43',
-      row: 43,
-      col: 7,
-      required: false,
-      validation: {
-        mergedRows: 3, // G43-G45
-      },
+      // Observaciones en columna H
+      checklistLeftFields.push({
+        id: `obs_H${row}`,
+        label: 'Observaciones',
+        type: 'textarea',
+        cellRef: `H${row}`,
+        row: row,
+        col: 8,
+        required: false,
+      });
     });
 
     sections.push({
@@ -907,7 +895,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       startRow: 11,
       endRow: 45,
       startCol: 1,
-      endCol: 7,
+      endCol: 8,
     });
 
     // 3. CHECKLIST COLUMNA DERECHA
@@ -940,7 +928,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         },
       });
 
-      // Observaciones por fila en columna P
+      // Observaciones en columna P
       checklistRightFields.push({
         id: `obs_P${row}`,
         label: 'Observaciones',
@@ -950,20 +938,6 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         col: 16,
         required: false,
       });
-    });
-
-    // Firma para OPERADOR (O11-O13 combinadas)
-    checklistRightFields.push({
-      id: 'sig_O11_operador',
-      label: 'Firma Inspector - Operador',
-      type: 'signature',
-      cellRef: 'O11',
-      row: 11,
-      col: 15,
-      required: false,
-      validation: {
-        mergedRows: 3, // O11-O13
-      },
     });
 
     // ACCESORIO Y SEGURIDAD (filas 17-25)
@@ -999,7 +973,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         },
       });
 
-      // Observaciones por fila en columna P
+      // Observaciones en columna P
       checklistRightFields.push({
         id: `obs_P${row}`,
         label: 'Observaciones',
@@ -1009,20 +983,6 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         col: 16,
         required: false,
       });
-    });
-
-    // Firma para ACCESORIO Y SEGURIDAD (O17-O25 combinadas)
-    checklistRightFields.push({
-      id: 'sig_O17_accesorios',
-      label: 'Firma Inspector - Accesorios y Seguridad',
-      type: 'signature',
-      cellRef: 'O17',
-      row: 17,
-      col: 15,
-      required: false,
-      validation: {
-        mergedRows: 9, // O17-O25
-      },
     });
 
     // GENERAL (filas 31-39)
@@ -1058,7 +1018,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         },
       });
 
-      // Observaciones por fila en columna P
+      // Observaciones en columna P
       checklistRightFields.push({
         id: `obs_P${row}`,
         label: 'Observaciones',
@@ -1068,20 +1028,6 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         col: 16,
         required: false,
       });
-    });
-
-    // Firma para GENERAL (O31-O39 combinadas)
-    checklistRightFields.push({
-      id: 'sig_O31_general',
-      label: 'Firma Inspector - General',
-      type: 'signature',
-      cellRef: 'O31',
-      row: 31,
-      col: 15,
-      required: false,
-      validation: {
-        mergedRows: 9, // O31-O39
-      },
     });
 
     // VIDRIOS (filas 43-47)
@@ -1113,7 +1059,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         },
       });
 
-      // Observaciones por fila en columna P
+      // Observaciones en columna P
       checklistRightFields.push({
         id: `obs_P${row}`,
         label: 'Observaciones',
@@ -1125,20 +1071,6 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       });
     });
 
-    // Firma para VIDRIOS (O43-O47 combinadas)
-    checklistRightFields.push({
-      id: 'sig_O43_vidrios',
-      label: 'Firma Inspector - Vidrios',
-      type: 'signature',
-      cellRef: 'O43',
-      row: 43,
-      col: 15,
-      required: false,
-      validation: {
-        mergedRows: 5, // O43-O47
-      },
-    });
-
     sections.push({
       id: 'checklist_right',
       type: 'checklist',
@@ -1147,6 +1079,32 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       startRow: 11,
       endRow: 47,
       startCol: 9,
+      endCol: 16,
+    });
+
+    // 4. FIRMA ÚNICA (Se aplicará a todas las firmas)
+    sections.push({
+      id: 'signatures',
+      type: 'signatures',
+      title: 'Firma del Inspector',
+      fields: [
+        {
+          id: 'sig_G11',
+          label: 'Firma (se aplicará a todos los espacios)',
+          type: 'signature',
+          cellRef: 'G11',
+          row: 11,
+          col: 7,
+          required: true,
+          validation: {
+            mergedRows: 3,
+            applyToAll: true, // Nueva propiedad para indicar que se replica
+          },
+        },
+      ],
+      startRow: 48,
+      endRow: 48,
+      startCol: 1,
       endCol: 16,
     });
 

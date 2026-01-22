@@ -50,17 +50,45 @@ export class ExcelGenerator {
           if (field.type === 'signature') {
             // Insertar firma como imagen
             const signature = signatures.get(fieldData.value);
-            if (signature && field.cellRef) {
-              const cell = worksheet.getCell(field.cellRef);
-              const mergedRows = field.validation?.mergedRows || 1;
-              await this.insertSignature(
-                workbook,
-                worksheet,
-                signature,
-                Number(cell.row),
-                Number(cell.col),
-                mergedRows
-              );
+            if (signature) {
+              // Si applyToAll es true, replicar en todas las ubicaciones de firma
+              if (field.validation?.applyToAll) {
+                // Ubicaciones de firma para formato grúa: columna G y O
+                const firmaLocations = [
+                  { cellRef: 'G11', mergedRows: 3 },  // DOCUMENTACION
+                  { cellRef: 'G17', mergedRows: 11 }, // LUCES
+                  { cellRef: 'G31', mergedRows: 7 },  // NEUMATICOS
+                  { cellRef: 'G43', mergedRows: 3 },  // ESPEJOS
+                  { cellRef: 'O11', mergedRows: 3 },  // OPERADOR
+                  { cellRef: 'O17', mergedRows: 9 },  // ACCESORIO Y SEGURIDAD
+                  { cellRef: 'O31', mergedRows: 9 },  // GENERAL
+                  { cellRef: 'O43', mergedRows: 5 },  // VIDRIOS
+                ];
+
+                for (const location of firmaLocations) {
+                  const cell = worksheet.getCell(location.cellRef);
+                  await this.insertSignature(
+                    workbook,
+                    worksheet,
+                    signature,
+                    Number(cell.row),
+                    Number(cell.col),
+                    location.mergedRows
+                  );
+                }
+              } else if (field.cellRef) {
+                // Firma individual
+                const cell = worksheet.getCell(field.cellRef);
+                const mergedRows = field.validation?.mergedRows || 1;
+                await this.insertSignature(
+                  workbook,
+                  worksheet,
+                  signature,
+                  Number(cell.row),
+                  Number(cell.col),
+                  mergedRows
+                );
+              }
             }
           } else if (field.type === 'radio') {
             // Para radio buttons (checklistscon SI/NO/N/A)
@@ -171,7 +199,21 @@ export class ExcelGenerator {
       const img = await this.getImageDimensions(signature.dataUrl);
       const aspectRatio = img.width / img.height;
 
-      // Calcular el alto total disponible basado en mergedRows
+      // TAMAÑO FIJO para todas las firmas (independiente del contenedor)
+      const fixedMaxWidth = 100;  // Ancho máximo fijo en píxeles
+      const fixedMaxHeight = 50;  // Altura máxima fija en píxeles
+
+      // Calcular dimensiones manteniendo la relación de aspecto dentro del tamaño fijo
+      let imgWidth = fixedMaxWidth;
+      let imgHeight = imgWidth / aspectRatio;
+
+      // Si la altura excede el máximo, ajustar por altura
+      if (imgHeight > fixedMaxHeight) {
+        imgHeight = fixedMaxHeight;
+        imgWidth = imgHeight * aspectRatio;
+      }
+
+      // Calcular el alto total del contenedor basado en mergedRows para centrado vertical
       let totalHeight = 0;
       for (let i = 0; i < mergedRows; i++) {
         const currentRow = worksheet.getRow(row + i);
@@ -180,18 +222,16 @@ export class ExcelGenerator {
         totalHeight += rowHeight * 1.33; // Convertir puntos a píxeles (1 punto ≈ 1.33 píxeles)
       }
 
-      // Altura máxima deseada (usar 80% del espacio disponible para margen)
-      const maxHeight = totalHeight * 0.8;
-
-      // Calcular dimensiones manteniendo la relación de aspecto
-      let imgHeight = maxHeight;
-      let imgWidth = imgHeight * aspectRatio;
-
-      // Para firmas en una sola fila, ajustar la altura de la fila
+      // Para firmas en una sola fila, ajustar la altura de la fila para que quepa la imagen
       if (mergedRows === 1) {
         const excelRow = worksheet.getRow(row);
-        excelRow.height = Math.max(imgHeight * 0.75, 15); // Convertir píxeles a puntos, mínimo 15 puntos
+        excelRow.height = Math.max((imgHeight + 10) * 0.75, 15); // Convertir píxeles a puntos, mínimo 15 puntos
+        // Recalcular totalHeight después del ajuste
+        totalHeight = excelRow.height * 1.33;
       }
+
+      // Calcular offset vertical para centrar la imagen en el contenedor
+      const verticalOffset = Math.max((totalHeight - imgHeight) / 2, 5);
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
@@ -199,17 +239,13 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Calcular offset vertical para centrar en celdas combinadas
-      const verticalOffset = (totalHeight - imgHeight) / 2;
-
-      // Para firmas en columna única (G u O), centrar en esa columna
-      // No necesitamos centrar horizontalmente porque la celda ya es única
+      // Para firmas en columna única (G u O), centrar vertical y horizontalmente
       worksheet.addImage(imageId, {
         tl: {
-          col: col - 1,  // ExcelJS usa índice 0
-          colOff: 5,     // Pequeño margen horizontal
-          row: row - 1,  // ExcelJS usa índice 0
-          rowOff: Math.max(verticalOffset, 5) // Centrar verticalmente, mínimo 5px de margen
+          col: col - 1,          // ExcelJS usa índice 0
+          colOff: 5,             // Pequeño margen horizontal
+          row: row - 1,          // ExcelJS usa índice 0
+          rowOff: verticalOffset // Centrar verticalmente según el contenedor
         } as any,
         ext: { width: imgWidth, height: imgHeight },
         editAs: 'oneCell'

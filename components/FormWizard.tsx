@@ -215,8 +215,9 @@ export default function FormWizard() {
                   const rowMatch = field.id.match(/item_(\d+)/);
                   if (rowMatch) {
                     const row = rowMatch[1];
+                    // Buscar observación con cualquier prefijo (obs_I, obs_H, obs_P)
                     const obsField = currentWizardStep.section.fields.find(
-                      (f) => f.id === `obs_I${row}` && f.type === 'textarea'
+                      (f) => (f.id === `obs_I${row}` || f.id === `obs_H${row}` || f.id === `obs_P${row}`) && f.type === 'textarea'
                     );
 
                     groupedFields.push({ radio: field, observation: obsField });
@@ -226,7 +227,7 @@ export default function FormWizard() {
                     groupedFields.push({ radio: field });
                     processedIds.add(field.id);
                   }
-                } else if (field.type !== 'textarea' || !field.id.startsWith('obs_I')) {
+                } else if (field.type !== 'textarea' || !(field.id.startsWith('obs_I') || field.id.startsWith('obs_H') || field.id.startsWith('obs_P'))) {
                   // Otros campos que no son observaciones
                   groupedFields.push({ radio: field });
                   processedIds.add(field.id);
