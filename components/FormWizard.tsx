@@ -234,16 +234,16 @@ export default function FormWizard() {
                 }
               });
 
-              // Colores para cada grupo
+              // Colores simples para cada grupo
               const groupColors: Record<string, string> = {
-                'DOCUMENTACION DEL EQUIPO': 'bg-blue-100 border-blue-300 text-blue-900',
-                'LUCES': 'bg-yellow-100 border-yellow-300 text-yellow-900',
-                'NEUMATICOS': 'bg-green-100 border-green-300 text-green-900',
-                'ESPEJOS': 'bg-purple-100 border-purple-300 text-purple-900',
-                'OPERADOR': 'bg-indigo-100 border-indigo-300 text-indigo-900',
-                'ACCESORIO Y SEGURIDAD': 'bg-red-100 border-red-300 text-red-900',
-                'GENERAL': 'bg-orange-100 border-orange-300 text-orange-900',
-                'VIDRIOS': 'bg-teal-100 border-teal-300 text-teal-900',
+                'DOCUMENTACION DEL EQUIPO': 'bg-gray-100 border-gray-400 text-gray-800',
+                'LUCES': 'bg-gray-100 border-gray-400 text-gray-800',
+                'NEUMATICOS': 'bg-gray-100 border-gray-400 text-gray-800',
+                'ESPEJOS': 'bg-gray-100 border-gray-400 text-gray-800',
+                'OPERADOR': 'bg-gray-100 border-gray-400 text-gray-800',
+                'ACCESORIO Y SEGURIDAD': 'bg-gray-100 border-gray-400 text-gray-800',
+                'GENERAL': 'bg-gray-100 border-gray-400 text-gray-800',
+                'VIDRIOS': 'bg-gray-100 border-gray-400 text-gray-800',
               };
 
               // Renderizar con headers de grupo
@@ -263,10 +263,10 @@ export default function FormWizard() {
                   elements.push(
                     <div
                       key={`header-${fieldGroup}`}
-                      className={`${colorClass} border-2 rounded-lg px-4 py-3 mb-2 mt-4 first:mt-0`}
+                      className={`${colorClass} border-2 rounded-lg px-6 py-4 mb-3 mt-6 first:mt-0`}
                     >
-                      <h4 className="font-bold text-sm uppercase tracking-wide">
-                        {fieldGroup}
+                      <h4 className="font-bold text-base uppercase tracking-wide">
+                        📋 {fieldGroup}
                       </h4>
                     </div>
                   );
