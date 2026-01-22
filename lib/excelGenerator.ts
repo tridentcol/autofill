@@ -200,8 +200,10 @@ export class ExcelGenerator {
       const aspectRatio = img.width / img.height;
 
       // TAMAÑO FIJO para todas las firmas (independiente del contenedor)
-      const fixedMaxWidth = 180;  // Ancho máximo fijo en píxeles (aumentado de 100)
-      const fixedMaxHeight = 80;  // Altura máxima fija en píxeles (aumentado de 50)
+      // Columna G: 356 píxeles, Columna O: 341 píxeles
+      // Usar un tamaño que quepa bien en ambas (usar ~320px de ancho)
+      const fixedMaxWidth = 320;  // Ancho máximo fijo en píxeles
+      const fixedMaxHeight = 120; // Altura máxima fija en píxeles
 
       // Calcular dimensiones manteniendo la relación de aspecto dentro del tamaño fijo
       let imgWidth = fixedMaxWidth;
@@ -234,8 +236,9 @@ export class ExcelGenerator {
       const verticalOffset = Math.max((totalHeight - imgHeight) / 2, 5);
 
       // Calcular offset horizontal para centrar en la columna
-      // Ancho aproximado de columna en Excel: 64 píxeles para columnas normales
-      const columnWidth = 64;
+      // Columna G (col 7): ancho real ~356 píxeles
+      // Columna O (col 15): ancho real ~341 píxeles
+      const columnWidth = col === 7 ? 356 : (col === 15 ? 341 : 64);
       const horizontalOffset = Math.max((columnWidth - imgWidth) / 2, 0);
 
       // Agregar imagen al workbook

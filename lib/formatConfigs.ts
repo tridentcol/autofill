@@ -340,6 +340,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 9,
         required: false,
+        group: 'DOCUMENTACION DEL EQUIPO',
       });
     });
 
@@ -370,6 +371,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'LUCES',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -388,6 +390,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 9,
         required: false,
+        group: 'LUCES',
       });
     });
 
@@ -410,6 +413,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'NEUMATICOS',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -428,6 +432,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 9,
         required: false,
+        group: 'NEUMATICOS',
       });
     });
 
@@ -451,6 +456,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'VIDRIOS',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -469,6 +475,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 9,
         required: false,
+        group: 'VIDRIOS',
       });
     });
 
@@ -490,6 +497,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'ESPEJOS',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -508,6 +516,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 9,
         required: false,
+        group: 'ESPEJOS',
       });
     });
 
@@ -544,6 +553,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'GENERAL',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -562,6 +572,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 9,
         required: false,
+        group: 'GENERAL',
       });
     });
 
@@ -737,6 +748,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'DOCUMENTACION DEL EQUIPO',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -756,6 +768,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 8,
         required: false,
+        group: 'DOCUMENTACION DEL EQUIPO',
       });
     });
 
@@ -784,6 +797,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'LUCES',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -803,6 +817,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 8,
         required: false,
+        group: 'LUCES',
       });
     });
 
@@ -827,6 +842,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'NEUMATICOS',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -846,6 +862,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 8,
         required: false,
+        group: 'NEUMATICOS',
       });
     });
 
@@ -866,6 +883,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'ESPEJOS',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -885,6 +903,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 8,
         required: false,
+        group: 'ESPEJOS',
       });
     });
 
@@ -919,6 +938,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 10,
         required: false,
+        group: 'OPERADOR',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -938,6 +958,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 16,
         required: false,
+        group: 'OPERADOR',
       });
     });
 
@@ -964,6 +985,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 10,
         required: false,
+        group: 'ACCESORIO Y SEGURIDAD',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -983,6 +1005,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 16,
         required: false,
+        group: 'ACCESORIO Y SEGURIDAD',
       });
     });
 
@@ -1009,6 +1032,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 10,
         required: false,
+        group: 'GENERAL',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -1028,6 +1052,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 16,
         required: false,
+        group: 'GENERAL',
       });
     });
 
@@ -1050,6 +1075,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 10,
         required: false,
+        group: 'VIDRIOS',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -1069,6 +1095,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 16,
         required: false,
+        group: 'VIDRIOS',
       });
     });
 
