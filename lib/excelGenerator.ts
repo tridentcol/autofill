@@ -88,20 +88,47 @@ export class ExcelGenerator {
             // Formatear fecha
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
-              cell.value = new Date(fieldData.value);
-              cell.numFmt = 'dd/mm/yyyy';
+              // Mantener el texto original y reemplazar los guiones bajos
+              const currentValue = cell.value?.toString() || '';
+              const cleanedValue = currentValue.replace(/_+/g, '').trim();
+              const dateStr = new Date(fieldData.value).toLocaleDateString('es-ES');
+              cell.value = cleanedValue ? `${cleanedValue} ${dateStr}` : dateStr;
             }
           } else if (field.type === 'time') {
             // Formatear hora
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
+              // Mantener el texto original y reemplazar los guiones bajos
+              const currentValue = cell.value?.toString() || '';
+              const cleanedValue = currentValue.replace(/_+/g, '').trim();
+              cell.value = cleanedValue ? `${cleanedValue} ${fieldData.value}` : fieldData.value;
+            }
+          } else if (field.type === 'textarea') {
+            // Para observaciones, reemplazar completamente
+            if (field.cellRef) {
+              const cell = worksheet.getCell(field.cellRef);
               cell.value = fieldData.value;
+              cell.alignment = {
+                vertical: 'top',
+                horizontal: 'left',
+                wrapText: true
+              };
             }
           } else {
             // Texto o número normal
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
-              cell.value = fieldData.value;
+              // Mantener el texto original (como "REALIZADO POR:") y agregar el valor después
+              const currentValue = cell.value?.toString() || '';
+              const cleanedValue = currentValue.replace(/_+/g, '').trim();
+
+              // Si ya tiene texto (como "REALIZADO POR:"), agregar el valor después
+              if (cleanedValue && !cleanedValue.includes(fieldData.value)) {
+                cell.value = `${cleanedValue} ${fieldData.value}`;
+              } else if (!cleanedValue) {
+                // Si no hay texto, solo poner el valor
+                cell.value = fieldData.value;
+              }
             }
           }
         }
@@ -137,17 +164,41 @@ export class ExcelGenerator {
       }
       const buffer = Buffer.from(bytes);
 
+      // Obtener dimensiones de la imagen desde el dataUrl
+      const img = await this.getImageDimensions(signature.dataUrl);
+      const aspectRatio = img.width / img.height;
+
+      // Calcular el ancho total disponible entre columnas A y L (12 columnas)
+      // Ancho aproximado de una columna en Excel: 64 píxeles
+      const totalWidth = 12 * 64; // ~768 píxeles
+      const maxHeight = 80; // Altura máxima deseada para la firma
+
+      // Calcular dimensiones manteniendo la relación de aspecto
+      let imgWidth = totalWidth * 0.8; // Usar 80% del ancho disponible
+      let imgHeight = imgWidth / aspectRatio;
+
+      // Si la altura excede el máximo, ajustar
+      if (imgHeight > maxHeight) {
+        imgHeight = maxHeight;
+        imgWidth = imgHeight * aspectRatio;
+      }
+
+      // Ajustar la altura de la fila 39 para que quepa la imagen
+      const excelRow = worksheet.getRow(row);
+      excelRow.height = imgHeight * 0.75; // Convertir píxeles a puntos (1 punto = ~1.33 píxeles)
+
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
         buffer: buffer as any,
         extension: 'png',
       });
 
-      // Calcular posición de la imagen
-      // ExcelJS usa coordenadas basadas en celdas
+      // Centrar la imagen entre columnas A (0) y L (11)
+      // La imagen debe empezar en la columna A y la fila especificada
       worksheet.addImage(imageId, {
-        tl: { col: col - 1, row: row - 1 }, // top-left
-        ext: { width: 150, height: 50 }, // tamaño de la imagen
+        tl: { col: 0, row: row - 1 }, // top-left: columna A, fila especificada
+        ext: { width: imgWidth, height: imgHeight },
+        editAs: 'oneCell'
       });
     } catch (error) {
       console.error('Error inserting signature:', error);
@@ -155,6 +206,28 @@ export class ExcelGenerator {
       const cell = worksheet.getCell(row, col);
       cell.value = `[Firma: ${signature.name}]`;
     }
+  }
+
+  /**
+   * Obtiene las dimensiones de una imagen desde su dataUrl
+   */
+  private getImageDimensions(dataUrl: string): Promise<{ width: number; height: number }> {
+    return new Promise((resolve, reject) => {
+      if (typeof window === 'undefined') {
+        // Si estamos en el servidor, usar valores por defecto
+        resolve({ width: 400, height: 150 });
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        resolve({ width: img.width, height: img.height });
+      };
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+      img.src = dataUrl;
+    });
   }
 
   /**
