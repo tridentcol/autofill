@@ -50,6 +50,7 @@ export interface Field {
   validation?: FieldValidation;
   colspan?: number;     // Si la celda está combinada
   rowspan?: number;
+  group?: string;       // Grupo al que pertenece (para headers visuales)
 }
 
 export type FieldType =

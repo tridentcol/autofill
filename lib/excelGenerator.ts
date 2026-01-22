@@ -200,8 +200,8 @@ export class ExcelGenerator {
       const aspectRatio = img.width / img.height;
 
       // TAMAÑO FIJO para todas las firmas (independiente del contenedor)
-      const fixedMaxWidth = 100;  // Ancho máximo fijo en píxeles
-      const fixedMaxHeight = 50;  // Altura máxima fija en píxeles
+      const fixedMaxWidth = 180;  // Ancho máximo fijo en píxeles (aumentado de 100)
+      const fixedMaxHeight = 80;  // Altura máxima fija en píxeles (aumentado de 50)
 
       // Calcular dimensiones manteniendo la relación de aspecto dentro del tamaño fijo
       let imgWidth = fixedMaxWidth;
@@ -233,6 +233,11 @@ export class ExcelGenerator {
       // Calcular offset vertical para centrar la imagen en el contenedor
       const verticalOffset = Math.max((totalHeight - imgHeight) / 2, 5);
 
+      // Calcular offset horizontal para centrar en la columna
+      // Ancho aproximado de columna en Excel: 64 píxeles para columnas normales
+      const columnWidth = 64;
+      const horizontalOffset = Math.max((columnWidth - imgWidth) / 2, 0);
+
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
         buffer: buffer as any,
@@ -242,10 +247,10 @@ export class ExcelGenerator {
       // Para firmas en columna única (G u O), centrar vertical y horizontalmente
       worksheet.addImage(imageId, {
         tl: {
-          col: col - 1,          // ExcelJS usa índice 0
-          colOff: 5,             // Pequeño margen horizontal
-          row: row - 1,          // ExcelJS usa índice 0
-          rowOff: verticalOffset // Centrar verticalmente según el contenedor
+          col: col - 1,              // ExcelJS usa índice 0
+          colOff: horizontalOffset,  // Centrar horizontalmente en la columna
+          row: row - 1,              // ExcelJS usa índice 0
+          rowOff: verticalOffset     // Centrar verticalmente según el contenedor
         } as any,
         ext: { width: imgWidth, height: imgHeight },
         editAs: 'oneCell'

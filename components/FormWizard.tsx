@@ -234,43 +234,86 @@ export default function FormWizard() {
                 }
               });
 
-              return groupedFields.map((group, index) => (
-                <div
-                  key={group.radio.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors bg-white"
-                >
-                  <div className="flex flex-col lg:flex-row gap-4 items-start">
-                    {/* Columna izquierda: Nombre y botones */}
-                    <div className="flex-1 min-w-0">
-                      <label className="block text-sm font-medium text-gray-900 mb-3">
-                        {index + 1}. {group.radio.label}
-                      </label>
-                      <FieldRenderer
-                        field={group.radio}
-                        sheetIndex={0}
-                        sectionIndex={currentStep}
-                        hideLabel={true}
-                      />
-                    </div>
+              // Colores para cada grupo
+              const groupColors: Record<string, string> = {
+                'DOCUMENTACION DEL EQUIPO': 'bg-blue-100 border-blue-300 text-blue-900',
+                'LUCES': 'bg-yellow-100 border-yellow-300 text-yellow-900',
+                'NEUMATICOS': 'bg-green-100 border-green-300 text-green-900',
+                'ESPEJOS': 'bg-purple-100 border-purple-300 text-purple-900',
+                'OPERADOR': 'bg-indigo-100 border-indigo-300 text-indigo-900',
+                'ACCESORIO Y SEGURIDAD': 'bg-red-100 border-red-300 text-red-900',
+                'GENERAL': 'bg-orange-100 border-orange-300 text-orange-900',
+                'VIDRIOS': 'bg-teal-100 border-teal-300 text-teal-900',
+              };
 
-                    {/* Columna derecha: Observaciones (más pequeña) */}
-                    {group.observation && (
-                      <div className="w-full lg:w-72 flex-shrink-0">
-                        <label className="block text-xs font-medium text-gray-600 mb-2">
-                          Observaciones
+              // Renderizar con headers de grupo
+              const elements: React.ReactNode[] = [];
+              let currentGroup: string | undefined = undefined;
+              let itemCounter = 0;
+
+              groupedFields.forEach((group, index) => {
+                const fieldGroup = group.radio.group;
+
+                // Mostrar header si cambia el grupo
+                if (fieldGroup && fieldGroup !== currentGroup) {
+                  currentGroup = fieldGroup;
+                  itemCounter = 0;
+                  const colorClass = groupColors[fieldGroup] || 'bg-gray-100 border-gray-300 text-gray-900';
+
+                  elements.push(
+                    <div
+                      key={`header-${fieldGroup}`}
+                      className={`${colorClass} border-2 rounded-lg px-4 py-3 mb-2 mt-4 first:mt-0`}
+                    >
+                      <h4 className="font-bold text-sm uppercase tracking-wide">
+                        {fieldGroup}
+                      </h4>
+                    </div>
+                  );
+                }
+
+                itemCounter++;
+
+                elements.push(
+                  <div
+                    key={group.radio.id}
+                    className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors bg-white"
+                  >
+                    <div className="flex flex-col lg:flex-row gap-4 items-start">
+                      {/* Columna izquierda: Nombre y botones */}
+                      <div className="flex-1 min-w-0">
+                        <label className="block text-sm font-medium text-gray-900 mb-3">
+                          {itemCounter}. {group.radio.label}
                         </label>
                         <FieldRenderer
-                          field={group.observation}
+                          field={group.radio}
                           sheetIndex={0}
                           sectionIndex={currentStep}
                           hideLabel={true}
-                          compact={true}
                         />
                       </div>
-                    )}
+
+                      {/* Columna derecha: Observaciones (más pequeña) */}
+                      {group.observation && (
+                        <div className="w-full lg:w-72 flex-shrink-0">
+                          <label className="block text-xs font-medium text-gray-600 mb-2">
+                            Observaciones
+                          </label>
+                          <FieldRenderer
+                            field={group.observation}
+                            sheetIndex={0}
+                            sectionIndex={currentStep}
+                            hideLabel={true}
+                            compact={true}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ));
+                );
+              });
+
+              return <>{elements}</>;
             })()
           ) : (
             // Renderizado normal para otras secciones

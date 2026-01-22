@@ -321,6 +321,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         row: row,
         col: 2,
         required: false,
+        group: 'DOCUMENTACION DEL EQUIPO',
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
