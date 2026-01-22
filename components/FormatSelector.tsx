@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useFormStore } from '@/store/useFormStore';
 import { ExcelParser, loadExcelFromURL } from '@/lib/excelParser';
+import { getFormatConfig } from '@/lib/formatConfigs';
 import type { ExcelFormat } from '@/types';
 
 // Formatos predefinidos
@@ -58,13 +59,38 @@ export default function FormatSelector() {
       // Cargar el archivo Excel
       const fileBuffer = await loadExcelFromURL(formatInfo.filePath);
 
-      // Parsear el archivo
-      const parser = new ExcelParser();
-      const parsedFormat = await parser.parseExcelFile(fileBuffer, {
-        id: formatInfo.id,
-        name: formatInfo.name,
-        description: formatInfo.description,
-      });
+      // Verificar si hay configuración específica para este formato
+      const formatConfig = getFormatConfig(formatInfo.id);
+
+      let parsedFormat: ExcelFormat;
+
+      if (formatConfig) {
+        // Usar configuración específica (más precisa)
+        const sections = formatConfig();
+
+        parsedFormat = {
+          id: formatInfo.id,
+          name: formatInfo.name,
+          description: formatInfo.description,
+          filePath: formatInfo.filePath,
+          fileType: formatInfo.filePath.endsWith('.xlsx') ? 'xlsx' : 'xls',
+          sheets: [
+            {
+              name: 'Hoja1',
+              sections: sections,
+              mergedCells: [],
+            },
+          ],
+        };
+      } else {
+        // Usar parser automático (fallback)
+        const parser = new ExcelParser();
+        parsedFormat = await parser.parseExcelFile(fileBuffer, {
+          id: formatInfo.id,
+          name: formatInfo.name,
+          description: formatInfo.description,
+        });
+      }
 
       // Guardar el buffer original para después generar el archivo rellenado
       (parsedFormat as any).originalBuffer = fileBuffer;
