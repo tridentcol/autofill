@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import ClientLayout from '@/components/ClientLayout';
 
 export const metadata: Metadata = {
   title: 'Autorrellenado Inteligente de Formatos',
@@ -36,10 +37,13 @@ export default function RootLayout({
             </div>
           </header>
 
-          {/* Main Content */}
-          <main className="flex-1">
-            {children}
-          </main>
+          {/* Client Layout with User Manager and Database Init */}
+          <ClientLayout>
+            {/* Main Content */}
+            <main className="flex-1">
+              {children}
+            </main>
+          </ClientLayout>
 
           {/* Footer */}
           <footer className="bg-white border-t border-gray-200 py-6">

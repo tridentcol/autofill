@@ -170,3 +170,76 @@ export interface ParserConfig {
     checkboxNA: string[];
   };
 }
+
+// ============================================
+// DATABASE SYSTEM - Trabajadores y Supervisores
+// ============================================
+
+export type UserRole = 'admin' | 'user';
+
+export type WorkerCargo = 'Conductor' | 'Técnico' | 'Supervisor' | 'Coordinador de zona' | 'Asistente técnico';
+
+export interface Worker {
+  id: string;
+  nombre: string;
+  cargo: WorkerCargo;
+  cedula: string;
+  cuadrillaId?: string; // ID de la cuadrilla a la que pertenece
+  signatureId?: string; // ID de la firma asignada
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean; // Para desactivar sin eliminar
+}
+
+export interface Cuadrilla {
+  id: string;
+  nombre: string; // CUAD1, CUAD61, etc.
+  descripcion?: string;
+  workerIds: string[]; // IDs de los trabajadores que pertenecen a esta cuadrilla
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+}
+
+export interface User {
+  id: string;
+  nombre: string;
+  email?: string;
+  role: UserRole;
+  createdAt: Date;
+  lastLogin?: Date;
+}
+
+// Estado del store de base de datos
+export interface DatabaseState {
+  // Data
+  workers: Worker[];
+  cuadrillas: Cuadrilla[];
+  currentUser: User | null;
+
+  // Workers CRUD
+  addWorker: (worker: Omit<Worker, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateWorker: (id: string, updates: Partial<Worker>) => void;
+  deleteWorker: (id: string) => void;
+  getWorkerById: (id: string) => Worker | undefined;
+  getWorkersByCuadrilla: (cuadrillaId: string) => Worker[];
+  getWorkersByRole: (cargo: WorkerCargo) => Worker[];
+
+  // Cuadrillas CRUD
+  addCuadrilla: (cuadrilla: Omit<Cuadrilla, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateCuadrilla: (id: string, updates: Partial<Cuadrilla>) => void;
+  deleteCuadrilla: (id: string) => void;
+  getCuadrillaById: (id: string) => Cuadrilla | undefined;
+  assignWorkerToCuadrilla: (workerId: string, cuadrillaId: string) => void;
+  removeWorkerFromCuadrilla: (workerId: string) => void;
+
+  // User management
+  setCurrentUser: (user: User) => void;
+  isAdmin: () => boolean;
+
+  // Initialize with default data
+  initializeDefaultData: () => void;
+
+  // Clear all data
+  clearAll: () => void;
+}
