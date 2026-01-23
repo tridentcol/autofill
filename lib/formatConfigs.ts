@@ -637,7 +637,43 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 20,
     });
 
-    // 2. TRABAJADORES (Filas 22-25) - hasta 4 trabajadores
+    // 2. PELIGROS Y MEDIDAS (Filas 9-19) - 12 peligros
+    const peligrosFields: Field[] = [];
+    const peligros = [
+      '1. Tropezón o caída a nivel de suelo',
+      '2. Atrapamiento',
+      '3. Caída de objetos',
+      '4. Caída de personas a diferente nivel',
+      '5. Contacto eléctrico',
+      '6. Exposición a ruido',
+      '7. Exposición a material particulado',
+      '8. Explosión o incendio',
+      '9. Golpeado por',
+      '10. Proyección de partículas',
+      '11. Riesgo biológico',
+      '12. Otro (Describa):',
+    ];
+
+    for (let i = 0; i < 12; i++) {
+      const row = 9 + i;
+      // Los peligros están pre-escritos en B-H, solo agregamos campos para medidas y responsable
+      peligrosFields.push(
+        { id: `peligro${i+1}_medidas`, label: `${peligros[i]} - Medidas`, type: 'text', cellRef: `I${row}`, row, col: 9, required: false },
+        { id: `peligro${i+1}_responsable`, label: `${peligros[i]} - Responsable`, type: 'signature', cellRef: `Q${row}`, row, col: 17, required: false }
+      );
+    }
+    sections.push({
+      id: 'peligros',
+      type: 'table',
+      title: 'Peligros y Medidas de Control',
+      fields: peligrosFields,
+      startRow: 9,
+      endRow: 19,
+      startCol: 2,
+      endCol: 20,
+    });
+
+    // 3. TRABAJADORES (Filas 22-25) - hasta 4 trabajadores
     const trabajadoresFields: Field[] = [];
     for (let i = 0; i < 4; i++) {
       const row = 22 + i;
@@ -695,7 +731,112 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 20,
     });
 
-    // 5. HERRAMIENTAS Y OBSERVACIONES
+    // 5. ITEMS SI/NO/N/A (Filas 31-40) - 10 items
+    const checklistFields: Field[] = [];
+    const checklistItems = [
+      'SE HA INSTALADO SEÑALIZACIÓN PREVENTIVA QUE DELIMITE EL ÁREA DE TRABAJO',
+      'EL ÁREA SE ENCUENTRA LIMPIA Y ORDENADA',
+      'SE HA REALIZADO LA INSPECCIÓN PREOPERACIONAL',
+      'SE CUENTA CON LA AUTORIZACIÓN PARA REALIZAR EL TRABAJO',
+      'SE HAN IDENTIFICADO LOS RIESGOS DE LA ACTIVIDAD',
+      'SE HAN COMUNICADO LOS RIESGOS AL PERSONAL',
+      'EL PERSONAL CUENTA CON LA CAPACITACIÓN REQUERIDA',
+      'SE CUENTA CON LOS ELEMENTOS DE PROTECCIÓN PERSONAL',
+      'SE CUENTA CON LAS HERRAMIENTAS ADECUADAS',
+      'LOS EQUIPOS Y HERRAMIENTAS A UTILIZAR SE ENCUENTRAN EN BUEN ESTADO',
+    ];
+
+    for (let i = 0; i < 10; i++) {
+      const row = 31 + i;
+      checklistFields.push({
+        id: `checklist_${i+1}`,
+        label: checklistItems[i],
+        type: 'radio',
+        cellRef: `R${row}`,
+        row,
+        col: 18,
+        required: false,
+        options: ['SI', 'NO', 'N/A'],
+        validation: {
+          pattern: JSON.stringify({
+            'SI': `R${row}`,
+            'NO': `S${row}`,
+            'N/A': `T${row}`,
+          }),
+        },
+      });
+    }
+    sections.push({
+      id: 'checklist',
+      type: 'checklist',
+      title: 'Verificación de Condiciones',
+      fields: checklistFields,
+      startRow: 31,
+      endRow: 40,
+      startCol: 2,
+      endCol: 20,
+    });
+
+    // 6. SISTEMAS DE ACCESO (Fila 43)
+    sections.push({
+      id: 'sistemas_acceso',
+      type: 'basic_info',
+      title: 'Sistema de Acceso para Trabajo en Alturas',
+      fields: [
+        { id: 'escalera', label: 'Escalera', type: 'checkbox', cellRef: 'D43', row: 43, col: 4, required: false },
+        { id: 'andamio', label: 'Andamio', type: 'checkbox', cellRef: 'F43', row: 43, col: 6, required: false },
+        { id: 'canasta_grua', label: 'Canasta Grúa', type: 'checkbox', cellRef: 'I43', row: 43, col: 9, required: false },
+        { id: 'plataformas_moviles', label: 'Plataformas Móviles', type: 'checkbox', cellRef: 'N43', row: 43, col: 14, required: false },
+        { id: 'otro_acceso', label: 'Otro', type: 'text', cellRef: 'Q43', row: 43, col: 17, required: false },
+      ],
+      startRow: 43,
+      endRow: 43,
+      startCol: 2,
+      endCol: 20,
+    });
+
+    // 7. ELEMENTOS DE PROTECCIÓN PERSONAL (Filas 46-53)
+    const eppFields: Field[] = [
+      // Columna G
+      { id: 'epp_casco', label: 'Casco de Seguridad con Barbuquejo', type: 'checkbox', cellRef: 'G46', row: 46, col: 7, required: false },
+      { id: 'epp_gafas_oscuro', label: 'Gafas de Seguridad Lente Oscuro', type: 'checkbox', cellRef: 'G47', row: 47, col: 7, required: false },
+      { id: 'epp_guantes_vaqueta', label: 'Guantes de Vaqueta', type: 'checkbox', cellRef: 'G48', row: 48, col: 7, required: false },
+      { id: 'epp_auditiva', label: 'Protección Auditiva', type: 'checkbox', cellRef: 'G49', row: 49, col: 7, required: false },
+      { id: 'epp_respiratoria', label: 'Protección Respiratoria', type: 'checkbox', cellRef: 'G50', row: 50, col: 7, required: false },
+      { id: 'epp_botas_puntera', label: 'Botas de Seguridad con Puntera', type: 'checkbox', cellRef: 'G51', row: 51, col: 7, required: false },
+      { id: 'epp_botas_dielectricas', label: 'Botas Dieléctricas', type: 'checkbox', cellRef: 'G52', row: 52, col: 7, required: false },
+      { id: 'epp_arnes', label: 'Arnés de Cuerpo Completo', type: 'checkbox', cellRef: 'G53', row: 53, col: 7, required: false },
+      // Columna M
+      { id: 'epp_eslinga_absorvedor', label: 'Eslinga con Absorbedor de Impactos', type: 'checkbox', cellRef: 'M46', row: 46, col: 13, required: false },
+      { id: 'epp_eslinga_posicionamiento', label: 'Eslinga de Posicionamiento', type: 'checkbox', cellRef: 'M47', row: 47, col: 13, required: false },
+      { id: 'epp_delantal', label: 'Delantal o Pechera para Soldadura', type: 'checkbox', cellRef: 'M48', row: 48, col: 13, required: false },
+      { id: 'epp_careta', label: 'Careta Esmeriladora', type: 'checkbox', cellRef: 'M49', row: 49, col: 13, required: false },
+      { id: 'epp_guantes_dielectricos', label: 'Guantes Dieléctricos', type: 'checkbox', cellRef: 'M50', row: 50, col: 13, required: false },
+      { id: 'epp_faja', label: 'Faja Sacrolumbar', type: 'checkbox', cellRef: 'M51', row: 51, col: 13, required: false },
+      { id: 'epp_casco_sin_barbuquejo', label: 'Casco de Seguridad sin Barbuquejo', type: 'checkbox', cellRef: 'M52', row: 52, col: 13, required: false },
+      // Columna T
+      { id: 'epp_kit_rescate', label: 'Kit de Rescate', type: 'checkbox', cellRef: 'T46', row: 46, col: 20, required: false },
+      { id: 'epp_autorretractil', label: 'Autorretráctil', type: 'checkbox', cellRef: 'T47', row: 47, col: 20, required: false },
+      { id: 'epp_silla', label: 'Silla para Trabajo en Suspensión', type: 'checkbox', cellRef: 'T48', row: 48, col: 20, required: false },
+      { id: 'epp_chaleco', label: 'Chaleco Reflectivo/Camisa con Reflectivo', type: 'checkbox', cellRef: 'T49', row: 49, col: 20, required: false },
+      { id: 'epp_freno', label: 'Freno o Arrestador de Caída', type: 'checkbox', cellRef: 'T50', row: 50, col: 20, required: false },
+      { id: 'epp_gafas_claro', label: 'Gafas de Lente Claro', type: 'checkbox', cellRef: 'T51', row: 51, col: 20, required: false },
+      { id: 'epp_linea_vida', label: 'Línea de Vida', type: 'checkbox', cellRef: 'T52', row: 52, col: 20, required: false },
+      // Otro
+      { id: 'epp_otro', label: 'Otro(s)', type: 'text', cellRef: 'H53', row: 53, col: 8, required: false },
+    ];
+    sections.push({
+      id: 'epp',
+      type: 'checklist',
+      title: 'Elementos de Protección Personal',
+      fields: eppFields,
+      startRow: 46,
+      endRow: 53,
+      startCol: 2,
+      endCol: 20,
+    });
+
+    // 8. HERRAMIENTAS Y OBSERVACIONES
     sections.push({
       id: 'herramientas_obs',
       type: 'observations',
@@ -710,7 +851,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 20,
     });
 
-    // 6. FIRMAS FINALES (Filas 65-67)
+    // 9. FIRMAS FINALES (Filas 65-67)
     sections.push({
       id: 'firmas_finales',
       type: 'signatures',
