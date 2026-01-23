@@ -319,12 +319,13 @@ export class ExcelGenerator {
       horizontalOffset = Math.max(horizontalOffset, 0);
       verticalOffset = Math.max(verticalOffset, 0);
 
-      // Convertir offsets a EMU (English Metric Units)
+      // Convertir a EMU (English Metric Units)
       // 1 píxel @ 96 DPI = 9525 EMU
-      // IMPORTANTE: Solo los offsets van en EMU, las dimensiones van en píxeles
       const EMU_PER_PIXEL = 9525;
       const horizontalOffsetEMU = Math.round(horizontalOffset * EMU_PER_PIXEL);
       const verticalOffsetEMU = Math.round(verticalOffset * EMU_PER_PIXEL);
+      const imgWidthEMU = Math.round(imgWidth * EMU_PER_PIXEL);
+      const imgHeightEMU = Math.round(imgHeight * EMU_PER_PIXEL);
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
@@ -332,15 +333,20 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Insertar imagen centrada (sin editAs para permitir offsets libres)
+      // Usar tl + br (top-left + bottom-right) para posicionamiento preciso
       worksheet.addImage(imageId, {
         tl: {
-          col: startCol,                 // Columna calculada para centrado
-          colOff: horizontalOffsetEMU,   // Offset horizontal en EMU
-          row: row - 1,                  // ExcelJS usa índice 0
-          rowOff: verticalOffsetEMU      // Offset vertical en EMU
+          col: startCol,
+          colOff: horizontalOffsetEMU,
+          row: row - 1,
+          rowOff: verticalOffsetEMU
         } as any,
-        ext: { width: imgWidth, height: imgHeight }  // Dimensiones en píxeles
+        br: {
+          col: startCol,
+          colOff: horizontalOffsetEMU + imgWidthEMU,
+          row: row - 1,
+          rowOff: verticalOffsetEMU + imgHeightEMU
+        } as any
       } as any);
     } catch (error) {
       console.error('Error inserting signature:', error);
