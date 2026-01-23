@@ -357,17 +357,17 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Insertar imagen con TODO en EMU (offsets Y dimensiones)
+      // Insertar imagen: offsets en EMU, dimensiones en píxeles
       worksheet.addImage(imageId, {
         tl: {
           col: startCol,
           row: row - 1,
-          colOff: horizontalOffsetEMU,
+          colOff: horizontalOffsetEMU,  // Offsets en EMU
           rowOff: verticalOffsetEMU
         },
         ext: {
-          width: imgWidthEMU,    // Dimensiones en EMU
-          height: imgHeightEMU   // Dimensiones en EMU
+          width: imgWidth,    // Dimensiones en píxeles
+          height: imgHeight
         },
         editAs: containerHeight ? 'absolute' : 'oneCell'
       } as any);
