@@ -319,21 +319,28 @@ export class ExcelGenerator {
       horizontalOffset = Math.max(horizontalOffset, 0);
       verticalOffset = Math.max(verticalOffset, 0);
 
+      // Convertir offsets a EMU (English Metric Units)
+      // 1 píxel @ 96 DPI = 9525 EMU
+      // IMPORTANTE: Solo los offsets van en EMU, las dimensiones van en píxeles
+      const EMU_PER_PIXEL = 9525;
+      const horizontalOffsetEMU = Math.round(horizontalOffset * EMU_PER_PIXEL);
+      const verticalOffsetEMU = Math.round(verticalOffset * EMU_PER_PIXEL);
+
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
         buffer: buffer as any,
         extension: 'png',
       });
 
-      // Insertar imagen centrada (offsets y dimensiones en píxeles)
+      // Insertar imagen centrada
       worksheet.addImage(imageId, {
         tl: {
-          col: startCol,              // Columna calculada para centrado
-          colOff: horizontalOffset,   // Offset horizontal en píxeles
-          row: row - 1,               // ExcelJS usa índice 0
-          rowOff: verticalOffset      // Offset vertical en píxeles
+          col: startCol,                 // Columna calculada para centrado
+          colOff: horizontalOffsetEMU,   // Offset horizontal en EMU
+          row: row - 1,                  // ExcelJS usa índice 0
+          rowOff: verticalOffsetEMU      // Offset vertical en EMU
         } as any,
-        ext: { width: imgWidth, height: imgHeight },
+        ext: { width: imgWidth, height: imgHeight },  // Dimensiones en píxeles
         editAs: 'oneCell'
       } as any);
     } catch (error) {
