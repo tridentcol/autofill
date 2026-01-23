@@ -617,8 +617,116 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
   },
 
   'permiso-trabajo': (worksheetData?: any) => {
-    // TODO: Implementar configuración específica para permiso de trabajo
-    return [];
+    const sections: Section[] = [];
+
+    // 1. FECHA, HORA Y LUGAR (Fila 6)
+    sections.push({
+      id: 'fecha_hora_lugar',
+      type: 'basic_info',
+      title: 'Fecha, Hora y Lugar',
+      fields: [
+        { id: 'fecha_dia', label: 'Día', type: 'text', cellRef: 'F6', row: 6, col: 6, required: true },
+        { id: 'fecha_mes', label: 'Mes', type: 'text', cellRef: 'G6', row: 6, col: 7, required: true },
+        { id: 'fecha_año', label: 'Año', type: 'text', cellRef: 'H6', row: 6, col: 8, required: true },
+        { id: 'hora', label: 'Hora', type: 'time', cellRef: 'J6', row: 6, col: 10, required: true },
+        { id: 'lugar', label: 'Lugar', type: 'text', cellRef: 'P6', row: 6, col: 16, required: true },
+      ],
+      startRow: 6,
+      endRow: 6,
+      startCol: 2,
+      endCol: 20,
+    });
+
+    // 2. TRABAJADORES (Filas 22-25) - hasta 4 trabajadores
+    const trabajadoresFields: Field[] = [];
+    for (let i = 0; i < 4; i++) {
+      const row = 22 + i;
+      trabajadoresFields.push(
+        { id: `trabajador${i+1}_nombre`, label: `Trabajador ${i+1} - Nombre`, type: 'text', cellRef: `B${row}`, row, col: 2, required: i === 0 },
+        { id: `trabajador${i+1}_cargo`, label: `Trabajador ${i+1} - Cargo`, type: 'text', cellRef: `F${row}`, row, col: 6, required: false },
+        { id: `trabajador${i+1}_cedula`, label: `Trabajador ${i+1} - Cédula`, type: 'text', cellRef: `J${row}`, row, col: 10, required: false },
+        { id: `trabajador${i+1}_firma`, label: `Trabajador ${i+1} - Firma`, type: 'signature', cellRef: `N${row}`, row, col: 14, required: false }
+      );
+    }
+    sections.push({
+      id: 'trabajadores',
+      type: 'table',
+      title: 'Trabajadores',
+      fields: trabajadoresFields,
+      startRow: 22,
+      endRow: 25,
+      startCol: 2,
+      endCol: 20,
+    });
+
+    // 3. ACTIVIDAD Y ALTURA (Filas 26-28)
+    sections.push({
+      id: 'actividad_altura',
+      type: 'basic_info',
+      title: 'Actividad y Altura',
+      fields: [
+        { id: 'actividad', label: 'Actividad a Ejecutar', type: 'textarea', cellRef: 'B26', row: 26, col: 2, required: true },
+        { id: 'altura', label: 'Altura Aproximada', type: 'text', cellRef: 'B28', row: 28, col: 2, required: false },
+      ],
+      startRow: 26,
+      endRow: 28,
+      startCol: 2,
+      endCol: 20,
+    });
+
+    // 4. VÁLIDO DESDE/HASTA (Fila 29)
+    sections.push({
+      id: 'validez',
+      type: 'basic_info',
+      title: 'Período de Validez',
+      fields: [
+        { id: 'desde_dia', label: 'Desde - Día', type: 'text', cellRef: 'F29', row: 29, col: 6, required: true },
+        { id: 'desde_mes', label: 'Desde - Mes', type: 'text', cellRef: 'G29', row: 29, col: 7, required: true },
+        { id: 'desde_año', label: 'Desde - Año', type: 'text', cellRef: 'H29', row: 29, col: 8, required: true },
+        { id: 'desde_hora', label: 'Desde - Hora', type: 'time', cellRef: 'J29', row: 29, col: 10, required: true },
+        { id: 'hasta_dia', label: 'Hasta - Día', type: 'text', cellRef: 'P29', row: 29, col: 16, required: true },
+        { id: 'hasta_mes', label: 'Hasta - Mes', type: 'text', cellRef: 'Q29', row: 29, col: 17, required: true },
+        { id: 'hasta_año', label: 'Hasta - Año', type: 'text', cellRef: 'R29', row: 29, col: 18, required: true },
+        { id: 'hasta_hora', label: 'Hasta - Hora', type: 'time', cellRef: 'T29', row: 29, col: 20, required: true },
+      ],
+      startRow: 29,
+      endRow: 29,
+      startCol: 2,
+      endCol: 20,
+    });
+
+    // 5. HERRAMIENTAS Y OBSERVACIONES
+    sections.push({
+      id: 'herramientas_obs',
+      type: 'observations',
+      title: 'Herramientas y Observaciones',
+      fields: [
+        { id: 'herramientas', label: 'Herramientas a Utilizar', type: 'textarea', cellRef: 'B56', row: 56, col: 2, required: false },
+        { id: 'observaciones', label: 'Observaciones', type: 'textarea', cellRef: 'B59', row: 59, col: 2, required: false },
+      ],
+      startRow: 56,
+      endRow: 63,
+      startCol: 2,
+      endCol: 20,
+    });
+
+    // 6. FIRMAS FINALES (Filas 65-67)
+    sections.push({
+      id: 'firmas_finales',
+      type: 'signatures',
+      title: 'Firmas de Autorización',
+      fields: [
+        { id: 'firma_autoriza', label: 'Autoriza el Trabajo', type: 'signature', cellRef: 'N65', row: 65, col: 14, required: true },
+        { id: 'firma_emergencia', label: 'Activa el Plan de Emergencia', type: 'signature', cellRef: 'N66', row: 66, col: 14, required: true },
+        { id: 'firma_coordinador', label: 'Coordinador de TSA', type: 'signature', cellRef: 'N67', row: 67, col: 14, required: true },
+      ],
+      startRow: 65,
+      endRow: 67,
+      startCol: 14,
+      endCol: 20,
+    });
+
+    return sections;
   },
 
   'ats': (worksheetData?: any) => {
