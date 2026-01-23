@@ -72,6 +72,7 @@ export interface FieldValidation {
   min?: number;
   max?: number;
   mergedRows?: number; // Para firmas en celdas combinadas verticalmente
+  mergedCols?: number; // Para firmas en celdas combinadas horizontalmente
   applyToAll?: boolean; // Para replicar la firma en múltiples ubicaciones
 }
 

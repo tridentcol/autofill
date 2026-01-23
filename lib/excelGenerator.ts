@@ -73,20 +73,23 @@ export class ExcelGenerator {
                     signature,
                     Number(cell.row),
                     Number(cell.col),
-                    location.mergedRows
+                    location.mergedRows,
+                    1  // Una sola columna para formato grúa
                   );
                 }
               } else if (field.cellRef) {
                 // Firma individual
                 const cell = worksheet.getCell(field.cellRef);
                 const mergedRows = field.validation?.mergedRows || 1;
+                const mergedCols = field.validation?.mergedCols || 1;
                 await this.insertSignature(
                   workbook,
                   worksheet,
                   signature,
                   Number(cell.row),
                   Number(cell.col),
-                  mergedRows
+                  mergedRows,
+                  mergedCols
                 );
               }
             }
@@ -181,7 +184,8 @@ export class ExcelGenerator {
     signature: Signature,
     row: number,
     col: number,
-    mergedRows: number = 1
+    mergedRows: number = 1,
+    mergedCols: number = 1
   ): Promise<void> {
     try {
       // Convertir base64 a buffer
@@ -199,20 +203,56 @@ export class ExcelGenerator {
       const img = await this.getImageDimensions(signature.dataUrl);
       const aspectRatio = img.width / img.height;
 
-      // TAMAÑO FIJO para todas las firmas (independiente del contenedor)
-      // Columna G: 356 píxeles, Columna O: 341 píxeles
-      // Usar un tamaño que quepa bien en ambas (usar ~320px de ancho)
-      const fixedMaxWidth = 320;  // Ancho máximo fijo en píxeles
-      const fixedMaxHeight = 120; // Altura máxima fija en píxeles
+      // Determinar dimensiones según el tipo de celda
+      let imgWidth: number;
+      let imgHeight: number;
+      let columnWidth: number;
 
-      // Calcular dimensiones manteniendo la relación de aspecto dentro del tamaño fijo
-      let imgWidth = fixedMaxWidth;
-      let imgHeight = imgWidth / aspectRatio;
+      if (mergedCols > 1) {
+        // Firma en múltiples columnas (Herramientas y Equipos: A-L)
+        // Ancho total del área: 1116 píxeles
+        columnWidth = 1116;
 
-      // Si la altura excede el máximo, ajustar por altura
-      if (imgHeight > fixedMaxHeight) {
-        imgHeight = fixedMaxHeight;
-        imgWidth = imgHeight * aspectRatio;
+        // Tamaño de referencia para área multi-columna
+        // Usar dimensiones proporcionales al contenedor
+        imgWidth = 348;  // ~9.2cm a 37.8px/cm
+        imgHeight = imgWidth / aspectRatio;
+
+        // Limitar altura máxima
+        const maxHeight = 80;  // ~2.1cm
+        if (imgHeight > maxHeight) {
+          imgHeight = maxHeight;
+          imgWidth = imgHeight * aspectRatio;
+        }
+      } else if (col === 7) {
+        // Columna G (355px de ancho)
+        // Referencias: 6.26cm x 1.44cm = 237px x 54px
+        columnWidth = 355;
+        imgWidth = 237;
+        imgHeight = imgWidth / aspectRatio;
+
+        const maxHeight = 54;
+        if (imgHeight > maxHeight) {
+          imgHeight = maxHeight;
+          imgWidth = imgHeight * aspectRatio;
+        }
+      } else if (col === 15) {
+        // Columna O (341px de ancho)
+        // Referencias: 6.02cm x 1.38cm = 228px x 52px
+        columnWidth = 341;
+        imgWidth = 228;
+        imgHeight = imgWidth / aspectRatio;
+
+        const maxHeight = 52;
+        if (imgHeight > maxHeight) {
+          imgHeight = maxHeight;
+          imgWidth = imgHeight * aspectRatio;
+        }
+      } else {
+        // Otras columnas (usar valores por defecto)
+        columnWidth = 64;
+        imgWidth = 50;
+        imgHeight = imgWidth / aspectRatio;
       }
 
       // Calcular el alto total del contenedor basado en mergedRows para centrado vertical
@@ -232,13 +272,8 @@ export class ExcelGenerator {
         totalHeight = excelRow.height * 1.33;
       }
 
-      // Calcular offset vertical para centrar la imagen en el contenedor
-      const verticalOffset = Math.max((totalHeight - imgHeight) / 2, 5);
-
-      // Calcular offset horizontal para centrar en la columna
-      // Columna G (col 7): ancho real ~356 píxeles
-      // Columna O (col 15): ancho real ~341 píxeles
-      const columnWidth = col === 7 ? 356 : (col === 15 ? 341 : 64);
+      // Calcular offsets para centrar
+      const verticalOffset = Math.max((totalHeight - imgHeight) / 2, 0);
       const horizontalOffset = Math.max((columnWidth - imgWidth) / 2, 0);
 
       // Agregar imagen al workbook
@@ -247,13 +282,13 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Para firmas en columna única (G u O), centrar vertical y horizontalmente
+      // Insertar imagen centrada
       worksheet.addImage(imageId, {
         tl: {
           col: col - 1,              // ExcelJS usa índice 0
-          colOff: horizontalOffset,  // Centrar horizontalmente en la columna
+          colOff: horizontalOffset,  // Centrar horizontalmente
           row: row - 1,              // ExcelJS usa índice 0
-          rowOff: verticalOffset     // Centrar verticalmente según el contenedor
+          rowOff: verticalOffset     // Centrar verticalmente
         } as any,
         ext: { width: imgWidth, height: imgHeight },
         editAs: 'oneCell'

@@ -152,6 +152,10 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           row: 39,
           col: 1,
           required: true,
+          validation: {
+            mergedRows: 2,   // A39:L40 tiene 2 filas
+            mergedCols: 12,  // A39:L40 tiene 12 columnas (A-L), ancho total: 1116px
+          },
         },
       ],
       startRow: 39,
