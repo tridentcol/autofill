@@ -153,8 +153,8 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           col: 1,
           required: true,
           validation: {
-            mergedRows: 1,   // Solo fila 39
-            mergedCols: 12,  // A39:L39 tiene 12 columnas (A-L), ancho total: 1116px
+            mergedRows: 2,   // Filas 39-40 (firma puede sobresalir naturalmente sobre la línea)
+            mergedCols: 12,  // A39:L40 tiene 12 columnas (A-L), ancho total: 1116px
           },
         },
       ],

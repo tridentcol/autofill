@@ -210,8 +210,13 @@ export class ExcelGenerator {
 
       if (mergedCols > 1) {
         // Firma en múltiples columnas (Herramientas y Equipos: A-L)
-        // Ancho total del área: 1116 píxeles
-        columnWidth = 1116;
+        // Calcular ancho total real del área sumando anchos de columnas
+        columnWidth = 0;
+        for (let i = 0; i < mergedCols; i++) {
+          const currentCol = worksheet.getColumn(col + i);
+          const colWidth = (currentCol.width || 8.43) * 7.5; // Convertir a píxeles
+          columnWidth += colWidth;
+        }
 
         // Tamaño de referencia para área multi-columna
         // Usar dimensiones proporcionales al contenedor
@@ -281,20 +286,28 @@ export class ExcelGenerator {
       if (mergedCols > 1) {
         // Calcular el ancho real de cada columna y determinar dónde debe empezar la imagen
         let accumulatedWidth = 0;
-        let targetOffset = horizontalOffset;
+        const targetOffset = horizontalOffset;
+        let found = false;
 
         for (let i = 0; i < mergedCols; i++) {
           const currentCol = worksheet.getColumn(col + i);
           const colWidth = (currentCol.width || 8.43) * 7.5; // Convertir a píxeles
 
-          // Si agregar esta columna nos pasa del offset objetivo, aquí es donde empieza la imagen
-          if (accumulatedWidth + colWidth >= targetOffset) {
+          // Si el offset objetivo cae dentro de esta columna
+          if (accumulatedWidth + colWidth > targetOffset) {
             startCol = (col - 1) + i;
             horizontalOffset = targetOffset - accumulatedWidth;
+            found = true;
             break;
           }
 
           accumulatedWidth += colWidth;
+        }
+
+        // Si no encontramos la columna, usar la última
+        if (!found) {
+          startCol = (col - 1) + mergedCols - 1;
+          horizontalOffset = 0;
         }
       }
 
