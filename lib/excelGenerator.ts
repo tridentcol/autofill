@@ -218,13 +218,13 @@ export class ExcelGenerator {
           columnWidth += colWidth;
         }
 
-        // Tamaño de referencia para área multi-columna
-        // Usar dimensiones proporcionales al contenedor
-        imgWidth = 348;  // ~9.2cm a 37.8px/cm
+        // Tamaño reducido para que solo sobresalga naturalmente sobre la línea
+        // La firma debe caber en la fila 39 y solo sobresalir un poco
+        imgWidth = 300;  // Ancho moderado
         imgHeight = imgWidth / aspectRatio;
 
-        // Limitar altura máxima
-        const maxHeight = 80;  // ~2.1cm
+        // Limitar altura máxima para que solo sobresalga un poco sobre la línea
+        const maxHeight = 45;  // Altura reducida para evitar llegar a OBSERVACIONES
         if (imgHeight > maxHeight) {
           imgHeight = maxHeight;
           imgWidth = imgHeight * aspectRatio;
@@ -278,41 +278,19 @@ export class ExcelGenerator {
       }
 
       // Calcular offsets para centrar
-      const verticalOffset = Math.max((totalHeight - imgHeight) / 2, 0);
+      let verticalOffset = Math.max((totalHeight - imgHeight) / 2, 0);
       let horizontalOffset = (columnWidth - imgWidth) / 2;
       let startCol = col - 1; // ExcelJS usa índice 0
 
-      // Para celdas con múltiples columnas combinadas, calcular la columna de inicio correcta
+      // Para celdas multi-columna, ajustar el offset vertical para que esté más arriba
       if (mergedCols > 1) {
-        // Calcular el ancho real de cada columna y determinar dónde debe empezar la imagen
-        let accumulatedWidth = 0;
-        const targetOffset = horizontalOffset;
-        let found = false;
-
-        for (let i = 0; i < mergedCols; i++) {
-          const currentCol = worksheet.getColumn(col + i);
-          const colWidth = (currentCol.width || 8.43) * 7.5; // Convertir a píxeles
-
-          // Si el offset objetivo cae dentro de esta columna
-          if (accumulatedWidth + colWidth > targetOffset) {
-            startCol = (col - 1) + i;
-            horizontalOffset = targetOffset - accumulatedWidth;
-            found = true;
-            break;
-          }
-
-          accumulatedWidth += colWidth;
-        }
-
-        // Si no encontramos la columna, usar la última
-        if (!found) {
-          startCol = (col - 1) + mergedCols - 1;
-          horizontalOffset = 0;
-        }
+        // Posicionar la firma más arriba, cerca del top de la fila 39
+        verticalOffset = 5; // Pequeño padding desde el top
       }
 
       // Asegurar que los offsets sean positivos
       horizontalOffset = Math.max(horizontalOffset, 0);
+      verticalOffset = Math.max(verticalOffset, 0);
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
