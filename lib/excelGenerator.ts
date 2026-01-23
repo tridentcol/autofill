@@ -325,6 +325,27 @@ export class ExcelGenerator {
       const horizontalOffsetEMU = Math.round(horizontalOffset * EMU_PER_PIXEL);
       const verticalOffsetEMU = Math.round(verticalOffset * EMU_PER_PIXEL);
 
+      // DEBUG: Log para ver los valores calculados
+      console.log(`DEBUG Signature at row ${row}, col ${col}:`, {
+        containerHeight,
+        totalHeight,
+        imgWidth,
+        imgHeight,
+        horizontalOffset,
+        verticalOffset,
+        horizontalOffsetEMU,
+        verticalOffsetEMU,
+        startCol,
+        columnWidth
+      });
+
+      // DEBUG: Escribir valores en el Excel para debugging
+      if (containerHeight) {
+        const debugCell = worksheet.getCell(row, col + 1);
+        debugCell.value = `H:${Math.round(totalHeight)} V:${Math.round(verticalOffset)} EMU:${verticalOffsetEMU}`;
+        debugCell.font = { size: 8, color: { argb: 'FFFF0000' } };
+      }
+
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
         buffer: buffer as any,
