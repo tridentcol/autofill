@@ -5,11 +5,12 @@ import { useDatabaseStore } from '@/store/useDatabaseStore';
 import { useFormStore } from '@/store/useFormStore';
 import DatabaseAdmin from './DatabaseAdmin';
 import SignatureManager from './SignatureManager';
+import VehicleManagement from './VehicleManagement';
 
-type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'signatures' | 'settings';
+type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'settings';
 
 export default function AdminDashboard() {
-  const { workers, cuadrillas, isAdmin, currentUser } = useDatabaseStore();
+  const { workers, cuadrillas, camionetas, gruas, isAdmin, currentUser } = useDatabaseStore();
   const { signatures } = useFormStore();
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
 
@@ -43,6 +44,8 @@ export default function AdminDashboard() {
 
   const activeWorkers = workers.filter(w => w.isActive);
   const activeCuadrillas = cuadrillas.filter(c => c.isActive);
+  const activeCamionetas = camionetas.filter(c => c.isActive);
+  const activeGruas = gruas.filter(g => g.isActive);
 
   const stats = [
     {
@@ -68,6 +71,31 @@ export default function AdminDashboard() {
       color: 'bg-green-500',
       bgColor: 'bg-green-100',
       textColor: 'text-green-600',
+    },
+    {
+      name: 'Camionetas',
+      value: activeCamionetas.length,
+      icon: (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+          <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z" />
+        </svg>
+      ),
+      color: 'bg-orange-500',
+      bgColor: 'bg-orange-100',
+      textColor: 'text-orange-600',
+    },
+    {
+      name: 'Grúas/Manlifts',
+      value: activeGruas.length,
+      icon: (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clipRule="evenodd" />
+        </svg>
+      ),
+      color: 'bg-red-500',
+      bgColor: 'bg-red-100',
+      textColor: 'text-red-600',
     },
     {
       name: 'Firmas Guardadas',
@@ -99,6 +127,8 @@ export default function AdminDashboard() {
     { id: 'overview' as const, name: 'Vista General', icon: '📊' },
     { id: 'workers' as const, name: 'Trabajadores', icon: '👥' },
     { id: 'cuadrillas' as const, name: 'Cuadrillas', icon: '🏢' },
+    { id: 'camionetas' as const, name: 'Camionetas', icon: '🚗' },
+    { id: 'gruas' as const, name: 'Grúas/Manlifts', icon: '🏗️' },
     { id: 'signatures' as const, name: 'Firmas', icon: '✍️' },
     { id: 'settings' as const, name: 'Configuración', icon: '⚙️' },
   ];
@@ -236,6 +266,14 @@ export default function AdminDashboard() {
 
           {(activeTab === 'workers' || activeTab === 'cuadrillas') && (
             <DatabaseAdmin />
+          )}
+
+          {activeTab === 'camionetas' && (
+            <VehicleManagement type="camioneta" />
+          )}
+
+          {activeTab === 'gruas' && (
+            <VehicleManagement type="grua" />
           )}
 
           {activeTab === 'signatures' && (

@@ -201,6 +201,28 @@ export interface Cuadrilla {
   isActive: boolean;
 }
 
+export interface Camioneta {
+  id: string;
+  marca: string;
+  linea: string;
+  placa: string;
+  modelo: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+}
+
+export interface Grua {
+  id: string;
+  placa: string;
+  marca: string;
+  modelo: string;
+  linea: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+}
+
 export interface User {
   id: string;
   nombre: string;
@@ -215,6 +237,8 @@ export interface DatabaseState {
   // Data
   workers: Worker[];
   cuadrillas: Cuadrilla[];
+  camionetas: Camioneta[];
+  gruas: Grua[];
   currentUser: User | null;
 
   // Workers CRUD
@@ -233,6 +257,18 @@ export interface DatabaseState {
   assignWorkerToCuadrilla: (workerId: string, cuadrillaId: string) => void;
   removeWorkerFromCuadrilla: (workerId: string) => void;
 
+  // Camionetas CRUD
+  addCamioneta: (camioneta: Omit<Camioneta, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateCamioneta: (id: string, updates: Partial<Camioneta>) => void;
+  deleteCamioneta: (id: string) => void;
+  getCamionetaById: (id: string) => Camioneta | undefined;
+
+  // Gruas CRUD
+  addGrua: (grua: Omit<Grua, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateGrua: (id: string, updates: Partial<Grua>) => void;
+  deleteGrua: (id: string) => void;
+  getGruaById: (id: string) => Grua | undefined;
+
   // User management
   setCurrentUser: (user: User) => void;
   isAdmin: () => boolean;
@@ -242,4 +278,7 @@ export interface DatabaseState {
 
   // Clear all data
   clearAll: () => void;
+
+  // Load data from IndexedDB
+  loadFromDB: () => Promise<void>;
 }

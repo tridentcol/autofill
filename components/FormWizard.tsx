@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useFormStore } from '@/store/useFormStore';
 import FieldRenderer from './FieldRenderer';
 import WorkerSection from './WorkerSection';
+import VehicleInfoSection from './VehicleInfoSection';
+import GruaInfoSection from './GruaInfoSection';
 import { ExcelGenerator, downloadExcelFile } from '@/lib/excelGenerator';
 import type { Field } from '@/types';
 
@@ -334,6 +336,42 @@ export default function FormWizard() {
               sheetIndex={0} // TODO: Calcular índice correcto
               sectionIndex={currentStep}
             />
+          ) : selectedFormat?.id === 'inspeccion-vehiculo' && currentWizardStep.section.id === 'basic_info' ? (
+            // Renderizado especial para la sección de información básica del vehículo
+            <>
+              <VehicleInfoSection
+                sheetIndex={0}
+                sectionIndex={currentStep}
+              />
+              <div className="mt-6 space-y-4">
+                {currentWizardStep.section.fields.map((field) => (
+                  <FieldRenderer
+                    key={field.id}
+                    field={field}
+                    sheetIndex={0}
+                    sectionIndex={currentStep}
+                  />
+                ))}
+              </div>
+            </>
+          ) : selectedFormat?.id === 'inspeccion-grua' && currentWizardStep.section.id === 'basic_info' ? (
+            // Renderizado especial para la sección de información básica de la grúa
+            <>
+              <GruaInfoSection
+                sheetIndex={0}
+                sectionIndex={currentStep}
+              />
+              <div className="mt-6 space-y-4">
+                {currentWizardStep.section.fields.map((field) => (
+                  <FieldRenderer
+                    key={field.id}
+                    field={field}
+                    sheetIndex={0}
+                    sectionIndex={currentStep}
+                  />
+                ))}
+              </div>
+            </>
           ) : (
             // Renderizado normal para otras secciones
             currentWizardStep.section.fields.map((field) => (

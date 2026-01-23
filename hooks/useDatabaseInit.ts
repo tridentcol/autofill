@@ -1,28 +1,35 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 
 /**
- * Hook para inicializar la base de datos con datos predeterminados
- * Solo se ejecuta una vez cuando la aplicación carga por primera vez
+ * Hook para inicializar la base de datos desde IndexedDB
+ * Carga los datos y los sincroniza con Zustand
  */
 export function useDatabaseInit() {
-  const { workers, cuadrillas, initializeDefaultData } = useDatabaseStore();
+  const { workers, cuadrillas, camionetas, gruas, initializeDefaultData } = useDatabaseStore();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Solo inicializar si no hay datos
-    if (workers.length === 0 && cuadrillas.length === 0) {
-      console.log('🔄 Inicializando base de datos con datos predeterminados...');
-      initializeDefaultData();
-    } else {
-      console.log('✅ Base de datos ya inicializada');
-      console.log(`   - ${workers.filter(w => w.isActive).length} trabajadores activos`);
-      console.log(`   - ${cuadrillas.filter(c => c.isActive).length} cuadrillas activas`);
-    }
+    const initDatabase = async () => {
+      try {
+        console.log('🔄 Cargando datos desde IndexedDB...');
+        await initializeDefaultData();
+        setIsLoading(false);
+      } catch (error) {
+        console.error('❌ Error al inicializar base de datos:', error);
+        setIsLoading(false);
+      }
+    };
+
+    initDatabase();
   }, []); // Solo ejecutar una vez al montar
 
   return {
-    isInitialized: workers.length > 0 || cuadrillas.length > 0,
+    isInitialized: !isLoading && (workers.length > 0 || cuadrillas.length > 0),
+    isLoading,
     workersCount: workers.filter(w => w.isActive).length,
     cuadrillasCount: cuadrillas.filter(c => c.isActive).length,
+    camionetasCount: camionetas.filter(c => c.isActive).length,
+    gruasCount: gruas.filter(g => g.isActive).length,
   };
 }

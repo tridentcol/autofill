@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { DatabaseState, Worker, Cuadrilla, User, WorkerCargo } from '@/types';
+import { db } from '@/lib/db';
+import type { DatabaseState, Worker, Cuadrilla, User, WorkerCargo, Camioneta, Grua } from '@/types';
 
 export const useDatabaseStore = create<DatabaseState>()(
   persist(
@@ -8,11 +9,13 @@ export const useDatabaseStore = create<DatabaseState>()(
       // Estado inicial
       workers: [],
       cuadrillas: [],
+      camionetas: [],
+      gruas: [],
       currentUser: null,
 
       // ==================== WORKERS CRUD ====================
 
-      addWorker: (workerData) => {
+      addWorker: async (workerData) => {
         const newWorker: Worker = {
           ...workerData,
           id: `worker_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -20,12 +23,16 @@ export const useDatabaseStore = create<DatabaseState>()(
           updatedAt: new Date(),
         };
 
+        await db.workers.add(newWorker);
+
         set((state) => ({
           workers: [...state.workers, newWorker],
         }));
       },
 
-      updateWorker: (id, updates) => {
+      updateWorker: async (id, updates) => {
+        await db.workers.update(id, { ...updates, updatedAt: new Date() });
+
         set((state) => ({
           workers: state.workers.map((worker) =>
             worker.id === id
@@ -35,8 +42,10 @@ export const useDatabaseStore = create<DatabaseState>()(
         }));
       },
 
-      deleteWorker: (id) => {
+      deleteWorker: async (id) => {
         // Soft delete - marcar como inactivo
+        await db.workers.update(id, { isActive: false, updatedAt: new Date() });
+
         set((state) => ({
           workers: state.workers.map((worker) =>
             worker.id === id
@@ -46,7 +55,7 @@ export const useDatabaseStore = create<DatabaseState>()(
         }));
 
         // También remover de cuadrilla si está asignado
-        get().removeWorkerFromCuadrilla(id);
+        await get().removeWorkerFromCuadrilla(id);
       },
 
       getWorkerById: (id) => {
@@ -65,7 +74,7 @@ export const useDatabaseStore = create<DatabaseState>()(
 
       // ==================== CUADRILLAS CRUD ====================
 
-      addCuadrilla: (cuadrillaData) => {
+      addCuadrilla: async (cuadrillaData) => {
         const newCuadrilla: Cuadrilla = {
           ...cuadrillaData,
           id: `cuad_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -73,12 +82,16 @@ export const useDatabaseStore = create<DatabaseState>()(
           updatedAt: new Date(),
         };
 
+        await db.cuadrillas.add(newCuadrilla);
+
         set((state) => ({
           cuadrillas: [...state.cuadrillas, newCuadrilla],
         }));
       },
 
-      updateCuadrilla: (id, updates) => {
+      updateCuadrilla: async (id, updates) => {
+        await db.cuadrillas.update(id, { ...updates, updatedAt: new Date() });
+
         set((state) => ({
           cuadrillas: state.cuadrillas.map((cuad) =>
             cuad.id === id
@@ -88,8 +101,10 @@ export const useDatabaseStore = create<DatabaseState>()(
         }));
       },
 
-      deleteCuadrilla: (id) => {
+      deleteCuadrilla: async (id) => {
         // Soft delete
+        await db.cuadrillas.update(id, { isActive: false, updatedAt: new Date() });
+
         set((state) => ({
           cuadrillas: state.cuadrillas.map((cuad) =>
             cuad.id === id
@@ -99,6 +114,11 @@ export const useDatabaseStore = create<DatabaseState>()(
         }));
 
         // Remover todos los trabajadores de esta cuadrilla
+        const workers = get().workers.filter(w => w.cuadrillaId === id);
+        for (const worker of workers) {
+          await db.workers.update(worker.id, { cuadrillaId: undefined, updatedAt: new Date() });
+        }
+
         set((state) => ({
           workers: state.workers.map((worker) =>
             worker.cuadrillaId === id
@@ -112,8 +132,11 @@ export const useDatabaseStore = create<DatabaseState>()(
         return get().cuadrillas.find((c) => c.id === id && c.isActive);
       },
 
-      assignWorkerToCuadrilla: (workerId, cuadrillaId) => {
-        // Actualizar el worker
+      assignWorkerToCuadrilla: async (workerId, cuadrillaId) => {
+        // Actualizar el worker en la base de datos
+        await db.workers.update(workerId, { cuadrillaId, updatedAt: new Date() });
+
+        // Actualizar el worker en el estado
         set((state) => ({
           workers: state.workers.map((worker) =>
             worker.id === workerId
@@ -122,27 +145,37 @@ export const useDatabaseStore = create<DatabaseState>()(
           ),
         }));
 
-        // Actualizar la cuadrilla
-        set((state) => ({
-          cuadrillas: state.cuadrillas.map((cuad) => {
-            if (cuad.id === cuadrillaId) {
-              const workerIds = cuad.workerIds.includes(workerId)
-                ? cuad.workerIds
-                : [...cuad.workerIds, workerId];
-              return { ...cuad, workerIds, updatedAt: new Date() };
-            }
-            return cuad;
-          }),
-        }));
+        // Actualizar la cuadrilla en la base de datos
+        const cuadrilla = get().getCuadrillaById(cuadrillaId);
+        if (cuadrilla) {
+          const workerIds = cuadrilla.workerIds.includes(workerId)
+            ? cuadrilla.workerIds
+            : [...cuadrilla.workerIds, workerId];
+
+          await db.cuadrillas.update(cuadrillaId, { workerIds, updatedAt: new Date() });
+
+          // Actualizar en el estado
+          set((state) => ({
+            cuadrillas: state.cuadrillas.map((cuad) => {
+              if (cuad.id === cuadrillaId) {
+                return { ...cuad, workerIds, updatedAt: new Date() };
+              }
+              return cuad;
+            }),
+          }));
+        }
       },
 
-      removeWorkerFromCuadrilla: (workerId) => {
+      removeWorkerFromCuadrilla: async (workerId) => {
         const worker = get().getWorkerById(workerId);
         if (!worker?.cuadrillaId) return;
 
         const cuadrillaId = worker.cuadrillaId;
 
-        // Remover del worker
+        // Remover del worker en la base de datos
+        await db.workers.update(workerId, { cuadrillaId: undefined, updatedAt: new Date() });
+
+        // Remover del worker en el estado
         set((state) => ({
           workers: state.workers.map((w) =>
             w.id === workerId
@@ -151,19 +184,118 @@ export const useDatabaseStore = create<DatabaseState>()(
           ),
         }));
 
-        // Remover de la cuadrilla
+        // Remover de la cuadrilla en la base de datos
+        const cuadrilla = get().getCuadrillaById(cuadrillaId);
+        if (cuadrilla) {
+          const workerIds = cuadrilla.workerIds.filter((id) => id !== workerId);
+          await db.cuadrillas.update(cuadrillaId, { workerIds, updatedAt: new Date() });
+
+          // Remover de la cuadrilla en el estado
+          set((state) => ({
+            cuadrillas: state.cuadrillas.map((cuad) => {
+              if (cuad.id === cuadrillaId) {
+                return {
+                  ...cuad,
+                  workerIds,
+                  updatedAt: new Date(),
+                };
+              }
+              return cuad;
+            }),
+          }));
+        }
+      },
+
+      // ==================== CAMIONETAS CRUD ====================
+
+      addCamioneta: async (camionetaData) => {
+        const newCamioneta: Camioneta = {
+          ...camionetaData,
+          id: `cam_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        await db.camionetas.add(newCamioneta);
+
         set((state) => ({
-          cuadrillas: state.cuadrillas.map((cuad) => {
-            if (cuad.id === cuadrillaId) {
-              return {
-                ...cuad,
-                workerIds: cuad.workerIds.filter((id) => id !== workerId),
-                updatedAt: new Date(),
-              };
-            }
-            return cuad;
-          }),
+          camionetas: [...state.camionetas, newCamioneta],
         }));
+      },
+
+      updateCamioneta: async (id, updates) => {
+        await db.camionetas.update(id, { ...updates, updatedAt: new Date() });
+
+        set((state) => ({
+          camionetas: state.camionetas.map((cam) =>
+            cam.id === id
+              ? { ...cam, ...updates, updatedAt: new Date() }
+              : cam
+          ),
+        }));
+      },
+
+      deleteCamioneta: async (id) => {
+        // Soft delete
+        await db.camionetas.update(id, { isActive: false, updatedAt: new Date() });
+
+        set((state) => ({
+          camionetas: state.camionetas.map((cam) =>
+            cam.id === id
+              ? { ...cam, isActive: false, updatedAt: new Date() }
+              : cam
+          ),
+        }));
+      },
+
+      getCamionetaById: (id) => {
+        return get().camionetas.find((c) => c.id === id && c.isActive);
+      },
+
+      // ==================== GRUAS CRUD ====================
+
+      addGrua: async (gruaData) => {
+        const newGrua: Grua = {
+          ...gruaData,
+          id: `grua_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        await db.gruas.add(newGrua);
+
+        set((state) => ({
+          gruas: [...state.gruas, newGrua],
+        }));
+      },
+
+      updateGrua: async (id, updates) => {
+        await db.gruas.update(id, { ...updates, updatedAt: new Date() });
+
+        set((state) => ({
+          gruas: state.gruas.map((grua) =>
+            grua.id === id
+              ? { ...grua, ...updates, updatedAt: new Date() }
+              : grua
+          ),
+        }));
+      },
+
+      deleteGrua: async (id) => {
+        // Soft delete
+        await db.gruas.update(id, { isActive: false, updatedAt: new Date() });
+
+        set((state) => ({
+          gruas: state.gruas.map((grua) =>
+            grua.id === id
+              ? { ...grua, isActive: false, updatedAt: new Date() }
+              : grua
+          ),
+        }));
+      },
+
+      getGruaById: (id) => {
+        return get().gruas.find((g) => g.id === id && g.isActive);
       },
 
       // ==================== USER MANAGEMENT ====================
@@ -176,175 +308,74 @@ export const useDatabaseStore = create<DatabaseState>()(
         return get().currentUser?.role === 'admin';
       },
 
+      // ==================== LOAD FROM DATABASE ====================
+
+      loadFromDB: async () => {
+        try {
+          const [workers, cuadrillas, camionetas, gruas] = await Promise.all([
+            db.workers.toArray(),
+            db.cuadrillas.toArray(),
+            db.camionetas.toArray(),
+            db.gruas.toArray(),
+          ]);
+
+          set({
+            workers,
+            cuadrillas,
+            camionetas,
+            gruas,
+          });
+
+          console.log('✅ Datos cargados desde IndexedDB');
+          console.log(`   - ${workers.length} trabajadores`);
+          console.log(`   - ${cuadrillas.length} cuadrillas`);
+          console.log(`   - ${camionetas.length} camionetas`);
+          console.log(`   - ${gruas.length} grúas`);
+        } catch (error) {
+          console.error('❌ Error al cargar datos desde IndexedDB:', error);
+        }
+      },
+
       // ==================== INITIALIZE DEFAULT DATA ====================
 
-      initializeDefaultData: () => {
-        const existingCuadrillas = get().cuadrillas;
-        const existingWorkers = get().workers;
+      initializeDefaultData: async () => {
+        // Verificar si ya hay datos en IndexedDB
+        const workersCount = await db.workers.count();
+        const cuadrillasCount = await db.cuadrillas.count();
 
-        // Solo inicializar si está vacío
-        if (existingCuadrillas.length > 0 || existingWorkers.length > 0) {
+        if (workersCount > 0 || cuadrillasCount > 0) {
+          console.log('✅ La base de datos ya tiene datos, cargando...');
+          await get().loadFromDB();
           return;
         }
 
-        const now = new Date();
+        console.log('🔄 Inicializando base de datos con datos predeterminados...');
 
-        // Crear cuadrillas predefinidas
-        const cuadrillasData = [
-          { nombre: 'CUAD1', descripcion: 'Cuadrilla 1' },
-          { nombre: 'CUAD61', descripcion: 'Cuadrilla 61' },
-          { nombre: 'CUAD64', descripcion: 'Cuadrilla 64' },
-          { nombre: 'CUAD65', descripcion: 'Cuadrilla 65' },
-        ];
-
-        const cuadrillas: Cuadrilla[] = cuadrillasData.map((data, index) => ({
-          id: `cuad_${index + 1}`,
-          nombre: data.nombre,
-          descripcion: data.descripcion,
-          workerIds: [],
-          createdAt: now,
-          updatedAt: now,
-          isActive: true,
-        }));
-
-        // Crear trabajadores predefinidos
-        const workersData: Omit<Worker, 'id' | 'createdAt' | 'updatedAt'>[] = [
-          // CUAD1
-          {
-            nombre: 'Carlos Guzmán',
-            cargo: 'Conductor',
-            cedula: '1143359194',
-            cuadrillaId: 'cuad_1',
-            signatureId: undefined,
-            isActive: true,
-          },
-          {
-            nombre: 'Kleiver Polo',
-            cargo: 'Técnico',
-            cedula: '9288327',
-            cuadrillaId: 'cuad_1',
-            signatureId: undefined,
-            isActive: true,
-          },
-          // CUAD61
-          {
-            nombre: 'Luis Hernández',
-            cargo: 'Conductor',
-            cedula: '',
-            cuadrillaId: 'cuad_2',
-            signatureId: undefined,
-            isActive: true,
-          },
-          {
-            nombre: 'Jefferson Genes',
-            cargo: 'Técnico',
-            cedula: '1050967799',
-            cuadrillaId: 'cuad_2',
-            signatureId: undefined,
-            isActive: true,
-          },
-          // CUAD64
-          {
-            nombre: 'Andrés Puello',
-            cargo: 'Conductor',
-            cedula: '1050963621',
-            cuadrillaId: 'cuad_3',
-            signatureId: undefined,
-            isActive: true,
-          },
-          {
-            nombre: 'Juan Carlos Romero',
-            cargo: 'Técnico',
-            cedula: '73228082',
-            cuadrillaId: 'cuad_3',
-            signatureId: undefined,
-            isActive: true,
-          },
-          {
-            nombre: 'Leonardo Torres',
-            cargo: 'Supervisor',
-            cedula: '1124034299',
-            cuadrillaId: 'cuad_3',
-            signatureId: undefined,
-            isActive: true,
-          },
-          // CUAD65
-          {
-            nombre: 'Joseph Puello',
-            cargo: 'Conductor',
-            cedula: '9298718',
-            cuadrillaId: 'cuad_4',
-            signatureId: undefined,
-            isActive: true,
-          },
-          {
-            nombre: 'Remberto Martínez',
-            cargo: 'Técnico',
-            cedula: '1047425281',
-            cuadrillaId: 'cuad_4',
-            signatureId: undefined,
-            isActive: true,
-          },
-          // Supervisores adicionales (sin cuadrilla asignada)
-          {
-            nombre: 'Antonio Cabarcas',
-            cargo: 'Asistente técnico',
-            cedula: '',
-            cuadrillaId: undefined,
-            signatureId: undefined,
-            isActive: true,
-          },
-          {
-            nombre: 'Deivi Zabaleta',
-            cargo: 'Coordinador de zona',
-            cedula: '',
-            cuadrillaId: undefined,
-            signatureId: undefined,
-            isActive: true,
-          },
-        ];
-
-        const workers: Worker[] = workersData.map((data, index) => ({
-          ...data,
-          id: `worker_${index + 1}`,
-          createdAt: now,
-          updatedAt: now,
-        }));
-
-        // Actualizar workerIds en cuadrillas
-        cuadrillas.forEach((cuad) => {
-          cuad.workerIds = workers
-            .filter((w) => w.cuadrillaId === cuad.id)
-            .map((w) => w.id);
-        });
-
-        // Establecer datos
-        set({
-          cuadrillas,
-          workers,
-        });
-
-        console.log('✅ Base de datos inicializada con datos predeterminados');
-        console.log(`   - ${cuadrillas.length} cuadrillas creadas`);
-        console.log(`   - ${workers.length} trabajadores creados`);
+        // La base de datos se inicializa automáticamente en db.ts
+        // Solo necesitamos cargar los datos
+        await get().loadFromDB();
       },
 
       // ==================== CLEAR ALL ====================
 
-      clearAll: () => {
+      clearAll: async () => {
+        await db.clearAll();
+
         set({
           workers: [],
           cuadrillas: [],
+          camionetas: [],
+          gruas: [],
           currentUser: null,
         });
+
+        console.log('🗑️ Todos los datos eliminados');
       },
     }),
     {
       name: 'autofill-database-storage',
-      // Serializar las fechas correctamente
+      // Solo persistir el usuario actual en localStorage
       partialize: (state) => ({
-        workers: state.workers,
-        cuadrillas: state.cuadrillas,
         currentUser: state.currentUser,
       }),
     }
