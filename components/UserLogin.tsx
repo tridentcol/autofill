@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 import type { Worker } from '@/types';
 
-const ADMIN_PASSWORD = 'admin123'; // TODO: Cambiar por algo más seguro en producción
+const ADMIN_PASSWORD = 'admin123';
 
 export default function UserLogin() {
   const { workers, currentUser, setCurrentUser } = useDatabaseStore();
@@ -75,21 +75,25 @@ export default function UserLogin() {
 
   if (!showModal && currentUser) {
     return (
-      <div className="flex items-center gap-4 px-4 py-2 bg-white border-b border-gray-200">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-900">
-            {currentUser.nombre}
-          </p>
-          <p className="text-xs text-gray-500">
-            {currentUser.role === 'admin' ? '👑 Administrador' : '👤 Trabajador'}
-            {currentUser.email && ` • ${currentUser.email}`}
-          </p>
+      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+            <svg className="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="hidden sm:block">
+            <p className="text-sm font-medium text-gray-900">{currentUser.nombre}</p>
+            <p className="text-xs text-gray-500">
+              {currentUser.role === 'admin' ? 'Administrador' : 'Usuario'}
+            </p>
+          </div>
         </div>
         <button
           onClick={handleLogout}
-          className="text-sm text-gray-600 hover:text-gray-900 px-3 py-1 rounded-md hover:bg-gray-100 transition-colors"
+          className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
         >
-          Cerrar Sesión
+          Salir
         </button>
       </div>
     );
@@ -98,123 +102,87 @@ export default function UserLogin() {
   if (!showModal) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-8">
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="p-6 sm:p-8">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="mx-auto w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
-              <svg
-                className="w-8 h-8 text-primary-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
+          <div className="text-center mb-6">
+            <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Bienvenido
-            </h2>
-            <p className="text-gray-600">
-              Selecciona tu perfil para continuar
-            </p>
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">Iniciar Sesión</h2>
+            <p className="text-sm text-gray-500">Selecciona tu perfil para continuar</p>
           </div>
 
           {/* Tabs */}
           <div className="flex gap-2 mb-6 border-b border-gray-200">
             <button
               onClick={() => setIsAdminMode(false)}
-              className={`flex-1 py-3 px-4 font-medium text-sm transition-colors ${
+              className={`flex-1 py-2.5 px-3 text-sm font-medium transition-colors ${
                 !isAdminMode
-                  ? 'border-b-2 border-primary-600 text-primary-600'
+                  ? 'border-b-2 border-gray-900 text-gray-900'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              👤 Trabajadores
+              Trabajadores
             </button>
             <button
               onClick={() => setIsAdminMode(true)}
-              className={`flex-1 py-3 px-4 font-medium text-sm transition-colors ${
+              className={`flex-1 py-2.5 px-3 text-sm font-medium transition-colors ${
                 isAdminMode
-                  ? 'border-b-2 border-purple-600 text-purple-600'
+                  ? 'border-b-2 border-gray-900 text-gray-900'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              👑 Administrador
+              Administrador
             </button>
           </div>
 
           {/* Workers List */}
           {!isAdminMode && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* Search */}
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Buscar por nombre, cargo o cédula..."
+                  placeholder="Buscar trabajador..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 pl-10 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                 />
-                <svg
-                  className="absolute left-3 top-3.5 h-5 w-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
+                <svg className="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
 
               {/* Workers Grid */}
-              <div className="max-h-96 overflow-y-auto space-y-2">
+              <div className="max-h-80 overflow-y-auto space-y-2">
                 {filteredWorkers.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No se encontraron trabajadores</p>
+                  <div className="text-center py-12 text-gray-400">
+                    <svg className="mx-auto w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <p className="text-sm">No se encontraron trabajadores</p>
                   </div>
                 ) : (
                   filteredWorkers.map((worker) => (
                     <button
                       key={worker.id}
                       onClick={() => handleWorkerLogin(worker)}
-                      className="w-full p-4 border border-gray-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all text-left group"
+                      className="w-full p-3 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition-all text-left"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-lg font-semibold text-gray-700 group-hover:bg-primary-100 group-hover:text-primary-700 transition-colors">
+                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-700">
                           {worker.nombre.charAt(0).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 truncate">
-                            {worker.nombre}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            {worker.cargo}
-                            {worker.cedula && ` • CC ${worker.cedula}`}
-                          </p>
+                          <p className="text-sm font-medium text-gray-900 truncate">{worker.nombre}</p>
+                          <p className="text-xs text-gray-500 truncate">{worker.cargo}</p>
                         </div>
-                        <svg
-                          className="w-5 h-5 text-gray-400 group-hover:text-primary-600 transition-colors"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </div>
                     </button>
@@ -226,36 +194,22 @@ export default function UserLogin() {
 
           {/* Admin Login */}
           {isAdminMode && (
-            <form onSubmit={handleAdminLogin} className="space-y-6">
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div className="bg-gray-50 border border-gray-200 rounded-md p-4 mb-4">
                 <div className="flex gap-3">
-                  <svg
-                    className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
+                  <svg className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   <div>
-                    <p className="text-sm font-medium text-purple-900">
-                      Acceso Restringido
-                    </p>
-                    <p className="text-xs text-purple-700 mt-1">
-                      Esta sección requiere privilegios de administrador
-                    </p>
+                    <p className="text-sm font-medium text-gray-900">Acceso Restringido</p>
+                    <p className="text-xs text-gray-600 mt-0.5">Requiere privilegios de administrador</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Contraseña de Administrador
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Contraseña
                 </label>
                 <input
                   type="password"
@@ -265,25 +219,15 @@ export default function UserLogin() {
                     setPasswordError('');
                   }}
                   placeholder="Ingrese la contraseña"
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                    passwordError
-                      ? 'border-red-500'
-                      : 'border-gray-300'
+                  className={`w-full px-4 py-2.5 text-sm border rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent ${
+                    passwordError ? 'border-red-500' : 'border-gray-300'
                   }`}
                   required
                 />
                 {passwordError && (
-                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                    <svg
-                      className="w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
+                  <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                     </svg>
                     {passwordError}
                   </p>
@@ -292,26 +236,13 @@ export default function UserLogin() {
 
               <button
                 type="submit"
-                className="w-full px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors flex items-center justify-center gap-2"
+                className="w-full px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                  />
-                </svg>
-                Acceder como Administrador
+                Acceder
               </button>
 
               <p className="text-xs text-center text-gray-500">
-                💡 Contraseña por defecto: <code className="bg-gray-100 px-2 py-1 rounded">admin123</code>
+                Contraseña por defecto: <code className="bg-gray-100 px-2 py-0.5 rounded">admin123</code>
               </p>
             </form>
           )}
