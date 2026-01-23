@@ -53,16 +53,16 @@ export class ExcelGenerator {
             if (signature) {
               // Si applyToAll es true, replicar en todas las ubicaciones de firma
               if (field.validation?.applyToAll) {
-                // Ubicaciones de firma para formato grúa: columna G y O
+                // Ubicaciones de firma para formato grúa con alturas reales en píxeles
                 const firmaLocations = [
-                  { cellRef: 'G11', mergedRows: 3 },  // DOCUMENTACION
-                  { cellRef: 'G17', mergedRows: 11 }, // LUCES
-                  { cellRef: 'G31', mergedRows: 7 },  // NEUMATICOS
-                  { cellRef: 'G43', mergedRows: 3 },  // ESPEJOS
-                  { cellRef: 'O11', mergedRows: 3 },  // OPERADOR
-                  { cellRef: 'O17', mergedRows: 9 },  // ACCESORIO Y SEGURIDAD
-                  { cellRef: 'O31', mergedRows: 9 },  // GENERAL
-                  { cellRef: 'O43', mergedRows: 5 },  // VIDRIOS
+                  { cellRef: 'G11', mergedRows: 3, containerHeight: 160 },  // DOCUMENTACION
+                  { cellRef: 'G17', mergedRows: 11, containerHeight: 332 }, // LUCES
+                  { cellRef: 'G31', mergedRows: 7, containerHeight: 211 },  // NEUMATICOS
+                  { cellRef: 'G43', mergedRows: 3, containerHeight: 90 },   // ESPEJOS
+                  { cellRef: 'O11', mergedRows: 3, containerHeight: 160 },  // OPERADOR
+                  { cellRef: 'O17', mergedRows: 9, containerHeight: 272 },  // ACCESORIO Y SEGURIDAD
+                  { cellRef: 'O31', mergedRows: 9, containerHeight: 271 },  // GENERAL
+                  { cellRef: 'O43', mergedRows: 5, containerHeight: 150 },  // VIDRIOS
                 ];
 
                 for (const location of firmaLocations) {
@@ -74,7 +74,8 @@ export class ExcelGenerator {
                     Number(cell.row),
                     Number(cell.col),
                     location.mergedRows,
-                    1  // Una sola columna para formato grúa
+                    1,  // Una sola columna para formato grúa
+                    location.containerHeight  // Altura real del contenedor
                   );
                 }
               } else if (field.cellRef) {
@@ -185,7 +186,8 @@ export class ExcelGenerator {
     row: number,
     col: number,
     mergedRows: number = 1,
-    mergedCols: number = 1
+    mergedCols: number = 1,
+    containerHeight?: number  // Altura real del contenedor en píxeles (opcional)
   ): Promise<void> {
     try {
       // Convertir base64 a buffer
@@ -260,21 +262,28 @@ export class ExcelGenerator {
         imgHeight = imgWidth / aspectRatio;
       }
 
-      // Calcular el alto total del contenedor basado en mergedRows para centrado vertical
+      // Calcular el alto total del contenedor
       let totalHeight = 0;
-      for (let i = 0; i < mergedRows; i++) {
-        const currentRow = worksheet.getRow(row + i);
-        // Altura por defecto en Excel es ~15 puntos = ~20 píxeles
-        const rowHeight = currentRow.height || 15;
-        totalHeight += rowHeight * 1.33; // Convertir puntos a píxeles (1 punto ≈ 1.33 píxeles)
-      }
 
-      // Para firmas en una sola fila, ajustar la altura de la fila para que quepa la imagen
-      if (mergedRows === 1) {
-        const excelRow = worksheet.getRow(row);
-        excelRow.height = Math.max((imgHeight + 10) * 0.75, 15); // Convertir píxeles a puntos, mínimo 15 puntos
-        // Recalcular totalHeight después del ajuste
-        totalHeight = excelRow.height * 1.33;
+      if (containerHeight) {
+        // Usar la altura real proporcionada (para formato grúa)
+        totalHeight = containerHeight;
+      } else {
+        // Calcular altura basada en mergedRows (para otros formatos)
+        for (let i = 0; i < mergedRows; i++) {
+          const currentRow = worksheet.getRow(row + i);
+          // Altura por defecto en Excel es ~15 puntos = ~20 píxeles
+          const rowHeight = currentRow.height || 15;
+          totalHeight += rowHeight * 1.33; // Convertir puntos a píxeles (1 punto ≈ 1.33 píxeles)
+        }
+
+        // Para firmas en una sola fila, ajustar la altura de la fila para que quepa la imagen
+        if (mergedRows === 1) {
+          const excelRow = worksheet.getRow(row);
+          excelRow.height = Math.max((imgHeight + 10) * 0.75, 15); // Convertir píxeles a puntos, mínimo 15 puntos
+          // Recalcular totalHeight después del ajuste
+          totalHeight = excelRow.height * 1.33;
+        }
       }
 
       // Calcular offsets para centrar
