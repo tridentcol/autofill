@@ -282,10 +282,28 @@ export class ExcelGenerator {
       let horizontalOffset = (columnWidth - imgWidth) / 2;
       let startCol = col - 1; // ExcelJS usa índice 0
 
-      // Para celdas multi-columna, ajustar el offset vertical para que esté más arriba
+      // Para celdas multi-columna, calcular la columna de inicio y ajustar offsets
       if (mergedCols > 1) {
-        // Posicionar la firma más arriba, cerca del top de la fila 39
-        verticalOffset = 5; // Pequeño padding desde el top
+        // Ajustar posición vertical - un poco más abajo que antes
+        verticalOffset = 10; // Pequeño padding desde el top
+
+        // Calcular en qué columna debe empezar la imagen para centrado horizontal
+        let accumulatedWidth = 0;
+        const targetOffset = horizontalOffset;
+
+        for (let i = 0; i < mergedCols; i++) {
+          const currentCol = worksheet.getColumn(col + i);
+          const colWidth = (currentCol.width || 8.43) * 7.5; // Convertir a píxeles
+
+          // Si el offset objetivo cae dentro de esta columna
+          if (accumulatedWidth + colWidth > targetOffset) {
+            startCol = (col - 1) + i;
+            horizontalOffset = targetOffset - accumulatedWidth;
+            break;
+          }
+
+          accumulatedWidth += colWidth;
+        }
       }
 
       // Asegurar que los offsets sean positivos
