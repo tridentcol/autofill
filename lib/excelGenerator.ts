@@ -274,20 +274,32 @@ export class ExcelGenerator {
 
       // Calcular offsets para centrar
       const verticalOffset = Math.max((totalHeight - imgHeight) / 2, 0);
-      let horizontalOffset = Math.max((columnWidth - imgWidth) / 2, 0);
+      let horizontalOffset = (columnWidth - imgWidth) / 2;
       let startCol = col - 1; // ExcelJS usa índice 0
 
       // Para celdas con múltiples columnas combinadas, calcular la columna de inicio correcta
       if (mergedCols > 1) {
-        // Calcular cuántas columnas completas ocupar antes de la imagen
-        // Ancho promedio por columna en el rango combinado
-        const avgColWidth = columnWidth / mergedCols;
-        const columnsToSkip = Math.floor(horizontalOffset / avgColWidth);
-        const remainingOffset = horizontalOffset - (columnsToSkip * avgColWidth);
+        // Calcular el ancho real de cada columna y determinar dónde debe empezar la imagen
+        let accumulatedWidth = 0;
+        let targetOffset = horizontalOffset;
 
-        startCol = (col - 1) + columnsToSkip;
-        horizontalOffset = remainingOffset;
+        for (let i = 0; i < mergedCols; i++) {
+          const currentCol = worksheet.getColumn(col + i);
+          const colWidth = (currentCol.width || 8.43) * 7.5; // Convertir a píxeles
+
+          // Si agregar esta columna nos pasa del offset objetivo, aquí es donde empieza la imagen
+          if (accumulatedWidth + colWidth >= targetOffset) {
+            startCol = (col - 1) + i;
+            horizontalOffset = targetOffset - accumulatedWidth;
+            break;
+          }
+
+          accumulatedWidth += colWidth;
+        }
       }
+
+      // Asegurar que los offsets sean positivos
+      horizontalOffset = Math.max(horizontalOffset, 0);
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
