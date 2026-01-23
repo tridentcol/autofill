@@ -332,7 +332,7 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Insertar imagen centrada
+      // Insertar imagen centrada (sin editAs para permitir offsets libres)
       worksheet.addImage(imageId, {
         tl: {
           col: startCol,                 // Columna calculada para centrado
@@ -340,8 +340,7 @@ export class ExcelGenerator {
           row: row - 1,                  // ExcelJS usa índice 0
           rowOff: verticalOffsetEMU      // Offset vertical en EMU
         } as any,
-        ext: { width: imgWidth, height: imgHeight },  // Dimensiones en píxeles
-        editAs: 'oneCell'
+        ext: { width: imgWidth, height: imgHeight }  // Dimensiones en píxeles
       } as any);
     } catch (error) {
       console.error('Error inserting signature:', error);
