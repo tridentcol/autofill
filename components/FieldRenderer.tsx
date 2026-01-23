@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useFormStore } from '@/store/useFormStore';
+import { useDatabaseStore } from '@/store/useDatabaseStore';
 import type { Field } from '@/types';
 
 interface FieldRendererProps {
@@ -20,7 +21,36 @@ export default function FieldRenderer({
   compact = false,
 }: FieldRendererProps) {
   const { currentFormData, updateFieldValue, signatures } = useFormStore();
+  const { workers } = useDatabaseStore();
   const [value, setValue] = useState<any>(field.value || '');
+
+  // Filtrar firmas por rol si es necesario
+  const filteredSignatures = useMemo(() => {
+    if (field.type !== 'signature' || !field.validation?.pattern) {
+      return signatures;
+    }
+
+    const pattern = field.validation.pattern;
+
+    if (pattern === 'supervisor_only') {
+      // Solo supervisores: Supervisor, Coordinador de zona, Asistente técnico
+      const supervisorRoles = ['Supervisor', 'Coordinador de zona', 'Asistente técnico'];
+      const supervisorWorkerIds = workers
+        .filter(w => w.isActive && supervisorRoles.includes(w.cargo) && w.signatureId)
+        .map(w => w.signatureId);
+
+      return signatures.filter(sig => supervisorWorkerIds.includes(sig.id));
+    } else if (pattern === 'conductor_only') {
+      // Solo conductores
+      const conductorWorkerIds = workers
+        .filter(w => w.isActive && w.cargo === 'Conductor' && w.signatureId)
+        .map(w => w.signatureId);
+
+      return signatures.filter(sig => conductorWorkerIds.includes(sig.id));
+    }
+
+    return signatures;
+  }, [field.type, field.validation?.pattern, signatures, workers]);
 
   // Cargar valor existente del store
   useEffect(() => {
@@ -158,6 +188,14 @@ export default function FieldRenderer({
       case 'signature':
         return (
           <div className="space-y-3">
+            {field.validation?.pattern && (
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-2 mb-2">
+                <p className="text-xs text-blue-800">
+                  {field.validation.pattern === 'supervisor_only' && '👤 Solo supervisores pueden firmar aquí'}
+                  {field.validation.pattern === 'conductor_only' && '🚗 Solo conductores pueden firmar aquí'}
+                </p>
+              </div>
+            )}
             <div className="flex items-center gap-3">
               <select
                 value={value}
@@ -166,16 +204,23 @@ export default function FieldRenderer({
                 required={field.required}
               >
                 <option value="">Seleccione una firma</option>
-                {signatures.map((sig) => (
+                {filteredSignatures.map((sig) => (
                   <option key={sig.id} value={sig.id}>
                     {sig.name}
                   </option>
                 ))}
               </select>
               <span className="text-sm text-gray-500">
-                {signatures.length} firma(s) disponible(s)
+                {filteredSignatures.length} firma(s) disponible(s)
               </span>
             </div>
+            {filteredSignatures.length === 0 && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                <p className="text-sm text-yellow-800">
+                  ⚠️ No hay firmas disponibles con el rol requerido. Por favor asigna firmas a los trabajadores en la base de datos.
+                </p>
+              </div>
+            )}
             {value && (() => {
               const selectedSig = signatures.find((s) => s.id === value);
               return selectedSig ? (

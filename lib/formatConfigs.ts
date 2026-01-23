@@ -978,16 +978,16 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     // 10 items con opciones SI/NO/N/A
     const preparacionFields: Field[] = [];
     const preparacionItems = [
-      '1°. Se ha instalado señalización preventiva que delimite el área de trabajo.',
-      '2°. El área se encuentra limpia y ordenada.',
-      '3°. Se ha realizado la inspección preoperacional.',
-      '4°. Se cuenta con la autorización para realizar el trabajo.',
-      '5°. Se han identificado los riesgos de la actividad.',
-      '6°. Se han comunicado los riesgos al personal.',
-      '7°. El personal cuenta con la capacitación requerida.',
-      '8°. Se cuenta con los elementos de protección personal.',
-      '9°. Se cuenta con las herramientas adecuadas.',
-      '10°. Los equipos y herramientas a utilizar se encuentran en buen estado.',
+      'SE HA INSTALADO SEÑALIZACIÓN PREVENTIVA QUE DELIMITE EL ÁREA DE TRABAJO (CINTA, CONOS, SEÑALES TUBULARES O POLISOMBRAS, DE TAL MANERA QUE SE PUEDA AISLAR O RESTRINGIR LA ZONA Y NO SE PERMITA EL PASO DE PERSONAS O VEHÍCULOS AJENOS A LA LABOR) EN CASO DE IZAJE.',
+      'EL PERSONAL QUE INTERVIENE PRESENTA AFILIACION A SEGURIDAD SOCIAL.',
+      'EL PERSONAL QUE EJECUTA LABORES EN ALTURAS POSEE CERTIFICACION DE TSA',
+      'LOS ELEMENTOS DE PROTECCIÓN PERSONAL Y LOS SISTEMAS PROTECCION CONTRA CAIDAS A UTILIZAR EN LA LABOR FUERON INSPECCIONADOS Y SE ENCUENTRAN EN BUENAS CONDICIONES.',
+      'SE REQUIERE LA PRESENCIA DE UNA PERSONA DE SEGURIDAD DE LA EMPRESA, UN BRIGADISTA O UN BOMBERO DURANTE LA EJECUCIÓN DE LA LABOR.',
+      'LOS TRABAJADORES REVISAN LOS ACCESOS AL ÁREA DE TRABAJO E IDENTIFICAN LAS SALIDAS DE EMERGENCIA SIGUIENDO LAS PAUTAS A TENER EN CUENTA EN CASO DE PRESENTARSE UNA EMERGENCIA: 1. NOTIFICAR DE INMEDIATO EN CASO DE PRESENTARSE UNA SITUACION DE EMERGENCIA. 2. MANTIENER LA CALMA. 3. SIGUEN LAS INSTRUCCIONES DEL LIDER DE BRIGADA VIGIA O RESPONSABLE EN CASO DE EMERGENCIAS 4. EVACUAR EL AREA EN ORDEN 5. DIRIGIRSE AL PUNTO DE ENCUENTRO.',
+      'SE GARANTIZA QUE LAS PERSONAS QUE REALIZARÁN EL DILIGENCIAMIENTO DEL PERMISO Y QUIENES EJECUTARÁN EL TRABAJO CONOCEN LOS EQUIPOS, Y SE HA SOCIALIZADO LOS PELIGROS A LOS QUE ESTAN EXPUESTOS.',
+      'SE VERIFICARON LOS PUNTOS DE ANCLAJE A SER UTILIZADOS POR CADA TRABAJADOR DURANTE LA TAREA',
+      'EL PERSONAL CUMPLE CON LOS REQUISITOS DE APTITUD PARA REALIZAR LA TAREA',
+      'LOS EQUIPOS Y HERRAMIENTAS A UTILIZAR SE ENCUENTRAN EN BUEN ESTADO.',
     ];
 
     for (let i = 0; i < 10; i++) {
@@ -1023,11 +1023,11 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // PASO 7: SISTEMA DE ACCESO (Fila 43)
-    // Checkboxes simples (no SI/NO/N/A, solo marcar/desmarcar)
+    // Checkboxes simples - pueden seleccionar múltiples o ninguno
     sections.push({
       id: 'sistema_acceso',
       type: 'basic_info',
-      title: 'Paso 7: Sistema de Acceso para Trabajo en Alturas',
+      title: 'Paso 7: ¿SE TIENE DEFINIDO EL SISTEMA DE ACCESO PARA TRABAJO EN ALTURAS Y SE ENCUENTRA EN OPTIMAS CONDICIONES?',
       fields: [
         { id: 'acceso_escalera', label: 'Escalera', type: 'checkbox', cellRef: 'D43', row: 43, col: 4, required: false },
         { id: 'acceso_andamio', label: 'Andamio', type: 'checkbox', cellRef: 'F43', row: 43, col: 6, required: false },
@@ -1082,7 +1082,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'epp',
       type: 'checklist',
-      title: 'Paso 8: Elementos de Protección Personal (EPP)',
+      title: 'Paso 8: ELEMENTOS DE PROTECCIÓN PERSONAL Y SISTEMAS DE PROTECCIÓN CONTRA CAÍDAS',
       fields: eppFields,
       startRow: 46,
       endRow: 53,
