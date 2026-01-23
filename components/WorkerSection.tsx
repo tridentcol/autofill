@@ -97,7 +97,8 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
       return '';
     }
     const section = currentFormData.sheets[sheetIndex].sections[sectionIndex];
-    return section?.fields?.[`trabajador${index + 1}_firma`] || '';
+    const fieldKey = `trabajador${index + 1}_firma`;
+    return (section?.fields as Record<string, any>)?.[fieldKey] || '';
   };
 
   return (
