@@ -319,29 +319,29 @@ export class ExcelGenerator {
       horizontalOffset = Math.max(horizontalOffset, 0);
       verticalOffset = Math.max(verticalOffset, 0);
 
+      // Convertir offsets a EMU (English Metric Units)
+      // 1 píxel @ 96 DPI = 9525 EMU
+      const EMU_PER_PIXEL = 9525;
+      const horizontalOffsetEMU = Math.round(horizontalOffset * EMU_PER_PIXEL);
+      const verticalOffsetEMU = Math.round(verticalOffset * EMU_PER_PIXEL);
+
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
         buffer: buffer as any,
         extension: 'png',
       });
 
-      // Usar posicionamiento simple sin offsets primero para debugging
-      // Si containerHeight está definido (formato grúa), intentar centrado
-      if (containerHeight) {
-        // Para formato grúa: usar posicionamiento absoluto con from/to
-        worksheet.addImage(imageId, {
-          tl: { col: startCol, row: row - 1 },
-          ext: { width: imgWidth, height: imgHeight },
-          editAs: 'absolute'
-        } as any);
-      } else {
-        // Para otros formatos: usar el método anterior
-        worksheet.addImage(imageId, {
-          tl: { col: startCol, row: row - 1 },
-          ext: { width: imgWidth, height: imgHeight },
-          editAs: 'oneCell'
-        } as any);
-      }
+      // Insertar imagen con offsets para centrado
+      worksheet.addImage(imageId, {
+        tl: {
+          col: startCol,
+          row: row - 1,
+          colOff: horizontalOffsetEMU,
+          rowOff: verticalOffsetEMU
+        },
+        ext: { width: imgWidth, height: imgHeight },
+        editAs: containerHeight ? 'absolute' : 'oneCell'
+      } as any);
     } catch (error) {
       console.error('Error inserting signature:', error);
       // Si falla, insertar texto alternativo
