@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useFormStore } from '@/store/useFormStore';
 import FieldRenderer from './FieldRenderer';
+import WorkerSection from './WorkerSection';
 import { ExcelGenerator, downloadExcelFile } from '@/lib/excelGenerator';
 import type { Field } from '@/types';
 
@@ -315,6 +316,12 @@ export default function FormWizard() {
 
               return <>{elements}</>;
             })()
+          ) : currentWizardStep.section.type === 'worker_list' ? (
+            // Renderizado especial para la sección de trabajadores
+            <WorkerSection
+              sheetIndex={0} // TODO: Calcular índice correcto
+              sectionIndex={currentStep}
+            />
           ) : (
             // Renderizado normal para otras secciones
             currentWizardStep.section.fields.map((field) => (
