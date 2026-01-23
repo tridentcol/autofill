@@ -5,7 +5,7 @@ import FormatSelector from '@/components/FormatSelector';
 import FormWizard from '@/components/FormWizard';
 import SignatureManager from '@/components/SignatureManager';
 import PresetManager from '@/components/PresetManager';
-import DatabaseAdmin from '@/components/DatabaseAdmin';
+import AdminDashboard from '@/components/AdminDashboard';
 import { useFormStore } from '@/store/useFormStore';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 
@@ -119,12 +119,9 @@ export default function Home() {
           <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Base de Datos de Trabajadores
-                </h2>
                 <button
                   onClick={() => setShowDatabaseAdmin(false)}
-                  className="text-gray-400 hover:text-gray-500"
+                  className="text-gray-400 hover:text-gray-500 ml-auto"
                 >
                   <svg
                     className="w-6 h-6"
@@ -141,7 +138,7 @@ export default function Home() {
                   </svg>
                 </button>
               </div>
-              <DatabaseAdmin />
+              <AdminDashboard />
             </div>
           </div>
         </div>
