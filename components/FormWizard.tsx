@@ -70,11 +70,23 @@ export default function FormWizard() {
     setGenerating(true);
     try {
       const generator = new ExcelGenerator();
-      const originalBuffer = (selectedFormat as any).originalBuffer;
+      const originalBufferBase64 = (selectedFormat as any).originalBuffer;
 
-      if (!originalBuffer) {
+      if (!originalBufferBase64) {
         throw new Error('No se encontró el archivo original');
       }
+
+      // Convertir de base64 de vuelta a ArrayBuffer
+      const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
+        const binaryString = atob(base64);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+      };
+
+      const originalBuffer = base64ToArrayBuffer(originalBufferBase64);
 
       // Convertir signatures array a Map
       const signaturesMap = new Map(signatures.map((sig) => [sig.id, sig]));

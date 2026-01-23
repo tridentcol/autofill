@@ -92,8 +92,18 @@ export default function FormatSelector() {
         });
       }
 
-      // Guardar el buffer original para después generar el archivo rellenado
-      (parsedFormat as any).originalBuffer = fileBuffer;
+      // Convertir buffer a base64 para guardarlo (ArrayBuffer no es serializable)
+      const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+        const bytes = new Uint8Array(buffer);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return btoa(binary);
+      };
+
+      // Guardar el buffer original como base64
+      (parsedFormat as any).originalBuffer = arrayBufferToBase64(fileBuffer);
 
       // Crear wizard steps basados en las secciones detectadas
       const wizardSteps = parsedFormat.sheets.flatMap((sheet, sheetIndex) =>
@@ -154,7 +164,17 @@ export default function FormatSelector() {
           description: 'Formato cargado por el usuario',
         });
 
-        (parsedFormat as any).originalBuffer = buffer;
+        // Convertir buffer a base64 para guardarlo
+        const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+          const bytes = new Uint8Array(buffer);
+          let binary = '';
+          for (let i = 0; i < bytes.byteLength; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          return btoa(binary);
+        };
+
+        (parsedFormat as any).originalBuffer = arrayBufferToBase64(buffer);
 
         const wizardSteps = parsedFormat.sheets.flatMap((sheet, sheetIndex) =>
           sheet.sections.map((section, sectionIndex) => ({

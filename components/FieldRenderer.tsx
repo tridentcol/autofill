@@ -125,7 +125,25 @@ export default function FieldRenderer({
         );
 
       case 'checkbox':
+        // Checkbox simple: solo marcar/desmarcar (para Pasos 7 y 8)
+        return (
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={value === true || value === 'true' || value === 'X'}
+                onChange={(e) => handleChange(e.target.checked ? 'X' : '')}
+                className="w-5 h-5 border-2 border-gray-300 rounded text-primary-600 focus:ring-2 focus:ring-primary-500 cursor-pointer"
+              />
+            </div>
+            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+              {field.label}
+            </span>
+          </label>
+        );
+
       case 'radio':
+        // Radio buttons SI/NO/N/A (para Paso 6)
         return (
           <div className="flex gap-3">
             {(field.options || ['SI', 'NO', 'N/A']).map((option) => (
