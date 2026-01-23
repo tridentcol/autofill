@@ -619,17 +619,66 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
   'permiso-trabajo': (worksheetData?: any) => {
     const sections: Section[] = [];
 
-    // 1. FECHA, HORA Y LUGAR (Fila 6)
+    // PASO 1: FECHA DE DILIGENCIAMIENTO (Fila 6)
+    // Formato calendario con zona horaria Colombia (UTC-5)
+    // Auto-completado con fecha/hora actual, hora por defecto 7:00 AM
+    const now = new Date();
+    const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+
     sections.push({
-      id: 'fecha_hora_lugar',
+      id: 'fecha_diligenciamiento',
       type: 'basic_info',
-      title: 'Fecha, Hora y Lugar',
+      title: 'Paso 1: Fecha de Diligenciamiento',
       fields: [
-        { id: 'fecha_dia', label: 'Día', type: 'text', cellRef: 'F6', row: 6, col: 6, required: true },
-        { id: 'fecha_mes', label: 'Mes', type: 'text', cellRef: 'G6', row: 6, col: 7, required: true },
-        { id: 'fecha_año', label: 'Año', type: 'text', cellRef: 'H6', row: 6, col: 8, required: true },
-        { id: 'hora', label: 'Hora', type: 'time', cellRef: 'J6', row: 6, col: 10, required: true },
-        { id: 'lugar', label: 'Lugar', type: 'text', cellRef: 'P6', row: 6, col: 16, required: true },
+        {
+          id: 'fecha_dia',
+          label: 'Día',
+          type: 'number',
+          cellRef: 'F6',
+          row: 6,
+          col: 6,
+          required: true,
+          value: colombiaTime.getDate()
+        },
+        {
+          id: 'fecha_mes',
+          label: 'Mes',
+          type: 'number',
+          cellRef: 'G6',
+          row: 6,
+          col: 7,
+          required: true,
+          value: colombiaTime.getMonth() + 1
+        },
+        {
+          id: 'fecha_año',
+          label: 'Año',
+          type: 'number',
+          cellRef: 'H6',
+          row: 6,
+          col: 8,
+          required: true,
+          value: colombiaTime.getFullYear()
+        },
+        {
+          id: 'hora',
+          label: 'Hora',
+          type: 'time',
+          cellRef: 'J6',
+          row: 6,
+          col: 10,
+          required: true,
+          value: '07:00'
+        },
+        {
+          id: 'lugar',
+          label: 'Lugar/Zona de Trabajo',
+          type: 'text',
+          cellRef: 'P6',
+          row: 6,
+          col: 16,
+          required: true
+        },
       ],
       startRow: 6,
       endRow: 6,
@@ -637,72 +686,161 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 20,
     });
 
-    // 2. PELIGROS Y MEDIDAS (Filas 9-19) - 12 peligros
-    const peligrosFields: Field[] = [];
-    const peligros = [
+    // PASO 2: EVALUACIÓN DE RIESGOS Y CONTROLES (Filas 9-19)
+    // 11 riesgos específicos + 1 campo "Otro"
+    // Una sola firma de responsable se aplica a todas las 12 filas (Q9:Q19)
+    const riesgosFields: Field[] = [];
+    const riesgos = [
       '1. Tropezón o caída a nivel de suelo',
-      '2. Atrapamiento',
-      '3. Caída de objetos',
-      '4. Caída de personas a diferente nivel',
-      '5. Contacto eléctrico',
-      '6. Exposición a ruido',
-      '7. Exposición a material particulado',
-      '8. Explosión o incendio',
-      '9. Golpeado por',
-      '10. Proyección de partículas',
-      '11. Riesgo biológico',
-      '12. Otro (Describa):',
+      '2. Caída a distinto nivel: fractura, traumatismo, conmociones y muerte',
+      '3. Electrocución. Manipulación de líneas, herramientas y equipos',
+      '4. Quemaduras: explosión o incendio',
+      '5. Caída de objetos: Heridas, Fracturas, contusiones',
+      '6. Esfuerzo: manipulación manual de cargas',
+      '7. Heridas laceraciones perforaciones por herramientas',
+      '8. Cambios de temperatura: frío o calor',
+      '9. Accidentes de tránsito atropellamiento',
+      '10. Biológico: Mordeduras, picaduras',
+      '11. Otro (Describa):',
     ];
 
-    for (let i = 0; i < 12; i++) {
-      const row = 9 + i;
-      // Los peligros están pre-escritos en B-H, solo agregamos campos para medidas y responsable
-      peligrosFields.push(
-        { id: `peligro${i+1}_medidas`, label: `${peligros[i]} - Medidas`, type: 'text', cellRef: `I${row}`, row, col: 9, required: false },
-        { id: `peligro${i+1}_responsable`, label: `${peligros[i]} - Responsable`, type: 'signature', cellRef: `Q${row}`, row, col: 17, required: false }
-      );
-    }
+    // Campo de texto para el riesgo "Otro"
+    riesgosFields.push({
+      id: 'riesgo_otro_descripcion',
+      label: 'Descripción del otro riesgo',
+      type: 'text',
+      cellRef: 'I19',
+      row: 19,
+      col: 9,
+      required: false
+    });
+
+    // Una sola firma que se aplica a todas las filas (Q9:Q19)
+    riesgosFields.push({
+      id: 'riesgo_responsable',
+      label: 'Responsable de la evaluación de riesgos',
+      type: 'signature',
+      cellRef: 'Q9',
+      row: 9,
+      col: 17,
+      required: true,
+      validation: {
+        applyToAll: true, // Esta firma se replica en Q9, Q10, Q11... hasta Q19
+      }
+    });
+
     sections.push({
-      id: 'peligros',
+      id: 'evaluacion_riesgos',
       type: 'table',
-      title: 'Peligros y Medidas de Control',
-      fields: peligrosFields,
+      title: 'Paso 2: Evaluación de Riesgos y Controles',
+      fields: riesgosFields,
       startRow: 9,
       endRow: 19,
       startCol: 2,
       endCol: 20,
     });
 
-    // 3. TRABAJADORES (Filas 22-25) - hasta 4 trabajadores
+    // PASO 3: TRABAJADORES (Filas 22-25)
+    // Sistema de base de datos con cuadrillas predefinidas
+    // TODO: Implementar base de datos con las siguientes cuadrillas:
+    // CUAD1: Carlos Guzmán (Conductor, CC 1143359194), Kleiver Polo (Técnico, CC 9288327)
+    // CUAD61: Luis Hernández (Conductor), Jefferson Genes (Técnico, CC 1050967799)
+    // CUAD64: Andrés Puello (Conductor, CC 1050963621), Juan Carlos Romero (Técnico, CC 73228082), Leonardo Torres (Supervisor, CC 1124034299)
+    // CUAD65: Joseph Puello (Conductor, CC 9298718), Remberto Martínez (Técnico, CC 1047425281)
+    //
+    // Supervisores adicionales:
+    // - Antonio Cabarcas - Asistente técnico
+    // - Deivi Zabaleta - Coordinador de zona
+    // - Leonardo Torres - Supervisor de cuadrilla
+    //
+    // Sistema de permisos:
+    // - Usuario ADMIN: puede editar/agregar/eliminar trabajadores en la base de datos
+    // - Usuario REGULAR: solo puede ver y seleccionar trabajadores existentes para llenar formularios
+    // - Cada persona debe tener parámetro para asignar firma
+    // - Firma inicial = nombre de la persona
+
     const trabajadoresFields: Field[] = [];
+
+    // Selector de cuadrilla (dropdown principal)
+    trabajadoresFields.push({
+      id: 'cuadrilla_select',
+      label: 'Seleccionar Cuadrilla',
+      type: 'select',
+      cellRef: 'B21', // Fila antes de la tabla de trabajadores
+      row: 21,
+      col: 2,
+      required: false,
+      options: ['CUAD1', 'CUAD61', 'CUAD64', 'CUAD65', 'Manual'],
+      group: 'cuadrilla_selector'
+    });
+
+    // Campos para cada trabajador (hasta 4)
     for (let i = 0; i < 4; i++) {
       const row = 22 + i;
       trabajadoresFields.push(
-        { id: `trabajador${i+1}_nombre`, label: `Trabajador ${i+1} - Nombre`, type: 'text', cellRef: `B${row}`, row, col: 2, required: i === 0 },
-        { id: `trabajador${i+1}_cargo`, label: `Trabajador ${i+1} - Cargo`, type: 'text', cellRef: `F${row}`, row, col: 6, required: false },
-        { id: `trabajador${i+1}_cedula`, label: `Trabajador ${i+1} - Cédula`, type: 'text', cellRef: `J${row}`, row, col: 10, required: false },
-        { id: `trabajador${i+1}_firma`, label: `Trabajador ${i+1} - Firma`, type: 'signature', cellRef: `N${row}`, row, col: 14, required: false }
+        {
+          id: `trabajador${i+1}_nombre`,
+          label: `Trabajador ${i+1} - Nombre Completo`,
+          type: 'select', // Será dropdown desde base de datos
+          cellRef: `B${row}`,
+          row,
+          col: 2,
+          required: i === 0, // Primer trabajador obligatorio
+          options: [], // Se llenará desde la base de datos
+          group: 'trabajadores_tabla'
+        },
+        {
+          id: `trabajador${i+1}_cargo`,
+          label: `Trabajador ${i+1} - Cargo`,
+          type: 'text', // Se auto-completa al seleccionar trabajador
+          cellRef: `F${row}`,
+          row,
+          col: 6,
+          required: false,
+          group: 'trabajadores_tabla'
+        },
+        {
+          id: `trabajador${i+1}_cedula`,
+          label: `Trabajador ${i+1} - Cédula`,
+          type: 'text', // Se auto-completa al seleccionar trabajador
+          cellRef: `J${row}`,
+          row,
+          col: 10,
+          required: false,
+          group: 'trabajadores_tabla'
+        },
+        {
+          id: `trabajador${i+1}_firma`,
+          label: `Trabajador ${i+1} - Firma`,
+          type: 'signature', // Se auto-completa al seleccionar trabajador
+          cellRef: `N${row}`,
+          row,
+          col: 14,
+          required: false,
+          group: 'trabajadores_tabla'
+        }
       );
     }
+
     sections.push({
       id: 'trabajadores',
-      type: 'table',
-      title: 'Trabajadores',
+      type: 'worker_list',
+      title: 'Paso 3: Trabajadores',
       fields: trabajadoresFields,
-      startRow: 22,
+      startRow: 21,
       endRow: 25,
       startCol: 2,
       endCol: 20,
     });
 
-    // 3. ACTIVIDAD Y ALTURA (Filas 26-28)
+    // PASO 4: ACTIVIDAD Y ALTURA (Filas 26-28)
     sections.push({
       id: 'actividad_altura',
       type: 'basic_info',
-      title: 'Actividad y Altura',
+      title: 'Paso 4: Actividad y Altura',
       fields: [
-        { id: 'actividad', label: 'Actividad a Ejecutar', type: 'textarea', cellRef: 'B26', row: 26, col: 2, required: true },
-        { id: 'altura', label: 'Altura Aproximada', type: 'text', cellRef: 'B28', row: 28, col: 2, required: false },
+        { id: 'actividad_ejecutar', label: 'Actividad a Ejecutar', type: 'textarea', cellRef: 'B26', row: 26, col: 2, required: true },
+        { id: 'altura_aproximada', label: 'Altura Aproximada (metros)', type: 'text', cellRef: 'B28', row: 28, col: 2, required: false },
       ],
       startRow: 26,
       endRow: 28,
@@ -710,52 +848,158 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 20,
     });
 
-    // 4. VÁLIDO DESDE/HASTA (Fila 29)
+    // PASO 5: PERÍODO DE VALIDEZ (Fila 29)
+    // Botones de turno para auto-completar horarios:
+    // - Turno Mañana: 7:00 AM - 3:00 PM
+    // - Turno Noche: 3:00 PM - 11:00 PM
+    // Separar claramente DESDE y HASTA
+
+    // Botones de selección de turno (UI helper)
+    const turnoButtons = {
+      manana: { desde: '07:00', hasta: '15:00' },
+      noche: { desde: '15:00', hasta: '23:00' }
+    };
+
     sections.push({
-      id: 'validez',
+      id: 'periodo_validez',
       type: 'basic_info',
-      title: 'Período de Validez',
+      title: 'Paso 5: Período de Validez',
       fields: [
-        { id: 'desde_dia', label: 'Desde - Día', type: 'text', cellRef: 'F29', row: 29, col: 6, required: true },
-        { id: 'desde_mes', label: 'Desde - Mes', type: 'text', cellRef: 'G29', row: 29, col: 7, required: true },
-        { id: 'desde_año', label: 'Desde - Año', type: 'text', cellRef: 'H29', row: 29, col: 8, required: true },
-        { id: 'desde_hora', label: 'Desde - Hora', type: 'time', cellRef: 'J29', row: 29, col: 10, required: true },
-        { id: 'hasta_dia', label: 'Hasta - Día', type: 'text', cellRef: 'P29', row: 29, col: 16, required: true },
-        { id: 'hasta_mes', label: 'Hasta - Mes', type: 'text', cellRef: 'Q29', row: 29, col: 17, required: true },
-        { id: 'hasta_año', label: 'Hasta - Año', type: 'text', cellRef: 'R29', row: 29, col: 18, required: true },
-        { id: 'hasta_hora', label: 'Hasta - Hora', type: 'time', cellRef: 'T29', row: 29, col: 20, required: true },
+        // Selector de turno (helper UI, no va al Excel)
+        {
+          id: 'turno_select',
+          label: 'Seleccionar Turno',
+          type: 'radio',
+          cellRef: 'B28', // Fila antes del período
+          row: 28,
+          col: 2,
+          required: false,
+          options: ['Turno Mañana (7:00 AM - 3:00 PM)', 'Turno Noche (3:00 PM - 11:00 PM)', 'Personalizado'],
+          group: 'turno_selector'
+        },
+        // DESDE
+        {
+          id: 'desde_dia',
+          label: 'Desde - Día',
+          type: 'number',
+          cellRef: 'F29',
+          row: 29,
+          col: 6,
+          required: true,
+          value: colombiaTime.getDate(),
+          group: 'desde'
+        },
+        {
+          id: 'desde_mes',
+          label: 'Desde - Mes',
+          type: 'number',
+          cellRef: 'G29',
+          row: 29,
+          col: 7,
+          required: true,
+          value: colombiaTime.getMonth() + 1,
+          group: 'desde'
+        },
+        {
+          id: 'desde_año',
+          label: 'Desde - Año',
+          type: 'number',
+          cellRef: 'H29',
+          row: 29,
+          col: 8,
+          required: true,
+          value: colombiaTime.getFullYear(),
+          group: 'desde'
+        },
+        {
+          id: 'desde_hora',
+          label: 'Desde - Hora',
+          type: 'time',
+          cellRef: 'J29',
+          row: 29,
+          col: 10,
+          required: true,
+          value: '07:00',
+          group: 'desde'
+        },
+        // HASTA
+        {
+          id: 'hasta_dia',
+          label: 'Hasta - Día',
+          type: 'number',
+          cellRef: 'P29',
+          row: 29,
+          col: 16,
+          required: true,
+          value: colombiaTime.getDate(),
+          group: 'hasta'
+        },
+        {
+          id: 'hasta_mes',
+          label: 'Hasta - Mes',
+          type: 'number',
+          cellRef: 'Q29',
+          row: 29,
+          col: 17,
+          required: true,
+          value: colombiaTime.getMonth() + 1,
+          group: 'hasta'
+        },
+        {
+          id: 'hasta_año',
+          label: 'Hasta - Año',
+          type: 'number',
+          cellRef: 'R29',
+          row: 29,
+          col: 18,
+          required: true,
+          value: colombiaTime.getFullYear(),
+          group: 'hasta'
+        },
+        {
+          id: 'hasta_hora',
+          label: 'Hasta - Hora',
+          type: 'time',
+          cellRef: 'T29',
+          row: 29,
+          col: 20,
+          required: true,
+          value: '15:00',
+          group: 'hasta'
+        },
       ],
-      startRow: 29,
+      startRow: 28,
       endRow: 29,
       startCol: 2,
       endCol: 20,
     });
 
-    // 5. ITEMS SI/NO/N/A (Filas 31-40) - 10 items
-    const checklistFields: Field[] = [];
-    const checklistItems = [
-      'SE HA INSTALADO SEÑALIZACIÓN PREVENTIVA QUE DELIMITE EL ÁREA DE TRABAJO',
-      'EL ÁREA SE ENCUENTRA LIMPIA Y ORDENADA',
-      'SE HA REALIZADO LA INSPECCIÓN PREOPERACIONAL',
-      'SE CUENTA CON LA AUTORIZACIÓN PARA REALIZAR EL TRABAJO',
-      'SE HAN IDENTIFICADO LOS RIESGOS DE LA ACTIVIDAD',
-      'SE HAN COMUNICADO LOS RIESGOS AL PERSONAL',
-      'EL PERSONAL CUENTA CON LA CAPACITACIÓN REQUERIDA',
-      'SE CUENTA CON LOS ELEMENTOS DE PROTECCIÓN PERSONAL',
-      'SE CUENTA CON LAS HERRAMIENTAS ADECUADAS',
-      'LOS EQUIPOS Y HERRAMIENTAS A UTILIZAR SE ENCUENTRAN EN BUEN ESTADO',
+    // PASO 6: PREPARACIÓN DEL ÁREA (Filas 31-40)
+    // 10 items con opciones SI/NO/N/A
+    const preparacionFields: Field[] = [];
+    const preparacionItems = [
+      '1°. Se ha instalado señalización preventiva que delimite el área de trabajo.',
+      '2°. El área se encuentra limpia y ordenada.',
+      '3°. Se ha realizado la inspección preoperacional.',
+      '4°. Se cuenta con la autorización para realizar el trabajo.',
+      '5°. Se han identificado los riesgos de la actividad.',
+      '6°. Se han comunicado los riesgos al personal.',
+      '7°. El personal cuenta con la capacitación requerida.',
+      '8°. Se cuenta con los elementos de protección personal.',
+      '9°. Se cuenta con las herramientas adecuadas.',
+      '10°. Los equipos y herramientas a utilizar se encuentran en buen estado.',
     ];
 
     for (let i = 0; i < 10; i++) {
       const row = 31 + i;
-      checklistFields.push({
-        id: `checklist_${i+1}`,
-        label: checklistItems[i],
+      preparacionFields.push({
+        id: `preparacion_${i+1}`,
+        label: preparacionItems[i],
         type: 'radio',
         cellRef: `R${row}`,
         row,
         col: 18,
-        required: false,
+        required: true,
         options: ['SI', 'NO', 'N/A'],
         validation: {
           pattern: JSON.stringify({
@@ -766,28 +1010,30 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         },
       });
     }
+
     sections.push({
-      id: 'checklist',
+      id: 'preparacion_area',
       type: 'checklist',
-      title: 'Verificación de Condiciones',
-      fields: checklistFields,
+      title: 'Paso 6: Preparación del Área',
+      fields: preparacionFields,
       startRow: 31,
       endRow: 40,
       startCol: 2,
       endCol: 20,
     });
 
-    // 6. SISTEMAS DE ACCESO (Fila 43)
+    // PASO 7: SISTEMA DE ACCESO (Fila 43)
+    // Checkboxes simples (no SI/NO/N/A, solo marcar/desmarcar)
     sections.push({
-      id: 'sistemas_acceso',
+      id: 'sistema_acceso',
       type: 'basic_info',
-      title: 'Sistema de Acceso para Trabajo en Alturas',
+      title: 'Paso 7: Sistema de Acceso para Trabajo en Alturas',
       fields: [
-        { id: 'escalera', label: 'Escalera', type: 'checkbox', cellRef: 'D43', row: 43, col: 4, required: false },
-        { id: 'andamio', label: 'Andamio', type: 'checkbox', cellRef: 'F43', row: 43, col: 6, required: false },
-        { id: 'canasta_grua', label: 'Canasta Grúa', type: 'checkbox', cellRef: 'I43', row: 43, col: 9, required: false },
-        { id: 'plataformas_moviles', label: 'Plataformas Móviles', type: 'checkbox', cellRef: 'N43', row: 43, col: 14, required: false },
-        { id: 'otro_acceso', label: 'Otro', type: 'text', cellRef: 'Q43', row: 43, col: 17, required: false },
+        { id: 'acceso_escalera', label: 'Escalera', type: 'checkbox', cellRef: 'D43', row: 43, col: 4, required: false },
+        { id: 'acceso_andamio', label: 'Andamio', type: 'checkbox', cellRef: 'F43', row: 43, col: 6, required: false },
+        { id: 'acceso_canasta', label: 'Canasta Grúa', type: 'checkbox', cellRef: 'I43', row: 43, col: 9, required: false },
+        { id: 'acceso_plataformas', label: 'Plataformas Móviles', type: 'checkbox', cellRef: 'N43', row: 43, col: 14, required: false },
+        { id: 'acceso_otro', label: 'Otro (especificar)', type: 'text', cellRef: 'Q43', row: 43, col: 17, required: false },
       ],
       startRow: 43,
       endRow: 43,
@@ -795,40 +1041,48 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 20,
     });
 
-    // 7. ELEMENTOS DE PROTECCIÓN PERSONAL (Filas 46-53)
+    // PASO 8: ELEMENTOS DE PROTECCIÓN PERSONAL - EPP (Filas 46-53)
+    // 24 checkboxes simples distribuidos en 3 columnas + campo "Otro"
+    // NO usar radio buttons SI/NO/N/A, solo marcar/desmarcar
     const eppFields: Field[] = [
-      // Columna G
+      // Columna G (8 items)
       { id: 'epp_casco', label: 'Casco de Seguridad con Barbuquejo', type: 'checkbox', cellRef: 'G46', row: 46, col: 7, required: false },
       { id: 'epp_gafas_oscuro', label: 'Gafas de Seguridad Lente Oscuro', type: 'checkbox', cellRef: 'G47', row: 47, col: 7, required: false },
       { id: 'epp_guantes_vaqueta', label: 'Guantes de Vaqueta', type: 'checkbox', cellRef: 'G48', row: 48, col: 7, required: false },
-      { id: 'epp_auditiva', label: 'Protección Auditiva', type: 'checkbox', cellRef: 'G49', row: 49, col: 7, required: false },
-      { id: 'epp_respiratoria', label: 'Protección Respiratoria', type: 'checkbox', cellRef: 'G50', row: 50, col: 7, required: false },
+      { id: 'epp_proteccion_auditiva', label: 'Protección Auditiva', type: 'checkbox', cellRef: 'G49', row: 49, col: 7, required: false },
+      { id: 'epp_proteccion_respiratoria', label: 'Protección Respiratoria', type: 'checkbox', cellRef: 'G50', row: 50, col: 7, required: false },
       { id: 'epp_botas_puntera', label: 'Botas de Seguridad con Puntera', type: 'checkbox', cellRef: 'G51', row: 51, col: 7, required: false },
       { id: 'epp_botas_dielectricas', label: 'Botas Dieléctricas', type: 'checkbox', cellRef: 'G52', row: 52, col: 7, required: false },
       { id: 'epp_arnes', label: 'Arnés de Cuerpo Completo', type: 'checkbox', cellRef: 'G53', row: 53, col: 7, required: false },
-      // Columna M
-      { id: 'epp_eslinga_absorvedor', label: 'Eslinga con Absorbedor de Impactos', type: 'checkbox', cellRef: 'M46', row: 46, col: 13, required: false },
+
+      // Columna M (8 items)
+      { id: 'epp_eslinga_absorbedor', label: 'Eslinga con Absorbedor de Impactos', type: 'checkbox', cellRef: 'M46', row: 46, col: 13, required: false },
       { id: 'epp_eslinga_posicionamiento', label: 'Eslinga de Posicionamiento', type: 'checkbox', cellRef: 'M47', row: 47, col: 13, required: false },
       { id: 'epp_delantal', label: 'Delantal o Pechera para Soldadura', type: 'checkbox', cellRef: 'M48', row: 48, col: 13, required: false },
       { id: 'epp_careta', label: 'Careta Esmeriladora', type: 'checkbox', cellRef: 'M49', row: 49, col: 13, required: false },
       { id: 'epp_guantes_dielectricos', label: 'Guantes Dieléctricos', type: 'checkbox', cellRef: 'M50', row: 50, col: 13, required: false },
       { id: 'epp_faja', label: 'Faja Sacrolumbar', type: 'checkbox', cellRef: 'M51', row: 51, col: 13, required: false },
       { id: 'epp_casco_sin_barbuquejo', label: 'Casco de Seguridad sin Barbuquejo', type: 'checkbox', cellRef: 'M52', row: 52, col: 13, required: false },
-      // Columna T
+      { id: 'epp_otro_m53', label: 'Otro', type: 'checkbox', cellRef: 'M53', row: 53, col: 13, required: false },
+
+      // Columna T (8 items)
       { id: 'epp_kit_rescate', label: 'Kit de Rescate', type: 'checkbox', cellRef: 'T46', row: 46, col: 20, required: false },
       { id: 'epp_autorretractil', label: 'Autorretráctil', type: 'checkbox', cellRef: 'T47', row: 47, col: 20, required: false },
-      { id: 'epp_silla', label: 'Silla para Trabajo en Suspensión', type: 'checkbox', cellRef: 'T48', row: 48, col: 20, required: false },
+      { id: 'epp_silla_suspension', label: 'Silla para Trabajo en Suspensión', type: 'checkbox', cellRef: 'T48', row: 48, col: 20, required: false },
       { id: 'epp_chaleco', label: 'Chaleco Reflectivo/Camisa con Reflectivo', type: 'checkbox', cellRef: 'T49', row: 49, col: 20, required: false },
       { id: 'epp_freno', label: 'Freno o Arrestador de Caída', type: 'checkbox', cellRef: 'T50', row: 50, col: 20, required: false },
       { id: 'epp_gafas_claro', label: 'Gafas de Lente Claro', type: 'checkbox', cellRef: 'T51', row: 51, col: 20, required: false },
       { id: 'epp_linea_vida', label: 'Línea de Vida', type: 'checkbox', cellRef: 'T52', row: 52, col: 20, required: false },
-      // Otro
-      { id: 'epp_otro', label: 'Otro(s)', type: 'text', cellRef: 'H53', row: 53, col: 8, required: false },
+      { id: 'epp_otro_t53', label: 'Otro', type: 'checkbox', cellRef: 'T53', row: 53, col: 20, required: false },
+
+      // Campo de texto para especificar "Otro"
+      { id: 'epp_otro_descripcion', label: 'Otro(s) - Especificar', type: 'text', cellRef: 'H53', row: 53, col: 8, required: false },
     ];
+
     sections.push({
       id: 'epp',
       type: 'checklist',
-      title: 'Elementos de Protección Personal',
+      title: 'Paso 8: Elementos de Protección Personal (EPP)',
       fields: eppFields,
       startRow: 46,
       endRow: 53,
@@ -836,11 +1090,11 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 20,
     });
 
-    // 8. HERRAMIENTAS Y OBSERVACIONES
+    // PASO 9: HERRAMIENTAS Y OBSERVACIONES
     sections.push({
-      id: 'herramientas_obs',
+      id: 'herramientas_observaciones',
       type: 'observations',
-      title: 'Herramientas y Observaciones',
+      title: 'Paso 9: Herramientas y Observaciones',
       fields: [
         { id: 'herramientas', label: 'Herramientas a Utilizar', type: 'textarea', cellRef: 'B56', row: 56, col: 2, required: false },
         { id: 'observaciones', label: 'Observaciones', type: 'textarea', cellRef: 'B59', row: 59, col: 2, required: false },
@@ -851,15 +1105,52 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 20,
     });
 
-    // 9. FIRMAS FINALES (Filas 65-67)
+    // PASO 10: FIRMAS FINALES (Filas 65-67)
+    // Filtrado por rol de usuario desde base de datos:
+    // - N65: Solo supervisores (Antonio Cabarcas, Deivi Zabaleta, Leonardo Torres)
+    // - N66: Solo conductores (Carlos Guzmán, Luis Hernández, Andrés Puello, Joseph Puello)
+    // - N67: Solo supervisores
     sections.push({
-      id: 'firmas_finales',
+      id: 'firmas_autorizacion',
       type: 'signatures',
-      title: 'Firmas de Autorización',
+      title: 'Paso 10: Firmas de Autorización',
       fields: [
-        { id: 'firma_autoriza', label: 'Autoriza el Trabajo', type: 'signature', cellRef: 'N65', row: 65, col: 14, required: true },
-        { id: 'firma_emergencia', label: 'Activa el Plan de Emergencia', type: 'signature', cellRef: 'N66', row: 66, col: 14, required: true },
-        { id: 'firma_coordinador', label: 'Coordinador de TSA', type: 'signature', cellRef: 'N67', row: 67, col: 14, required: true },
+        {
+          id: 'firma_autoriza_trabajo',
+          label: 'Autoriza el Trabajo',
+          type: 'signature',
+          cellRef: 'N65',
+          row: 65,
+          col: 14,
+          required: true,
+          validation: {
+            pattern: 'supervisor_only' // Solo supervisores
+          }
+        },
+        {
+          id: 'firma_plan_emergencia',
+          label: 'Activa el Plan de Emergencia',
+          type: 'signature',
+          cellRef: 'N66',
+          row: 66,
+          col: 14,
+          required: true,
+          validation: {
+            pattern: 'conductor_only' // Solo conductores
+          }
+        },
+        {
+          id: 'firma_coordinador_tsa',
+          label: 'Coordinador de TSA',
+          type: 'signature',
+          cellRef: 'N67',
+          row: 67,
+          col: 14,
+          required: true,
+          validation: {
+            pattern: 'supervisor_only' // Solo supervisores
+          }
+        },
       ],
       startRow: 65,
       endRow: 67,
