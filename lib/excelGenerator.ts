@@ -285,7 +285,7 @@ export class ExcelGenerator {
       // Para celdas multi-columna, calcular la columna de inicio y ajustar offsets
       if (mergedCols > 1) {
         // Ajustar posición vertical - un poco más abajo que antes
-        verticalOffset = 10; // Pequeño padding desde el top
+        verticalOffset = 13; // Pequeño padding desde el top
 
         // Calcular en qué columna debe empezar la imagen para centrado horizontal
         let accumulatedWidth = 0;
