@@ -274,7 +274,28 @@ export class ExcelGenerator {
 
       // Calcular offsets para centrar
       const verticalOffset = Math.max((totalHeight - imgHeight) / 2, 0);
-      const horizontalOffset = Math.max((columnWidth - imgWidth) / 2, 0);
+      let horizontalOffset = Math.max((columnWidth - imgWidth) / 2, 0);
+      let startCol = col - 1; // ExcelJS usa índice 0
+
+      // Para celdas con múltiples columnas combinadas, calcular la columna de inicio correcta
+      if (mergedCols > 1) {
+        // Calcular cuántas columnas completas ocupar antes de la imagen
+        // Ancho promedio por columna en el rango combinado
+        const avgColWidth = columnWidth / mergedCols;
+        const columnsToSkip = Math.floor(horizontalOffset / avgColWidth);
+        const remainingOffset = horizontalOffset - (columnsToSkip * avgColWidth);
+
+        startCol = (col - 1) + columnsToSkip;
+        horizontalOffset = remainingOffset;
+      }
+
+      // Convertir a EMU para mayor precisión
+      // 1 píxel a 96 DPI = 9525 EMU
+      const EMU_PER_PIXEL = 9525;
+      const horizontalOffsetEMU = Math.round(horizontalOffset * EMU_PER_PIXEL);
+      const verticalOffsetEMU = Math.round(verticalOffset * EMU_PER_PIXEL);
+      const imgWidthEMU = Math.round(imgWidth * EMU_PER_PIXEL);
+      const imgHeightEMU = Math.round(imgHeight * EMU_PER_PIXEL);
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
@@ -282,15 +303,18 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Insertar imagen centrada
+      // Insertar imagen centrada usando EMU
       worksheet.addImage(imageId, {
         tl: {
-          col: col - 1,              // ExcelJS usa índice 0
-          colOff: horizontalOffset,  // Centrar horizontalmente
-          row: row - 1,              // ExcelJS usa índice 0
-          rowOff: verticalOffset     // Centrar verticalmente
+          col: startCol,                  // Columna calculada para centrado
+          colOff: horizontalOffsetEMU,    // Offset horizontal en EMU
+          row: row - 1,                   // ExcelJS usa índice 0
+          rowOff: verticalOffsetEMU       // Offset vertical en EMU
         } as any,
-        ext: { width: imgWidth, height: imgHeight },
+        ext: {
+          width: imgWidthEMU,     // Ancho en EMU
+          height: imgHeightEMU    // Alto en EMU
+        },
         editAs: 'oneCell'
       } as any);
     } catch (error) {

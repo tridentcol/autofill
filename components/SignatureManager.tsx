@@ -22,7 +22,8 @@ export default function SignatureManager() {
       return;
     }
 
-    const dataUrl = signatureRef.current.toDataURL();
+    // Generar PNG con fondo transparente
+    const dataUrl = signatureRef.current.toDataURL('image/png');
 
     const newSignature: Signature = {
       id: `sig_${Date.now()}`,
@@ -130,13 +131,13 @@ export default function SignatureManager() {
           {/* Canvas para dibujar */}
           {isDrawing && (
             <div className="space-y-3">
-              <div className="border-2 border-dashed border-gray-300 rounded-lg bg-white">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
                 <SignatureCanvas
                   ref={signatureRef}
                   canvasProps={{
                     className: 'signature-canvas w-full h-48',
                   }}
-                  backgroundColor="white"
+                  backgroundColor="rgba(0,0,0,0)"
                 />
               </div>
               <div className="flex gap-3">
