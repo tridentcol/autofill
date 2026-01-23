@@ -13,7 +13,7 @@ interface WorkerSectionProps {
 }
 
 export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectionProps) {
-  const { getWorkerById, getCuadrillaById, signatures: dbSignatures } = useDatabaseStore();
+  const { getWorkerById, getCuadrillaById } = useDatabaseStore();
   const { updateFieldValue, currentFormData, signatures } = useFormStore();
 
   const [selectedCuadrillaId, setSelectedCuadrillaId] = useState<string>('');
