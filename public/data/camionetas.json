@@ -1,0 +1,22 @@
+[
+  {
+    "id": "cam_1",
+    "marca": "Toyota",
+    "linea": "Hilux",
+    "placa": "ABC123",
+    "modelo": "2022",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "cam_2",
+    "marca": "Chevrolet",
+    "linea": "D-MAX",
+    "placa": "XYZ789",
+    "modelo": "2021",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]

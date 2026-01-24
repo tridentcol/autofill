@@ -1,0 +1,22 @@
+[
+  {
+    "id": "grua_1",
+    "placa": "GRU456",
+    "marca": "Hino",
+    "modelo": "2020",
+    "linea": "Serie 500",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "grua_2",
+    "placa": "MAN789",
+    "marca": "Kenworth",
+    "modelo": "2019",
+    "linea": "T800",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]

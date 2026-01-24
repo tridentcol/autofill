@@ -1,0 +1,123 @@
+[
+  {
+    "id": "worker_1",
+    "nombre": "Carlos Guzmán",
+    "cargo": "Conductor",
+    "cedula": "1143359194",
+    "cuadrillaId": "cuad_1",
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_2",
+    "nombre": "Kleiver Polo",
+    "cargo": "Técnico",
+    "cedula": "9288327",
+    "cuadrillaId": "cuad_1",
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_3",
+    "nombre": "Luis Hernández",
+    "cargo": "Conductor",
+    "cedula": "",
+    "cuadrillaId": "cuad_2",
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_4",
+    "nombre": "Jefferson Genes",
+    "cargo": "Técnico",
+    "cedula": "1050967799",
+    "cuadrillaId": "cuad_2",
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_5",
+    "nombre": "Andrés Puello",
+    "cargo": "Conductor",
+    "cedula": "1050963621",
+    "cuadrillaId": "cuad_3",
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_6",
+    "nombre": "Juan Carlos Romero",
+    "cargo": "Técnico",
+    "cedula": "73228082",
+    "cuadrillaId": "cuad_3",
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_7",
+    "nombre": "Leonardo Torres",
+    "cargo": "Supervisor",
+    "cedula": "1124034299",
+    "cuadrillaId": "cuad_3",
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_8",
+    "nombre": "Joseph Puello",
+    "cargo": "Conductor",
+    "cedula": "9298718",
+    "cuadrillaId": "cuad_4",
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_9",
+    "nombre": "Remberto Martínez",
+    "cargo": "Técnico",
+    "cedula": "1047425281",
+    "cuadrillaId": "cuad_4",
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_10",
+    "nombre": "Antonio Cabarcas",
+    "cargo": "Asistente técnico",
+    "cedula": "",
+    "cuadrillaId": null,
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_11",
+    "nombre": "Deivi Zabaleta",
+    "cargo": "Coordinador de zona",
+    "cedula": "",
+    "cuadrillaId": null,
+    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]

@@ -256,20 +256,21 @@ export default function AdminDashboard() {
                 <div className="border border-gray-200 rounded-lg p-4">
                   <h4 className="text-sm font-medium text-gray-900 mb-2">Base de Datos</h4>
                   <p className="text-sm text-gray-600 mb-4">
-                    Los datos se almacenan en IndexedDB del navegador.
+                    Los datos predeterminados se cargan desde archivos JSON en el repositorio.
+                    Los cambios se guardan localmente en IndexedDB.
                   </p>
                   <button
-                    onClick={() => {
-                      if (confirm('¿Seguro? Esto eliminará todos los cambios y restaurará datos predeterminados.')) {
-                        useDatabaseStore.getState().clearAll();
-                        useDatabaseStore.getState().initializeDefaultData();
+                    onClick={async () => {
+                      if (confirm('¿Seguro? Esto eliminará todos los cambios y restaurará datos predeterminados desde el repositorio.')) {
+                        const { db } = await import('@/lib/db');
+                        await db.resetToDefaults();
                         alert('Base de datos reinicializada');
                         window.location.reload();
                       }
                     }}
                     className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors"
                   >
-                    Reinicializar Base de Datos
+                    Restaurar Datos Predeterminados
                   </button>
                 </div>
 
