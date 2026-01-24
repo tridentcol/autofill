@@ -1,12 +1,20 @@
 import type { Worker, Cuadrilla, Camioneta, Grua } from '@/types';
+import {
+  syncWorkersToGit,
+  syncCuadrillasToGit,
+  syncCamionetasToGit,
+  syncGruasToGit,
+  syncAllDataToGit,
+} from './gitSync';
 
 /**
- * Service to sync data with server (write to JSON files)
+ * Service to sync data with server (write to JSON files and commit to git)
  * Only used when admin makes changes
  */
 
 export async function syncWorkersToServer(workers: Worker[]): Promise<boolean> {
   try {
+    // 1. Write to local JSON file (works in development)
     const response = await fetch('/api/data/workers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -17,7 +25,14 @@ export async function syncWorkersToServer(workers: Worker[]): Promise<boolean> {
       throw new Error('Failed to sync workers');
     }
 
-    console.log('✅ Workers synced to repository');
+    console.log('✅ Workers synced to local files');
+
+    // 2. Commit to git (works in production)
+    const gitSuccess = await syncWorkersToGit(workers);
+    if (!gitSuccess) {
+      console.warn('⚠️ Git sync failed, but local files were updated');
+    }
+
     return true;
   } catch (error) {
     console.error('❌ Error syncing workers:', error);
@@ -27,6 +42,7 @@ export async function syncWorkersToServer(workers: Worker[]): Promise<boolean> {
 
 export async function syncCuadrillasToServer(cuadrillas: Cuadrilla[]): Promise<boolean> {
   try {
+    // 1. Write to local JSON file (works in development)
     const response = await fetch('/api/data/cuadrillas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -37,7 +53,14 @@ export async function syncCuadrillasToServer(cuadrillas: Cuadrilla[]): Promise<b
       throw new Error('Failed to sync cuadrillas');
     }
 
-    console.log('✅ Cuadrillas synced to repository');
+    console.log('✅ Cuadrillas synced to local files');
+
+    // 2. Commit to git (works in production)
+    const gitSuccess = await syncCuadrillasToGit(cuadrillas);
+    if (!gitSuccess) {
+      console.warn('⚠️ Git sync failed, but local files were updated');
+    }
+
     return true;
   } catch (error) {
     console.error('❌ Error syncing cuadrillas:', error);
@@ -47,6 +70,7 @@ export async function syncCuadrillasToServer(cuadrillas: Cuadrilla[]): Promise<b
 
 export async function syncCamionetasToServer(camionetas: Camioneta[]): Promise<boolean> {
   try {
+    // 1. Write to local JSON file (works in development)
     const response = await fetch('/api/data/camionetas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -57,7 +81,14 @@ export async function syncCamionetasToServer(camionetas: Camioneta[]): Promise<b
       throw new Error('Failed to sync camionetas');
     }
 
-    console.log('✅ Camionetas synced to repository');
+    console.log('✅ Camionetas synced to local files');
+
+    // 2. Commit to git (works in production)
+    const gitSuccess = await syncCamionetasToGit(camionetas);
+    if (!gitSuccess) {
+      console.warn('⚠️ Git sync failed, but local files were updated');
+    }
+
     return true;
   } catch (error) {
     console.error('❌ Error syncing camionetas:', error);
@@ -67,6 +98,7 @@ export async function syncCamionetasToServer(camionetas: Camioneta[]): Promise<b
 
 export async function syncGruasToServer(gruas: Grua[]): Promise<boolean> {
   try {
+    // 1. Write to local JSON file (works in development)
     const response = await fetch('/api/data/gruas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -77,7 +109,14 @@ export async function syncGruasToServer(gruas: Grua[]): Promise<boolean> {
       throw new Error('Failed to sync gruas');
     }
 
-    console.log('✅ Gruas synced to repository');
+    console.log('✅ Gruas synced to local files');
+
+    // 2. Commit to git (works in production)
+    const gitSuccess = await syncGruasToGit(gruas);
+    if (!gitSuccess) {
+      console.warn('⚠️ Git sync failed, but local files were updated');
+    }
+
     return true;
   } catch (error) {
     console.error('❌ Error syncing gruas:', error);
@@ -86,7 +125,7 @@ export async function syncGruasToServer(gruas: Grua[]): Promise<boolean> {
 }
 
 /**
- * Sync all data to server
+ * Sync all data to server (local files and git)
  */
 export async function syncAllDataToServer(data: {
   workers: Worker[];
@@ -94,12 +133,22 @@ export async function syncAllDataToServer(data: {
   camionetas: Camioneta[];
   gruas: Grua[];
 }): Promise<boolean> {
-  const results = await Promise.all([
-    syncWorkersToServer(data.workers),
-    syncCuadrillasToServer(data.cuadrillas),
-    syncCamionetasToServer(data.camionetas),
-    syncGruasToServer(data.gruas),
-  ]);
+  try {
+    // Sync all data at once for efficiency
+    const results = await Promise.all([
+      syncWorkersToServer(data.workers),
+      syncCuadrillasToServer(data.cuadrillas),
+      syncCamionetasToServer(data.camionetas),
+      syncGruasToServer(data.gruas),
+    ]);
 
-  return results.every(result => result === true);
+    // Also do a single git commit with all changes
+    // This is more efficient than multiple commits
+    await syncAllDataToGit(data);
+
+    return results.every(result => result === true);
+  } catch (error) {
+    console.error('❌ Error syncing all data:', error);
+    return false;
+  }
 }
