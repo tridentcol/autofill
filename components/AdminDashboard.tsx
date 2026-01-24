@@ -5,6 +5,7 @@ import { useDatabaseStore } from '@/store/useDatabaseStore';
 import { useFormStore } from '@/store/useFormStore';
 import DatabaseAdmin from './DatabaseAdmin';
 import SignatureManager from './SignatureManager';
+import WorkerSignatureManager from './WorkerSignatureManager';
 import VehicleManagement from './VehicleManagement';
 
 type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'settings';
@@ -224,14 +225,26 @@ export default function AdminDashboard() {
             )}
 
             {activeTab === 'signatures' && (
-              <div>
-                <div className="mb-6">
-                  <h3 className="text-base font-semibold text-gray-900 mb-1">Gestión de Firmas</h3>
-                  <p className="text-sm text-gray-600">
-                    Crea y gestiona firmas digitales. Asigna firmas desde la pestaña de Trabajadores.
-                  </p>
+              <div className="space-y-8">
+                <div>
+                  <div className="mb-6">
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">Firmas de Trabajadores</h3>
+                    <p className="text-sm text-gray-600">
+                      Gestiona firmas permanentes para trabajadores. Estas firmas se guardan en el repositorio y están disponibles para todos los usuarios.
+                    </p>
+                  </div>
+                  <WorkerSignatureManager />
                 </div>
-                <SignatureManager />
+
+                <div className="border-t border-gray-200 pt-8">
+                  <div className="mb-6">
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">Firmas Temporales</h3>
+                    <p className="text-sm text-gray-600">
+                      Firmas locales para uso temporal en formularios. Estas firmas solo están disponibles en este dispositivo.
+                    </p>
+                  </div>
+                  <SignatureManager />
+                </div>
               </div>
             )}
 
