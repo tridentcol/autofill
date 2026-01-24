@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { db } from '@/lib/db';
+import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer } from '@/lib/dataSync';
 import type { DatabaseState, Worker, Cuadrilla, User, WorkerCargo, Camioneta, Grua } from '@/types';
 
 export const useDatabaseStore = create<DatabaseState>()(
@@ -28,6 +29,11 @@ export const useDatabaseStore = create<DatabaseState>()(
         set((state) => ({
           workers: [...state.workers, newWorker],
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncWorkersToServer(get().workers);
+        }
       },
 
       updateWorker: async (id, updates) => {
@@ -40,6 +46,11 @@ export const useDatabaseStore = create<DatabaseState>()(
               : worker
           ),
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncWorkersToServer(get().workers);
+        }
       },
 
       deleteWorker: async (id) => {
@@ -56,6 +67,11 @@ export const useDatabaseStore = create<DatabaseState>()(
 
         // También remover de cuadrilla si está asignado
         await get().removeWorkerFromCuadrilla(id);
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncWorkersToServer(get().workers);
+        }
       },
 
       getWorkerById: (id) => {
@@ -87,6 +103,11 @@ export const useDatabaseStore = create<DatabaseState>()(
         set((state) => ({
           cuadrillas: [...state.cuadrillas, newCuadrilla],
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncCuadrillasToServer(get().cuadrillas);
+        }
       },
 
       updateCuadrilla: async (id, updates) => {
@@ -99,6 +120,11 @@ export const useDatabaseStore = create<DatabaseState>()(
               : cuad
           ),
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncCuadrillasToServer(get().cuadrillas);
+        }
       },
 
       deleteCuadrilla: async (id) => {
@@ -126,6 +152,12 @@ export const useDatabaseStore = create<DatabaseState>()(
               : worker
           ),
         }));
+
+        // Sync to server if admin (both cuadrillas and workers were modified)
+        if (get().isAdmin()) {
+          await syncCuadrillasToServer(get().cuadrillas);
+          await syncWorkersToServer(get().workers);
+        }
       },
 
       getCuadrillaById: (id) => {
@@ -163,6 +195,12 @@ export const useDatabaseStore = create<DatabaseState>()(
               return cuad;
             }),
           }));
+        }
+
+        // Sync to server if admin (both workers and cuadrillas were modified)
+        if (get().isAdmin()) {
+          await syncWorkersToServer(get().workers);
+          await syncCuadrillasToServer(get().cuadrillas);
         }
       },
 
@@ -204,6 +242,12 @@ export const useDatabaseStore = create<DatabaseState>()(
             }),
           }));
         }
+
+        // Sync to server if admin (both workers and cuadrillas were modified)
+        if (get().isAdmin()) {
+          await syncWorkersToServer(get().workers);
+          await syncCuadrillasToServer(get().cuadrillas);
+        }
       },
 
       // ==================== CAMIONETAS CRUD ====================
@@ -221,6 +265,11 @@ export const useDatabaseStore = create<DatabaseState>()(
         set((state) => ({
           camionetas: [...state.camionetas, newCamioneta],
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncCamionetasToServer(get().camionetas);
+        }
       },
 
       updateCamioneta: async (id, updates) => {
@@ -233,6 +282,11 @@ export const useDatabaseStore = create<DatabaseState>()(
               : cam
           ),
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncCamionetasToServer(get().camionetas);
+        }
       },
 
       deleteCamioneta: async (id) => {
@@ -246,6 +300,11 @@ export const useDatabaseStore = create<DatabaseState>()(
               : cam
           ),
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncCamionetasToServer(get().camionetas);
+        }
       },
 
       getCamionetaById: (id) => {
@@ -267,6 +326,11 @@ export const useDatabaseStore = create<DatabaseState>()(
         set((state) => ({
           gruas: [...state.gruas, newGrua],
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncGruasToServer(get().gruas);
+        }
       },
 
       updateGrua: async (id, updates) => {
@@ -279,6 +343,11 @@ export const useDatabaseStore = create<DatabaseState>()(
               : grua
           ),
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncGruasToServer(get().gruas);
+        }
       },
 
       deleteGrua: async (id) => {
@@ -292,6 +361,11 @@ export const useDatabaseStore = create<DatabaseState>()(
               : grua
           ),
         }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncGruasToServer(get().gruas);
+        }
       },
 
       getGruaById: (id) => {
