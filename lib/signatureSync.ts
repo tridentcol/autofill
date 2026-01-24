@@ -18,26 +18,34 @@ export async function uploadSignature(options: UploadSignatureOptions): Promise<
   try {
     const { signatureId, imageData, workerName } = options;
 
-    // 1. Upload to local server (saves to /public/signatures/)
-    const uploadResponse = await fetch('/api/signatures/upload', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ signatureId, imageData }),
-    });
-
-    if (!uploadResponse.ok) {
-      const error = await uploadResponse.json();
-      console.error('❌ Error uploading signature:', error);
-      return false;
-    }
-
-    const uploadResult = await uploadResponse.json();
-    console.log('✅ Signature uploaded:', uploadResult.path);
-
-    // 2. Commit to git repository
     // Extract base64 content for git API
     const base64Data = imageData.replace(/^data:image\/png;base64,/, '');
 
+    // In production (Vercel), skip local file write and go straight to git
+    // In development, try to write locally but don't fail if it doesn't work
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
+    if (isDevelopment) {
+      try {
+        // Try to upload to local server (saves to /public/signatures/)
+        const uploadResponse = await fetch('/api/signatures/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signatureId, imageData }),
+        });
+
+        if (uploadResponse.ok) {
+          const uploadResult = await uploadResponse.json();
+          console.log('✅ Signature uploaded locally:', uploadResult.path);
+        } else {
+          console.warn('⚠️ Could not upload signature locally, continuing with git...');
+        }
+      } catch (error) {
+        console.warn('⚠️ Local file write failed (expected in production), continuing with git...');
+      }
+    }
+
+    // Commit to git repository (this works in both dev and production)
     const timestamp = new Date().toISOString();
     const commitMessage = workerName
       ? `chore: Add signature for ${workerName} - ${timestamp}`
@@ -54,8 +62,8 @@ export async function uploadSignature(options: UploadSignatureOptions): Promise<
     });
 
     if (!gitSuccess) {
-      console.warn('⚠️ Git sync failed for signature, but file was uploaded locally');
-      return true; // Still return true because local upload succeeded
+      console.error('❌ Git sync failed for signature');
+      return false;
     }
 
     console.log('✅ Signature committed to repository');
