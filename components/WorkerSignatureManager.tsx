@@ -135,7 +135,7 @@ export default function WorkerSignatureManager() {
     if (confirm(`¿Está seguro de que desea remover la firma de ${worker.nombre}?`)) {
       try {
         await updateWorker(workerId, {
-          signatureId: null,
+          signatureId: undefined,
         });
         alert('Firma removida exitosamente');
       } catch (error) {
