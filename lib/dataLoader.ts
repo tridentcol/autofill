@@ -10,9 +10,11 @@ export async function loadWorkersFromJSON(): Promise<Worker[]> {
     if (!response.ok) throw new Error('Failed to load workers');
     const data = await response.json();
 
-    // Convert date strings to Date objects
+    // Convert date strings to Date objects and null to undefined
     return data.map((worker: any) => ({
       ...worker,
+      cuadrillaId: worker.cuadrillaId || undefined,
+      signatureId: worker.signatureId || undefined,
       createdAt: new Date(worker.createdAt),
       updatedAt: new Date(worker.updatedAt),
     }));

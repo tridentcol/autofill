@@ -413,21 +413,15 @@ export const useDatabaseStore = create<DatabaseState>()(
       // ==================== INITIALIZE DEFAULT DATA ====================
 
       initializeDefaultData: async () => {
-        // Verificar si ya hay datos en IndexedDB
-        const workersCount = await db.workers.count();
-        const cuadrillasCount = await db.cuadrillas.count();
+        try {
+          // Primero, asegurarnos de que la base de datos esté inicializada
+          await db.initializeDefaultData();
 
-        if (workersCount > 0 || cuadrillasCount > 0) {
-          console.log('✅ La base de datos ya tiene datos, cargando...');
+          // Luego cargar los datos al store
           await get().loadFromDB();
-          return;
+        } catch (error) {
+          console.error('❌ Error al inicializar datos:', error);
         }
-
-        console.log('🔄 Inicializando base de datos con datos predeterminados...');
-
-        // La base de datos se inicializa automáticamente en db.ts
-        // Solo necesitamos cargar los datos
-        await get().loadFromDB();
       },
 
       // ==================== CLEAR ALL ====================
