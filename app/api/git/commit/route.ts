@@ -16,14 +16,20 @@ export async function POST(request: NextRequest) {
   try {
     const { message, files }: GitCommitRequest = await request.json();
 
+    console.log(`📝 Git commit request: ${files.length} file(s)`);
+    files.forEach(f => console.log(`   - ${f.path}`));
+
     // Get environment variables
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     const GITHUB_OWNER = process.env.GITHUB_OWNER || process.env.VERCEL_GIT_REPO_OWNER;
     const GITHUB_REPO = process.env.GITHUB_REPO || process.env.VERCEL_GIT_REPO_SLUG;
     const GITHUB_BRANCH = process.env.GITHUB_BRANCH || process.env.VERCEL_GIT_COMMIT_REF || 'main';
 
+    console.log(`🔧 GitHub config: ${GITHUB_OWNER}/${GITHUB_REPO} (${GITHUB_BRANCH})`);
+
     // Validate environment variables
     if (!GITHUB_TOKEN) {
+      console.error('❌ GITHUB_TOKEN not configured');
       return NextResponse.json(
         { error: 'GITHUB_TOKEN not configured. Set it in environment variables.' },
         { status: 500 }
@@ -31,6 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!GITHUB_OWNER || !GITHUB_REPO) {
+      console.error('❌ GitHub repository not configured');
       return NextResponse.json(
         { error: 'GitHub repository not configured. Set GITHUB_OWNER and GITHUB_REPO.' },
         { status: 500 }
@@ -47,7 +54,8 @@ export async function POST(request: NextRequest) {
     // 1. Get the current commit SHA of the branch
     const refResponse = await fetch(`${baseUrl}/git/ref/heads/${GITHUB_BRANCH}`, { headers });
     if (!refResponse.ok) {
-      throw new Error(`Failed to get branch ref: ${refResponse.statusText}`);
+      const errorText = await refResponse.text();
+      throw new Error(`Failed to get branch ref: ${refResponse.statusText} - ${errorText}`);
     }
     const refData = await refResponse.json();
     const currentCommitSha = refData.object.sha;
@@ -55,7 +63,8 @@ export async function POST(request: NextRequest) {
     // 2. Get the commit to retrieve the tree SHA
     const commitResponse = await fetch(`${baseUrl}/git/commits/${currentCommitSha}`, { headers });
     if (!commitResponse.ok) {
-      throw new Error(`Failed to get commit: ${commitResponse.statusText}`);
+      const errorText = await commitResponse.text();
+      throw new Error(`Failed to get commit: ${commitResponse.statusText} - ${errorText}`);
     }
     const commitData = await commitResponse.json();
     const currentTreeSha = commitData.tree.sha;
@@ -63,17 +72,22 @@ export async function POST(request: NextRequest) {
     // 3. Create blobs for each file
     const blobs = await Promise.all(
       files.map(async (file) => {
+        // Detect encoding based on file extension
+        const isBinaryFile = /\.(png|jpg|jpeg|gif|pdf|zip|bin)$/i.test(file.path);
+        const encoding = isBinaryFile ? 'base64' : 'utf-8';
+
         const blobResponse = await fetch(`${baseUrl}/git/blobs`, {
           method: 'POST',
           headers,
           body: JSON.stringify({
             content: file.content,
-            encoding: 'utf-8',
+            encoding,
           }),
         });
 
         if (!blobResponse.ok) {
-          throw new Error(`Failed to create blob for ${file.path}: ${blobResponse.statusText}`);
+          const errorText = await blobResponse.text();
+          throw new Error(`Failed to create blob for ${file.path}: ${blobResponse.statusText} - ${errorText}`);
         }
 
         const blobData = await blobResponse.json();
@@ -97,7 +111,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (!treeResponse.ok) {
-      throw new Error(`Failed to create tree: ${treeResponse.statusText}`);
+      const errorText = await treeResponse.text();
+      throw new Error(`Failed to create tree: ${treeResponse.statusText} - ${errorText}`);
     }
     const treeData = await treeResponse.json();
 
@@ -113,7 +128,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (!newCommitResponse.ok) {
-      throw new Error(`Failed to create commit: ${newCommitResponse.statusText}`);
+      const errorText = await newCommitResponse.text();
+      throw new Error(`Failed to create commit: ${newCommitResponse.statusText} - ${errorText}`);
     }
     const newCommitData = await newCommitResponse.json();
 
@@ -128,7 +144,8 @@ export async function POST(request: NextRequest) {
     });
 
     if (!updateRefResponse.ok) {
-      throw new Error(`Failed to update branch: ${updateRefResponse.statusText}`);
+      const errorText = await updateRefResponse.text();
+      throw new Error(`Failed to update branch: ${updateRefResponse.statusText} - ${errorText}`);
     }
 
     return NextResponse.json({
