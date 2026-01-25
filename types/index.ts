@@ -186,6 +186,7 @@ export interface Worker {
   cedula: string;
   cuadrillaId?: string; // ID de la cuadrilla a la que pertenece
   signatureId?: string; // ID de la firma asignada
+  signatureData?: string; // Base64 de la firma para mostrar localmente mientras se sincroniza
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean; // Para desactivar sin eliminar
