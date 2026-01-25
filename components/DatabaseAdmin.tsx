@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 import { useFormStore } from '@/store/useFormStore';
+import { useDataSync } from '@/hooks/useDataSync';
 import type { Worker, WorkerCargo } from '@/types';
 
 type Tab = 'workers' | 'cuadrillas';
@@ -23,6 +24,7 @@ export default function DatabaseAdmin() {
   } = useDatabaseStore();
 
   const { signatures } = useFormStore();
+  const { syncFromRepository, isSyncing } = useDataSync();
 
   const [activeTab, setActiveTab] = useState<Tab>('workers');
   const [isAddingWorker, setIsAddingWorker] = useState(false);
@@ -156,12 +158,30 @@ export default function DatabaseAdmin() {
             Gestiona trabajadores, supervisores y cuadrillas
           </p>
         </div>
-        <button
-          onClick={initializeDefaultData}
-          className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-        >
-          Inicializar Datos
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => syncFromRepository()}
+            disabled={isSyncing}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            title="Sincronizar datos desde el repositorio"
+          >
+            <svg
+              className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {isSyncing ? 'Sincronizando...' : 'Sincronizar'}
+          </button>
+          <button
+            onClick={initializeDefaultData}
+            className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            Inicializar Datos
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}
