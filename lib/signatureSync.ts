@@ -18,38 +18,19 @@ export async function uploadSignature(options: UploadSignatureOptions): Promise<
   try {
     const { signatureId, imageData, workerName } = options;
 
+    console.log('📝 Uploading signature for:', workerName || signatureId);
+
     // Extract base64 content for git API
     const base64Data = imageData.replace(/^data:image\/png;base64,/, '');
 
-    // In production (Vercel), skip local file write and go straight to git
-    // In development, try to write locally but don't fail if it doesn't work
-    const isDevelopment = process.env.NODE_ENV === 'development';
-
-    if (isDevelopment) {
-      try {
-        // Try to upload to local server (saves to /public/signatures/)
-        const uploadResponse = await fetch('/api/signatures/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ signatureId, imageData }),
-        });
-
-        if (uploadResponse.ok) {
-          const uploadResult = await uploadResponse.json();
-          console.log('✅ Signature uploaded locally:', uploadResult.path);
-        } else {
-          console.warn('⚠️ Could not upload signature locally, continuing with git...');
-        }
-      } catch (error) {
-        console.warn('⚠️ Local file write failed (expected in production), continuing with git...');
-      }
-    }
-
-    // Commit to git repository (this works in both dev and production)
+    // Always commit directly to git repository (works in both dev and production)
+    // In serverless environments like Vercel, local file writes are not possible
     const timestamp = new Date().toISOString();
     const commitMessage = workerName
       ? `chore: Add signature for ${workerName} - ${timestamp}`
       : `chore: Add signature ${signatureId} - ${timestamp}`;
+
+    console.log('🔄 Committing signature to repository...');
 
     const gitSuccess = await commitAndPushChanges({
       message: commitMessage,
