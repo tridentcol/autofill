@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { db } from '@/lib/db';
 import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer } from '@/lib/dataSync';
+import { loadAllDefaultData } from '@/lib/dataLoader';
 import type { DatabaseState, Worker, Cuadrilla, User, WorkerCargo, Camioneta, Grua } from '@/types';
 
 export const useDatabaseStore = create<DatabaseState>()(
@@ -444,6 +445,58 @@ export const useDatabaseStore = create<DatabaseState>()(
         });
 
         console.log('🗑️ Todos los datos eliminados');
+      },
+
+      // ==================== SYNC FROM SERVER ====================
+
+      syncFromServer: async () => {
+        try {
+          console.log('🔄 Sincronizando desde el servidor...');
+
+          // Load fresh data from server
+          const serverData = await loadAllDefaultData();
+
+          if (serverData.workers.length === 0 && serverData.cuadrillas.length === 0) {
+            console.warn('⚠️ No se encontraron datos en el servidor');
+            return false;
+          }
+
+          // Clear local IndexedDB
+          await db.clearAll();
+
+          // Save server data to IndexedDB
+          if (serverData.workers.length > 0) {
+            await db.workers.bulkAdd(serverData.workers);
+          }
+          if (serverData.cuadrillas.length > 0) {
+            await db.cuadrillas.bulkAdd(serverData.cuadrillas);
+          }
+          if (serverData.camionetas.length > 0) {
+            await db.camionetas.bulkAdd(serverData.camionetas);
+          }
+          if (serverData.gruas.length > 0) {
+            await db.gruas.bulkAdd(serverData.gruas);
+          }
+
+          // Update Zustand state
+          set({
+            workers: serverData.workers,
+            cuadrillas: serverData.cuadrillas,
+            camionetas: serverData.camionetas,
+            gruas: serverData.gruas,
+          });
+
+          console.log('✅ Sincronización completada');
+          console.log(`   - ${serverData.workers.length} trabajadores`);
+          console.log(`   - ${serverData.cuadrillas.length} cuadrillas`);
+          console.log(`   - ${serverData.camionetas.length} camionetas`);
+          console.log(`   - ${serverData.gruas.length} grúas`);
+
+          return true;
+        } catch (error) {
+          console.error('❌ Error al sincronizar desde el servidor:', error);
+          return false;
+        }
       },
     }),
     {
