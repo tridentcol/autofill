@@ -5,7 +5,25 @@
     "cargo": "Conductor",
     "cedula": "1143359194",
     "cuadrillaId": "cuad_1",
-    "signatureId": null,
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-25T19:20:12.617Z",
+    "signatureId": "worker_1"
+  },
+  {
+    "id": "worker_10",
+    "nombre": "Antonio Cabarcas",
+    "cargo": "Asistente técnico",
+    "cedula": "",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_11",
+    "nombre": "Deivi Zabaleta",
+    "cargo": "Coordinador de zona",
+    "cedula": "",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
@@ -16,7 +34,6 @@
     "cargo": "Técnico",
     "cedula": "9288327",
     "cuadrillaId": "cuad_1",
-    "signatureId": null,
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
@@ -27,7 +44,6 @@
     "cargo": "Conductor",
     "cedula": "",
     "cuadrillaId": "cuad_2",
-    "signatureId": null,
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
@@ -38,7 +54,6 @@
     "cargo": "Técnico",
     "cedula": "1050967799",
     "cuadrillaId": "cuad_2",
-    "signatureId": null,
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
@@ -49,7 +64,6 @@
     "cargo": "Conductor",
     "cedula": "1050963621",
     "cuadrillaId": "cuad_3",
-    "signatureId": null,
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
@@ -60,7 +74,6 @@
     "cargo": "Técnico",
     "cedula": "73228082",
     "cuadrillaId": "cuad_3",
-    "signatureId": null,
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
@@ -71,7 +84,6 @@
     "cargo": "Supervisor",
     "cedula": "1124034299",
     "cuadrillaId": "cuad_3",
-    "signatureId": null,
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
@@ -82,7 +94,6 @@
     "cargo": "Conductor",
     "cedula": "9298718",
     "cuadrillaId": "cuad_4",
-    "signatureId": null,
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
@@ -93,29 +104,6 @@
     "cargo": "Técnico",
     "cedula": "1047425281",
     "cuadrillaId": "cuad_4",
-    "signatureId": null,
-    "isActive": true,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  },
-  {
-    "id": "worker_10",
-    "nombre": "Antonio Cabarcas",
-    "cargo": "Asistente técnico",
-    "cedula": "",
-    "cuadrillaId": null,
-    "signatureId": null,
-    "isActive": true,
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  },
-  {
-    "id": "worker_11",
-    "nombre": "Deivi Zabaleta",
-    "cargo": "Coordinador de zona",
-    "cedula": "",
-    "cuadrillaId": null,
-    "signatureId": null,
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
