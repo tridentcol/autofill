@@ -49,9 +49,10 @@ export default function WorkerSignatureManager() {
         throw new Error('Failed to upload signature');
       }
 
-      // Update worker with signature ID
+      // Update worker with signature ID and data for local display
       await updateWorker(worker.id, {
         signatureId: worker.id,
+        signatureData: imageData, // Store base64 for immediate local display
       });
 
       // Clear canvas
@@ -106,9 +107,10 @@ export default function WorkerSignatureManager() {
           throw new Error('Failed to upload signature');
         }
 
-        // Update worker with signature ID
+        // Update worker with signature ID and data for local display
         await updateWorker(worker.id, {
           signatureId: worker.id,
+          signatureData: imageData, // Store base64 for immediate local display
         });
 
         setSelectedWorker('');
@@ -136,6 +138,7 @@ export default function WorkerSignatureManager() {
       try {
         await updateWorker(workerId, {
           signatureId: undefined,
+          signatureData: undefined,
         });
         alert('Firma removida exitosamente');
       } catch (error) {
@@ -306,12 +309,18 @@ export default function WorkerSignatureManager() {
                   <div className="bg-gray-50 border border-gray-200 rounded p-2 flex items-center justify-center min-h-[100px]">
                     {worker.signatureId ? (
                       <img
-                        src={`/signatures/${worker.signatureId}.png`}
+                        src={worker.signatureData || `/signatures/${worker.signatureId}.png`}
                         alt={`Firma de ${worker.nombre}`}
                         className="max-h-24 max-w-full"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
-                          (e.target as HTMLImageElement).alt = 'Firma no disponible';
+                          // If server URL fails and we have local data, use it
+                          const target = e.target as HTMLImageElement;
+                          if (worker.signatureData && !target.src.startsWith('data:')) {
+                            target.src = worker.signatureData;
+                          } else {
+                            target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
+                            target.alt = 'Firma pendiente de sincronización';
+                          }
                         }}
                       />
                     ) : (

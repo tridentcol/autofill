@@ -7,9 +7,14 @@ interface UploadSignatureRequest {
   imageData: string; // Base64 PNG data
 }
 
+// Check if running in production (Vercel)
+const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
 /**
  * API route to upload signature images
- * Saves PNG files with transparent background to /public/signatures/
+ * In development: Saves PNG files to /public/signatures/
+ * In production (Vercel): Skips local write (read-only filesystem),
+ *   returns success so frontend can commit to GitHub
  */
 export async function POST(request: NextRequest) {
   try {
@@ -32,9 +37,24 @@ export async function POST(request: NextRequest) {
 
     // Extract base64 content (remove data:image/png;base64, prefix)
     const base64Data = imageData.replace(/^data:image\/png;base64,/, '');
-    const buffer = Buffer.from(base64Data, 'base64');
 
-    // Save to /public/signatures/
+    // In production (Vercel), skip local file write - filesystem is read-only
+    // The signature will be committed to GitHub and available after redeploy
+    if (isProduction) {
+      console.log(`📝 Production mode: Signature ${signatureId}.png will be committed to repository`);
+
+      return NextResponse.json({
+        success: true,
+        message: 'Signature ready for commit (production mode)',
+        path: `/signatures/${signatureId}.png`,
+        signatureId,
+        base64Data, // Return the base64 data for the git commit
+        production: true,
+      });
+    }
+
+    // Development: Save to local filesystem
+    const buffer = Buffer.from(base64Data, 'base64');
     const SIGNATURES_DIR = path.join(process.cwd(), 'public/signatures');
     const filePath = path.join(SIGNATURES_DIR, `${signatureId}.png`);
 
@@ -44,13 +64,14 @@ export async function POST(request: NextRequest) {
     // Write file
     await fs.writeFile(filePath, buffer);
 
-    console.log(`✅ Signature saved: ${signatureId}.png`);
+    console.log(`✅ Signature saved locally: ${signatureId}.png`);
 
     return NextResponse.json({
       success: true,
       message: 'Signature uploaded successfully',
       path: `/signatures/${signatureId}.png`,
       signatureId,
+      production: false,
     });
   } catch (error) {
     console.error('Error uploading signature:', error);
