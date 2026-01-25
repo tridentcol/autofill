@@ -282,4 +282,7 @@ export interface DatabaseState {
 
   // Load data from IndexedDB
   loadFromDB: () => Promise<void>;
+
+  // Sync from server (reload from JSON files)
+  syncFromServer: () => Promise<boolean>;
 }
