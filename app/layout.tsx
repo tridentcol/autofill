@@ -13,8 +13,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <body className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <html lang="es" className="light" style={{ colorScheme: 'light' }}>
+      <body className="min-h-screen bg-gray-50 text-gray-900">
         <div className="min-h-screen flex flex-col">
           {/* Header */}
           <header className="bg-white shadow-sm border-b border-gray-200">
