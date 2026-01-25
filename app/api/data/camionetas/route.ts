@@ -4,6 +4,9 @@ import path from 'path';
 
 const DATA_FILE = path.join(process.cwd(), 'public/data/camionetas.json');
 
+// Check if running in production (Vercel)
+const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+
 export async function GET() {
   try {
     const data = await fs.readFile(DATA_FILE, 'utf-8');
@@ -18,7 +21,17 @@ export async function POST(request: NextRequest) {
   try {
     const camionetas = await request.json();
 
-    // Write to JSON file
+    // In production (Vercel), skip local file write - filesystem is read-only
+    if (isProduction) {
+      console.log('📝 Production mode: Camionetas data will be committed to repository');
+      return NextResponse.json({
+        success: true,
+        message: 'Camionetas ready for commit (production mode)',
+        production: true
+      });
+    }
+
+    // Development: Write to JSON file
     await fs.writeFile(DATA_FILE, JSON.stringify(camionetas, null, 2), 'utf-8');
 
     return NextResponse.json({ success: true, message: 'Camionetas updated successfully' });
