@@ -18,12 +18,29 @@ export async function POST(request: NextRequest) {
   try {
     const workers = await request.json();
 
-    // Write to JSON file
-    await fs.writeFile(DATA_FILE, JSON.stringify(workers, null, 2), 'utf-8');
+    // In production (Vercel), skip local file write
+    // Data sync happens through Git API (see lib/dataSync.ts)
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    if (!isProduction) {
+      try {
+        // Only try to write locally in development
+        await fs.writeFile(DATA_FILE, JSON.stringify(workers, null, 2), 'utf-8');
+        console.log('✅ Workers file updated locally');
+      } catch (error) {
+        console.warn('⚠️ Could not write workers file locally (expected in production)');
+      }
+    }
 
     return NextResponse.json({ success: true, message: 'Workers updated successfully' });
   } catch (error) {
-    console.error('Error writing workers:', error);
-    return NextResponse.json({ error: 'Failed to write workers' }, { status: 500 });
+    console.error('Error updating workers:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to update workers',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
   }
 }
