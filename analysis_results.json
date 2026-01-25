@@ -1,0 +1,5458 @@
+[
+  {
+    "filename": "INSPECCION VEHICULO CAMIONETA (4).xlsx",
+    "format": "xlsx",
+    "sheets": [
+      {
+        "name": "Hoja1",
+        "dimensions": "A1:N65",
+        "max_row": 65,
+        "max_column": 14,
+        "merged_cells": [
+          "I30:M30",
+          "I46:M46",
+          "B36:E36",
+          "B45:E45",
+          "I54:M54",
+          "I32:M32",
+          "I41:M41",
+          "B47:E47",
+          "F9:H9",
+          "B22:E22",
+          "I56:M56",
+          "B31:E31",
+          "I43:M43",
+          "D7:E7",
+          "A63:L63",
+          "B12:E12",
+          "B21:E21",
+          "I24:M24",
+          "B39:E39",
+          "I33:M33",
+          "F5:L5",
+          "B14:E14",
+          "I17:M17",
+          "B23:E23",
+          "F8:L8",
+          "I53:L53",
+          "B13:E13",
+          "B38:E38",
+          "I50:M50",
+          "I19:M19",
+          "I59:M59",
+          "I60:M60",
+          "I34:M34",
+          "B40:E40",
+          "B49:E49",
+          "B33:E33",
+          "I36:M36",
+          "I11:M11",
+          "B51:E51",
+          "I45:M45",
+          "A6:E6",
+          "B32:E32",
+          "J7:L7",
+          "B26:E26",
+          "B41:E41",
+          "B35:E35",
+          "B50:E50",
+          "I47:M47",
+          "B16:E16",
+          "B25:E25",
+          "I28:M28",
+          "I22:M22",
+          "I37:M37",
+          "F6:I6",
+          "I12:M12",
+          "B27:E27",
+          "I21:M21",
+          "B18:E18",
+          "B9:E10",
+          "A61:M61",
+          "A1:L4",
+          "B11:E11",
+          "I14:M14",
+          "A5:E5",
+          "I23:M23",
+          "B53:E53",
+          "I51:M51",
+          "A38:A41",
+          "A27:A31",
+          "A9:A10",
+          "B29:E29",
+          "B37:E37",
+          "A7:C7",
+          "J6:L6",
+          "B15:E15",
+          "B55:E55",
+          "I49:M49",
+          "B24:E24",
+          "I27:M27",
+          "I25:M25",
+          "B54:E54",
+          "A14:A26",
+          "B56:E56",
+          "B43:E43",
+          "B58:E58",
+          "F7:I7",
+          "B52:E52",
+          "I55:M55",
+          "I52:M52",
+          "A65:M65",
+          "I39:M39",
+          "B42:E42",
+          "I48:M48",
+          "B60:E60",
+          "A32:A37",
+          "B17:E17",
+          "A64:L64",
+          "B57:E57",
+          "I29:M29",
+          "I38:M38",
+          "B44:E44",
+          "I13:M13",
+          "B19:E19",
+          "B34:E34",
+          "B28:E28",
+          "I31:M31",
+          "I40:M40",
+          "I15:M15",
+          "B30:E30",
+          "B20:E20",
+          "I57:M57",
+          "I26:M26",
+          "I16:M16",
+          "B59:E59",
+          "B46:E46",
+          "A62:L62",
+          "I58:M58",
+          "I18:M18",
+          "I9:M10",
+          "B48:E48",
+          "I42:M42",
+          "A11:A13",
+          "A8:E8",
+          "I35:M35",
+          "I44:M44",
+          "I20:M20",
+          "A42:A60"
+        ],
+        "filled_cells": [
+          {
+            "ref": "A5",
+            "value": "REALIZADO POR:",
+            "row": 5,
+            "col": 1
+          },
+          {
+            "ref": "F5",
+            "value": "LUGAR ZONA DE TRABAJO:",
+            "row": 5,
+            "col": 6
+          },
+          {
+            "ref": "A6",
+            "value": "CARGO:",
+            "row": 6,
+            "col": 1
+          },
+          {
+            "ref": "F6",
+            "value": "FECHA:",
+            "row": 6,
+            "col": 6
+          },
+          {
+            "ref": "J6",
+            "value": "KILOMETRAJE ACTUAL:",
+            "row": 6,
+            "col": 10
+          },
+          {
+            "ref": "A7",
+            "value": "MARCA:",
+            "row": 7,
+            "col": 1
+          },
+          {
+            "ref": "D7",
+            "value": "LINEA:",
+            "row": 7,
+            "col": 4
+          },
+          {
+            "ref": "F7",
+            "value": "PLACA:",
+            "row": 7,
+            "col": 6
+          },
+          {
+            "ref": "J7",
+            "value": "MODELO:",
+            "row": 7,
+            "col": 10
+          },
+          {
+            "ref": "A8",
+            "value": "FECHA CAMBIO DE ACEITE:",
+            "row": 8,
+            "col": 1
+          },
+          {
+            "ref": "F8",
+            "value": "CAMBIO DE ACEITE KILOMETRAJE:",
+            "row": 8,
+            "col": 6
+          },
+          {
+            "ref": "A9",
+            "value": "ITEM",
+            "row": 9,
+            "col": 1
+          },
+          {
+            "ref": "B9",
+            "value": "REQUERIMIENTO",
+            "row": 9,
+            "col": 2
+          },
+          {
+            "ref": "F9",
+            "value": "CUMPLE",
+            "row": 9,
+            "col": 6
+          },
+          {
+            "ref": "I9",
+            "value": "OBSERVACIONES",
+            "row": 9,
+            "col": 9
+          },
+          {
+            "ref": "F10",
+            "value": "SI",
+            "row": 10,
+            "col": 6
+          },
+          {
+            "ref": "G10",
+            "value": "NO ",
+            "row": 10,
+            "col": 7
+          },
+          {
+            "ref": "H10",
+            "value": "N/A",
+            "row": 10,
+            "col": 8
+          },
+          {
+            "ref": "A11",
+            "value": "DOCUMENTACION",
+            "row": 11,
+            "col": 1
+          },
+          {
+            "ref": "B11",
+            "value": "TARJETA DE PROPIEDAD",
+            "row": 11,
+            "col": 2
+          },
+          {
+            "ref": "B12",
+            "value": "SOAT VIGENTE",
+            "row": 12,
+            "col": 2
+          },
+          {
+            "ref": "B13",
+            "value": "REVISION TECNICO MECANICA VIGENTE (SI APLICA)",
+            "row": 13,
+            "col": 2
+          },
+          {
+            "ref": "A14",
+            "value": "LUCES",
+            "row": 14,
+            "col": 1
+          },
+          {
+            "ref": "B14",
+            "value": "FAROLA IZQUIERDA",
+            "row": 14,
+            "col": 2
+          },
+          {
+            "ref": "B15",
+            "value": "FAROLA DERECHA",
+            "row": 15,
+            "col": 2
+          },
+          {
+            "ref": "B16",
+            "value": "EXPLORADORAS",
+            "row": 16,
+            "col": 2
+          },
+          {
+            "ref": "B17",
+            "value": "DIRECCIONAL FRONTAL IZQUIERDO",
+            "row": 17,
+            "col": 2
+          },
+          {
+            "ref": "B18",
+            "value": "DIRECCIONAL FRONTAL DERECHO",
+            "row": 18,
+            "col": 2
+          },
+          {
+            "ref": "B19",
+            "value": "DIRECCIONAL TRASERO IZQUIERDO",
+            "row": 19,
+            "col": 2
+          },
+          {
+            "ref": "B20",
+            "value": "DIRECCIONAL TRASERO DERECHO",
+            "row": 20,
+            "col": 2
+          },
+          {
+            "ref": "B21",
+            "value": "FRENOS ",
+            "row": 21,
+            "col": 2
+          },
+          {
+            "ref": "B22",
+            "value": "TERCER STOP",
+            "row": 22,
+            "col": 2
+          },
+          {
+            "ref": "B23",
+            "value": "RETROCESO",
+            "row": 23,
+            "col": 2
+          },
+          {
+            "ref": "B24",
+            "value": "PARQUEO O ESTACIONAMIENTO",
+            "row": 24,
+            "col": 2
+          },
+          {
+            "ref": "B25",
+            "value": "CABIANA INTERIOR",
+            "row": 25,
+            "col": 2
+          },
+          {
+            "ref": "B26",
+            "value": "TABLERO DE INSTRUMENTOS",
+            "row": 26,
+            "col": 2
+          },
+          {
+            "ref": "A27",
+            "value": "NEUMATICOS/LLANTAS",
+            "row": 27,
+            "col": 1
+          },
+          {
+            "ref": "B27",
+            "value": "FRONTAL IZQUIERDA",
+            "row": 27,
+            "col": 2
+          },
+          {
+            "ref": "B28",
+            "value": "FRONTAL DERECHA",
+            "row": 28,
+            "col": 2
+          },
+          {
+            "ref": "B29",
+            "value": "TRASERA IZQUIERDA",
+            "row": 29,
+            "col": 2
+          },
+          {
+            "ref": "B30",
+            "value": "TRASERA DERECHA",
+            "row": 30,
+            "col": 2
+          },
+          {
+            "ref": "B31",
+            "value": "REPUESTO",
+            "row": 31,
+            "col": 2
+          },
+          {
+            "ref": "A32",
+            "value": "VIDRIOS",
+            "row": 32,
+            "col": 1
+          },
+          {
+            "ref": "B32",
+            "value": "PANORAMICO",
+            "row": 32,
+            "col": 2
+          },
+          {
+            "ref": "B33",
+            "value": "TRASERO",
+            "row": 33,
+            "col": 2
+          },
+          {
+            "ref": "B34",
+            "value": "LATERAL IZQUIERDO  DELANTERO",
+            "row": 34,
+            "col": 2
+          },
+          {
+            "ref": "B35",
+            "value": "LATERAL IZQUIERDO  TRASERO",
+            "row": 35,
+            "col": 2
+          },
+          {
+            "ref": "B36",
+            "value": "LATERAL DERECHO DELANTERO",
+            "row": 36,
+            "col": 2
+          },
+          {
+            "ref": "B37",
+            "value": "LATERAL DERECHO TRASERO",
+            "row": 37,
+            "col": 2
+          },
+          {
+            "ref": "A38",
+            "value": "ESPEJOS",
+            "row": 38,
+            "col": 1
+          },
+          {
+            "ref": "B38",
+            "value": "LATERAL IZQUIERDO",
+            "row": 38,
+            "col": 2
+          },
+          {
+            "ref": "B39",
+            "value": "LATERAL DERECHO",
+            "row": 39,
+            "col": 2
+          },
+          {
+            "ref": "B40",
+            "value": "LUNAS",
+            "row": 40,
+            "col": 2
+          },
+          {
+            "ref": "B41",
+            "value": "FRONTAL INTERIOR CABINA",
+            "row": 41,
+            "col": 2
+          },
+          {
+            "ref": "A42",
+            "value": "GENERAL",
+            "row": 42,
+            "col": 1
+          },
+          {
+            "ref": "B42",
+            "value": "BRAZO MECANICO LIMPIA PARABRISAS",
+            "row": 42,
+            "col": 2
+          },
+          {
+            "ref": "B43",
+            "value": "PLUMILLAS O CUCHILLAS LIMPIA PARABRISAS",
+            "row": 43,
+            "col": 2
+          },
+          {
+            "ref": "B44",
+            "value": "TAPA COMBUSTIBLE",
+            "row": 44,
+            "col": 2
+          },
+          {
+            "ref": "B45",
+            "value": "COJINERIA",
+            "row": 45,
+            "col": 2
+          },
+          {
+            "ref": "B46",
+            "value": "PINTURA",
+            "row": 46,
+            "col": 2
+          },
+          {
+            "ref": "B47",
+            "value": "PITO",
+            "row": 47,
+            "col": 2
+          },
+          {
+            "ref": "B48",
+            "value": "AIRE ACONDICIONADO",
+            "row": 48,
+            "col": 2
+          },
+          {
+            "ref": "B49",
+            "value": "RADIO",
+            "row": 49,
+            "col": 2
+          },
+          {
+            "ref": "B50",
+            "value": "ELEVAVIDRIOS DELANTEROS",
+            "row": 50,
+            "col": 2
+          }
+        ],
+        "empty_cells": [
+          {
+            "ref": "A1",
+            "row": 1,
+            "col": 1
+          },
+          {
+            "ref": "B1",
+            "row": 1,
+            "col": 2
+          },
+          {
+            "ref": "C1",
+            "row": 1,
+            "col": 3
+          },
+          {
+            "ref": "D1",
+            "row": 1,
+            "col": 4
+          },
+          {
+            "ref": "E1",
+            "row": 1,
+            "col": 5
+          },
+          {
+            "ref": "F1",
+            "row": 1,
+            "col": 6
+          },
+          {
+            "ref": "G1",
+            "row": 1,
+            "col": 7
+          },
+          {
+            "ref": "H1",
+            "row": 1,
+            "col": 8
+          },
+          {
+            "ref": "I1",
+            "row": 1,
+            "col": 9
+          },
+          {
+            "ref": "J1",
+            "row": 1,
+            "col": 10
+          },
+          {
+            "ref": "K1",
+            "row": 1,
+            "col": 11
+          },
+          {
+            "ref": "L1",
+            "row": 1,
+            "col": 12
+          },
+          {
+            "ref": "M1",
+            "row": 1,
+            "col": 13
+          },
+          {
+            "ref": "N1",
+            "row": 1,
+            "col": 14
+          },
+          {
+            "ref": "A2",
+            "row": 2,
+            "col": 1
+          },
+          {
+            "ref": "B2",
+            "row": 2,
+            "col": 2
+          },
+          {
+            "ref": "C2",
+            "row": 2,
+            "col": 3
+          },
+          {
+            "ref": "D2",
+            "row": 2,
+            "col": 4
+          },
+          {
+            "ref": "E2",
+            "row": 2,
+            "col": 5
+          },
+          {
+            "ref": "F2",
+            "row": 2,
+            "col": 6
+          },
+          {
+            "ref": "G2",
+            "row": 2,
+            "col": 7
+          },
+          {
+            "ref": "H2",
+            "row": 2,
+            "col": 8
+          },
+          {
+            "ref": "I2",
+            "row": 2,
+            "col": 9
+          },
+          {
+            "ref": "J2",
+            "row": 2,
+            "col": 10
+          },
+          {
+            "ref": "K2",
+            "row": 2,
+            "col": 11
+          },
+          {
+            "ref": "L2",
+            "row": 2,
+            "col": 12
+          },
+          {
+            "ref": "M2",
+            "row": 2,
+            "col": 13
+          },
+          {
+            "ref": "N2",
+            "row": 2,
+            "col": 14
+          },
+          {
+            "ref": "A3",
+            "row": 3,
+            "col": 1
+          },
+          {
+            "ref": "B3",
+            "row": 3,
+            "col": 2
+          },
+          {
+            "ref": "C3",
+            "row": 3,
+            "col": 3
+          },
+          {
+            "ref": "D3",
+            "row": 3,
+            "col": 4
+          },
+          {
+            "ref": "E3",
+            "row": 3,
+            "col": 5
+          },
+          {
+            "ref": "F3",
+            "row": 3,
+            "col": 6
+          },
+          {
+            "ref": "G3",
+            "row": 3,
+            "col": 7
+          },
+          {
+            "ref": "H3",
+            "row": 3,
+            "col": 8
+          },
+          {
+            "ref": "I3",
+            "row": 3,
+            "col": 9
+          },
+          {
+            "ref": "J3",
+            "row": 3,
+            "col": 10
+          },
+          {
+            "ref": "K3",
+            "row": 3,
+            "col": 11
+          },
+          {
+            "ref": "L3",
+            "row": 3,
+            "col": 12
+          },
+          {
+            "ref": "M3",
+            "row": 3,
+            "col": 13
+          },
+          {
+            "ref": "N3",
+            "row": 3,
+            "col": 14
+          },
+          {
+            "ref": "A4",
+            "row": 4,
+            "col": 1
+          },
+          {
+            "ref": "B4",
+            "row": 4,
+            "col": 2
+          },
+          {
+            "ref": "C4",
+            "row": 4,
+            "col": 3
+          },
+          {
+            "ref": "D4",
+            "row": 4,
+            "col": 4
+          },
+          {
+            "ref": "E4",
+            "row": 4,
+            "col": 5
+          },
+          {
+            "ref": "F4",
+            "row": 4,
+            "col": 6
+          },
+          {
+            "ref": "G4",
+            "row": 4,
+            "col": 7
+          },
+          {
+            "ref": "H4",
+            "row": 4,
+            "col": 8
+          },
+          {
+            "ref": "I4",
+            "row": 4,
+            "col": 9
+          },
+          {
+            "ref": "J4",
+            "row": 4,
+            "col": 10
+          },
+          {
+            "ref": "K4",
+            "row": 4,
+            "col": 11
+          },
+          {
+            "ref": "L4",
+            "row": 4,
+            "col": 12
+          },
+          {
+            "ref": "M4",
+            "row": 4,
+            "col": 13
+          },
+          {
+            "ref": "N4",
+            "row": 4,
+            "col": 14
+          },
+          {
+            "ref": "B5",
+            "row": 5,
+            "col": 2
+          },
+          {
+            "ref": "C5",
+            "row": 5,
+            "col": 3
+          },
+          {
+            "ref": "D5",
+            "row": 5,
+            "col": 4
+          },
+          {
+            "ref": "E5",
+            "row": 5,
+            "col": 5
+          },
+          {
+            "ref": "G5",
+            "row": 5,
+            "col": 7
+          },
+          {
+            "ref": "H5",
+            "row": 5,
+            "col": 8
+          },
+          {
+            "ref": "I5",
+            "row": 5,
+            "col": 9
+          },
+          {
+            "ref": "J5",
+            "row": 5,
+            "col": 10
+          },
+          {
+            "ref": "K5",
+            "row": 5,
+            "col": 11
+          },
+          {
+            "ref": "L5",
+            "row": 5,
+            "col": 12
+          },
+          {
+            "ref": "M5",
+            "row": 5,
+            "col": 13
+          },
+          {
+            "ref": "N5",
+            "row": 5,
+            "col": 14
+          },
+          {
+            "ref": "B6",
+            "row": 6,
+            "col": 2
+          },
+          {
+            "ref": "C6",
+            "row": 6,
+            "col": 3
+          },
+          {
+            "ref": "D6",
+            "row": 6,
+            "col": 4
+          },
+          {
+            "ref": "E6",
+            "row": 6,
+            "col": 5
+          },
+          {
+            "ref": "G6",
+            "row": 6,
+            "col": 7
+          },
+          {
+            "ref": "H6",
+            "row": 6,
+            "col": 8
+          },
+          {
+            "ref": "I6",
+            "row": 6,
+            "col": 9
+          },
+          {
+            "ref": "K6",
+            "row": 6,
+            "col": 11
+          },
+          {
+            "ref": "L6",
+            "row": 6,
+            "col": 12
+          },
+          {
+            "ref": "M6",
+            "row": 6,
+            "col": 13
+          },
+          {
+            "ref": "N6",
+            "row": 6,
+            "col": 14
+          },
+          {
+            "ref": "B7",
+            "row": 7,
+            "col": 2
+          },
+          {
+            "ref": "C7",
+            "row": 7,
+            "col": 3
+          },
+          {
+            "ref": "E7",
+            "row": 7,
+            "col": 5
+          },
+          {
+            "ref": "G7",
+            "row": 7,
+            "col": 7
+          },
+          {
+            "ref": "H7",
+            "row": 7,
+            "col": 8
+          },
+          {
+            "ref": "I7",
+            "row": 7,
+            "col": 9
+          },
+          {
+            "ref": "K7",
+            "row": 7,
+            "col": 11
+          },
+          {
+            "ref": "L7",
+            "row": 7,
+            "col": 12
+          },
+          {
+            "ref": "M7",
+            "row": 7,
+            "col": 13
+          },
+          {
+            "ref": "N7",
+            "row": 7,
+            "col": 14
+          },
+          {
+            "ref": "B8",
+            "row": 8,
+            "col": 2
+          },
+          {
+            "ref": "C8",
+            "row": 8,
+            "col": 3
+          },
+          {
+            "ref": "D8",
+            "row": 8,
+            "col": 4
+          },
+          {
+            "ref": "E8",
+            "row": 8,
+            "col": 5
+          },
+          {
+            "ref": "G8",
+            "row": 8,
+            "col": 7
+          },
+          {
+            "ref": "H8",
+            "row": 8,
+            "col": 8
+          },
+          {
+            "ref": "I8",
+            "row": 8,
+            "col": 9
+          },
+          {
+            "ref": "J8",
+            "row": 8,
+            "col": 10
+          },
+          {
+            "ref": "K8",
+            "row": 8,
+            "col": 11
+          },
+          {
+            "ref": "L8",
+            "row": 8,
+            "col": 12
+          },
+          {
+            "ref": "M8",
+            "row": 8,
+            "col": 13
+          }
+        ],
+        "headers": [],
+        "potential_fields": []
+      }
+    ]
+  },
+  {
+    "filename": "PERMISO DE TRABAJO (8).xls",
+    "format": "xls",
+    "sheets": [
+      {
+        "name": "Formato Trabajo Seguro Alturas",
+        "nrows": 265,
+        "ncols": 38,
+        "filled_cells": [
+          {
+            "ref": "B6",
+            "value": "FECHA DE DILIGENCIAMIENTO",
+            "row": 6,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I6",
+            "value": "HORA",
+            "row": 6,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "M6",
+            "value": "LUGAR",
+            "row": 6,
+            "col": 13,
+            "type": 1
+          },
+          {
+            "ref": "B7",
+            "value": "EVALUACIÓN DE RIESGOS Y CONTROLES DE TRABAJO ",
+            "row": 7,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B8",
+            "value": "DESCRIPCION DEL PELIGRO",
+            "row": 8,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I8",
+            "value": "   ¿QUÉ MEDIDA DE CONTROL SE VAN A UTILIZAR PARA EVITAR INCIDENTES Y/O ACCIDENTES EN EL DESARROLLO D",
+            "row": 8,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "Q8",
+            "value": " RESPONSABLE DE LOS CONTROLES ",
+            "row": 8,
+            "col": 17,
+            "type": 1
+          },
+          {
+            "ref": "B9",
+            "value": "1. Tropezón o caida a nivel de suelo",
+            "row": 9,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I9",
+            "value": "* Auto cuidado.\n* Uso de elementos de proteccion personal.\n* Evaluacion previa del entorno a interve",
+            "row": 9,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B10",
+            "value": "2. Caida a distinto nivel   : fractura , traumatismo, conmociones y muerte.",
+            "row": 10,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I10",
+            "value": "* Auto cuidado.\n* Uso de elementos de proteccion personal.\n* Evaluacion previa del entorno a interve",
+            "row": 10,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B11",
+            "value": "3. Electrocución. Manipulacion de lineas, herramientas y equipos de trabajo electricos. ",
+            "row": 11,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I11",
+            "value": "* Mantener distancias minimas de seguridad entre redes o lineas electricas.\n* Uso de herramientas, e",
+            "row": 11,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B12",
+            "value": "4. Quemaduras: explosion o incendio, manipulacion de sustancias quimicas o materiales inflamables.",
+            "row": 12,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I12",
+            "value": "* Autocuidado.\n* Uso de extintores.\n* Brigada de emergencia.                                        ",
+            "row": 12,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B13",
+            "value": "5. Caida de objetos : Heridas , Fracturas , contusiones y aplastamiento",
+            "row": 13,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I13",
+            "value": "* Uso de elementos de proteccion personal ( casco, botas, guantes, gafas).\n* Autocuidado.           ",
+            "row": 13,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B14",
+            "value": "6. Esfuerzo: manipulacion  manual de cargas, esfuerzo, posturas antigravitacionales",
+            "row": 14,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I14",
+            "value": "* Adoptar postura adecuada de carga: Flexionar rodillas, mantener espalda recta, etc)\n* No exeder lo",
+            "row": 14,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B15",
+            "value": "7. Heridas laceraciones perforaciones por uso o manipulacion de herramientas manuales y electricas",
+            "row": 15,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I15",
+            "value": "* Uso de elementos de proteccion personal (guantes).\n* Verificar el estado de las herramientas a uti",
+            "row": 15,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B16",
+            "value": "8. Cambios de temperatura: frio o calor.\nExposicion a luz solar directa.",
+            "row": 16,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I16",
+            "value": "\n* Uso de dotacion (camisa manga larga, pantalon).\n* Uso de EPP (gafas lente oscuro).\n* Hidratacion ",
+            "row": 16,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B17",
+            "value": "9.  Accidentes de transito atropellamiento por vehiculos en movimiento)",
+            "row": 17,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I17",
+            "value": "* Respetar distancias minima en las carreteras, uso de chalecos o camisas reflectivas, instalacion d",
+            "row": 17,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B18",
+            "value": "11.Biologico: Mordeduras, picaduras de insectos",
+            "row": 18,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "I18",
+            "value": "* Uso de EPP \n* Revisar el area antes de iniciar la actividad, suspender actividades en caso de pres",
+            "row": 18,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "B19",
+            "value": "12. Otro (Describa):",
+            "row": 19,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B20",
+            "value": "PERMISO CONCEDIDO A LOS TRABAJADORES                                                                ",
+            "row": 20,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B21",
+            "value": "NOMBRE ",
+            "row": 21,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "F21",
+            "value": "CARGO ",
+            "row": 21,
+            "col": 6,
+            "type": 1
+          },
+          {
+            "ref": "J21",
+            "value": "CEDULA",
+            "row": 21,
+            "col": 10,
+            "type": 1
+          },
+          {
+            "ref": "N21",
+            "value": "FIRMA",
+            "row": 21,
+            "col": 14,
+            "type": 1
+          },
+          {
+            "ref": "B22",
+            "value": "NOMBRE ",
+            "row": 22,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "F22",
+            "value": "CARGO ",
+            "row": 22,
+            "col": 6,
+            "type": 1
+          },
+          {
+            "ref": "N22",
+            "value": "FIRMA",
+            "row": 22,
+            "col": 14,
+            "type": 1
+          },
+          {
+            "ref": "B23",
+            "value": "NOMBRE ",
+            "row": 23,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "F23",
+            "value": "CARGO ",
+            "row": 23,
+            "col": 6,
+            "type": 1
+          },
+          {
+            "ref": "N23",
+            "value": "FIRMA",
+            "row": 23,
+            "col": 14,
+            "type": 1
+          },
+          {
+            "ref": "B24",
+            "value": "NOMBRE ",
+            "row": 24,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "F24",
+            "value": "CARGO ",
+            "row": 24,
+            "col": 6,
+            "type": 1
+          },
+          {
+            "ref": "N24",
+            "value": "FIRMA",
+            "row": 24,
+            "col": 14,
+            "type": 1
+          },
+          {
+            "ref": "B25",
+            "value": "NOMBRE ",
+            "row": 25,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "F25",
+            "value": "CARGO ",
+            "row": 25,
+            "col": 6,
+            "type": 1
+          },
+          {
+            "ref": "N25",
+            "value": "FIRMA",
+            "row": 25,
+            "col": 14,
+            "type": 1
+          },
+          {
+            "ref": "B26",
+            "value": "ACTIVIDAD A EJECUTAR:   ",
+            "row": 26,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B28",
+            "value": "ALTURA APROXIMADA A LA CUAL SE VA DESARROLLAR LA ACTIVIDAD SI APLICA:    ",
+            "row": 28,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B29",
+            "value": "VALIDO DESDE ",
+            "row": 29,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "E29",
+            "value": "FECHA",
+            "row": 29,
+            "col": 5,
+            "type": 1
+          },
+          {
+            "ref": "F29",
+            "value": "DÍA",
+            "row": 29,
+            "col": 6,
+            "type": 1
+          },
+          {
+            "ref": "G29",
+            "value": "MES",
+            "row": 29,
+            "col": 7,
+            "type": 1
+          },
+          {
+            "ref": "H29",
+            "value": "2022.0",
+            "row": 29,
+            "col": 8,
+            "type": 2
+          },
+          {
+            "ref": "I29",
+            "value": "HORA",
+            "row": 29,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "M29",
+            "value": " HASTA",
+            "row": 29,
+            "col": 13,
+            "type": 1
+          },
+          {
+            "ref": "O29",
+            "value": "FECHA",
+            "row": 29,
+            "col": 15,
+            "type": 1
+          },
+          {
+            "ref": "P29",
+            "value": "DÍA",
+            "row": 29,
+            "col": 16,
+            "type": 1
+          },
+          {
+            "ref": "Q29",
+            "value": "MES",
+            "row": 29,
+            "col": 17,
+            "type": 1
+          },
+          {
+            "ref": "R29",
+            "value": "2022.0",
+            "row": 29,
+            "col": 18,
+            "type": 2
+          },
+          {
+            "ref": "S29",
+            "value": "HORA",
+            "row": 29,
+            "col": 19,
+            "type": 1
+          },
+          {
+            "ref": "B30",
+            "value": "PREPARACIÓN DEL AREA (MARQUE CON X)",
+            "row": 30,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "R30",
+            "value": "SI",
+            "row": 30,
+            "col": 18,
+            "type": 1
+          },
+          {
+            "ref": "S30",
+            "value": "NO",
+            "row": 30,
+            "col": 19,
+            "type": 1
+          },
+          {
+            "ref": "T30",
+            "value": "N.A.",
+            "row": 30,
+            "col": 20,
+            "type": 1
+          },
+          {
+            "ref": "B31",
+            "value": "SE HA INSTALADO SEÑALIZACIÓN PREVENTIVA QUE DELIMITE EL ÁREA DE TRABAJO (CINTA, CONOS, SEÑALES TUBUL",
+            "row": 31,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B32",
+            "value": "EL PERSONAL QUE INTERVIENE PRESENTA AFILIACION A SEGURIDAD SOCIAL. ",
+            "row": 32,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B33",
+            "value": "EL PERSONAL QUE EJECUTA LABORES EN ALTURAS POSEE CERTIFICACION DE TSA",
+            "row": 33,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B34",
+            "value": "LOS ELEMENTOS DE PROTECCIÓN PERSONAL Y LOS SISTEMAS PROTECCION CONTRA CAIDAS A UTILIZAR EN LA LABOR ",
+            "row": 34,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B35",
+            "value": "SE REQUIERE LA PRESENCIA DE UNA PERSONA DE SEGURIDAD DE LA EMPRESA, UN BRIGADISTA O UN BOMBERO DURAN",
+            "row": 35,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B36",
+            "value": "LOS TRABAJADORES REVISAN LOS ACCESOS AL ÁREA DE TRABAJO E IDENTIFICAN LAS SALIDAS DE EMERGENCIA SIGU",
+            "row": 36,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B37",
+            "value": "SE GARANTIZA QUE LAS PERSONAS QUE REALIZARÁN EL DILIGENCIAMIENTO DEL PERMISO Y QUIENES EJECUTARÁN EL",
+            "row": 37,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B38",
+            "value": "SE VERIFICARON LOS PUNTOS DE ANCLAJE A SER UTILIZADOS POR CADA TRABAJADOR DURANTE LA TAREA",
+            "row": 38,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B39",
+            "value": "EL PERSONAL CUMPLE CON LOS REQUISITOS DE APTITUD PARA REALIZAR LA TAREA",
+            "row": 39,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B40",
+            "value": "LOS EQUIPOS Y HERRAMIENTAS A UTILIZAR SE ENCUENTRAN EN BUEN ESTADO.",
+            "row": 40,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B42",
+            "value": " ¿SE TIENE DEFINIDO EL SISTEMA DE ACCESO PARA TRABAJO EN ALTURAS Y SE ENCUENTRA EN OPTIMAS CONDICION",
+            "row": 42,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B43",
+            "value": "ESCALERA",
+            "row": 43,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "E43",
+            "value": "ANDAMIO",
+            "row": 43,
+            "col": 5,
+            "type": 1
+          },
+          {
+            "ref": "G43",
+            "value": "CANASTA GRUA ",
+            "row": 43,
+            "col": 7,
+            "type": 1
+          },
+          {
+            "ref": "J43",
+            "value": "PLATAFORMAS MOVILES",
+            "row": 43,
+            "col": 10,
+            "type": 1
+          },
+          {
+            "ref": "P43",
+            "value": "OTRO",
+            "row": 43,
+            "col": 16,
+            "type": 1
+          },
+          {
+            "ref": "B45",
+            "value": "LOS SIGUIENTES ELEMENTOS DE PROTECCIÓN PERSONAL Y LOS SIGUIENTES SISTEMAS DE PROTECCIÓN CONTRA CAÍDA",
+            "row": 45,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "B46",
+            "value": "CASCO DE SEGURIDAD CON BARBUQUEJO ",
+            "row": 46,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "H46",
+            "value": "ESLINGA CON ABSORVEDOR DE IMPACTOS",
+            "row": 46,
+            "col": 8,
+            "type": 1
+          },
+          {
+            "ref": "N46",
+            "value": "KT DE RESCATE ",
+            "row": 46,
+            "col": 14,
+            "type": 1
+          },
+          {
+            "ref": "B47",
+            "value": "GAFAS DE SEGURIDAD LENTE OSCURO",
+            "row": 47,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "H47",
+            "value": "ESLINGA DE POSICIONAMIENTO",
+            "row": 47,
+            "col": 8,
+            "type": 1
+          },
+          {
+            "ref": "N47",
+            "value": "AUTORRETRACTIL",
+            "row": 47,
+            "col": 14,
+            "type": 1
+          },
+          {
+            "ref": "B48",
+            "value": "GUANTES DE VAQUETA",
+            "row": 48,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "H48",
+            "value": "DELANTAL O PECHERA PARA SOLDADURA",
+            "row": 48,
+            "col": 8,
+            "type": 1
+          },
+          {
+            "ref": "N48",
+            "value": "SILLA PARA TRABAJO EN SUSPENSIÓN ",
+            "row": 48,
+            "col": 14,
+            "type": 1
+          },
+          {
+            "ref": "B49",
+            "value": "PROTECCION AUDITIVA ",
+            "row": 49,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "H49",
+            "value": "CARETA ESMERILADORA",
+            "row": 49,
+            "col": 8,
+            "type": 1
+          },
+          {
+            "ref": "N49",
+            "value": "CHALECO REFLECTIVO/CAMISA CON REFLECTIVO",
+            "row": 49,
+            "col": 14,
+            "type": 1
+          },
+          {
+            "ref": "B50",
+            "value": "PROTECCIÓN RESPIRATORIA ",
+            "row": 50,
+            "col": 2,
+            "type": 1
+          },
+          {
+            "ref": "H50",
+            "value": "GUANTES DIELECTRICOS",
+            "row": 50,
+            "col": 8,
+            "type": 1
+          },
+          {
+            "ref": "N50",
+            "value": "FRENO O ARRESTADOR DE CAIDA",
+            "row": 50,
+            "col": 14,
+            "type": 1
+          }
+        ],
+        "empty_cells": [
+          {
+            "ref": "A1",
+            "row": 1,
+            "col": 1
+          },
+          {
+            "ref": "B1",
+            "row": 1,
+            "col": 2
+          },
+          {
+            "ref": "C1",
+            "row": 1,
+            "col": 3
+          },
+          {
+            "ref": "D1",
+            "row": 1,
+            "col": 4
+          },
+          {
+            "ref": "E1",
+            "row": 1,
+            "col": 5
+          },
+          {
+            "ref": "F1",
+            "row": 1,
+            "col": 6
+          },
+          {
+            "ref": "G1",
+            "row": 1,
+            "col": 7
+          },
+          {
+            "ref": "H1",
+            "row": 1,
+            "col": 8
+          },
+          {
+            "ref": "I1",
+            "row": 1,
+            "col": 9
+          },
+          {
+            "ref": "J1",
+            "row": 1,
+            "col": 10
+          },
+          {
+            "ref": "K1",
+            "row": 1,
+            "col": 11
+          },
+          {
+            "ref": "L1",
+            "row": 1,
+            "col": 12
+          },
+          {
+            "ref": "M1",
+            "row": 1,
+            "col": 13
+          },
+          {
+            "ref": "N1",
+            "row": 1,
+            "col": 14
+          },
+          {
+            "ref": "O1",
+            "row": 1,
+            "col": 15
+          },
+          {
+            "ref": "P1",
+            "row": 1,
+            "col": 16
+          },
+          {
+            "ref": "Q1",
+            "row": 1,
+            "col": 17
+          },
+          {
+            "ref": "R1",
+            "row": 1,
+            "col": 18
+          },
+          {
+            "ref": "S1",
+            "row": 1,
+            "col": 19
+          },
+          {
+            "ref": "T1",
+            "row": 1,
+            "col": 20
+          },
+          {
+            "ref": "A2",
+            "row": 2,
+            "col": 1
+          },
+          {
+            "ref": "B2",
+            "row": 2,
+            "col": 2
+          },
+          {
+            "ref": "C2",
+            "row": 2,
+            "col": 3
+          },
+          {
+            "ref": "D2",
+            "row": 2,
+            "col": 4
+          },
+          {
+            "ref": "E2",
+            "row": 2,
+            "col": 5
+          },
+          {
+            "ref": "F2",
+            "row": 2,
+            "col": 6
+          },
+          {
+            "ref": "G2",
+            "row": 2,
+            "col": 7
+          },
+          {
+            "ref": "H2",
+            "row": 2,
+            "col": 8
+          },
+          {
+            "ref": "I2",
+            "row": 2,
+            "col": 9
+          },
+          {
+            "ref": "J2",
+            "row": 2,
+            "col": 10
+          },
+          {
+            "ref": "K2",
+            "row": 2,
+            "col": 11
+          },
+          {
+            "ref": "L2",
+            "row": 2,
+            "col": 12
+          },
+          {
+            "ref": "M2",
+            "row": 2,
+            "col": 13
+          },
+          {
+            "ref": "N2",
+            "row": 2,
+            "col": 14
+          },
+          {
+            "ref": "O2",
+            "row": 2,
+            "col": 15
+          },
+          {
+            "ref": "P2",
+            "row": 2,
+            "col": 16
+          },
+          {
+            "ref": "Q2",
+            "row": 2,
+            "col": 17
+          },
+          {
+            "ref": "R2",
+            "row": 2,
+            "col": 18
+          },
+          {
+            "ref": "S2",
+            "row": 2,
+            "col": 19
+          },
+          {
+            "ref": "T2",
+            "row": 2,
+            "col": 20
+          },
+          {
+            "ref": "A3",
+            "row": 3,
+            "col": 1
+          },
+          {
+            "ref": "B3",
+            "row": 3,
+            "col": 2
+          },
+          {
+            "ref": "C3",
+            "row": 3,
+            "col": 3
+          },
+          {
+            "ref": "D3",
+            "row": 3,
+            "col": 4
+          },
+          {
+            "ref": "E3",
+            "row": 3,
+            "col": 5
+          },
+          {
+            "ref": "F3",
+            "row": 3,
+            "col": 6
+          },
+          {
+            "ref": "G3",
+            "row": 3,
+            "col": 7
+          },
+          {
+            "ref": "H3",
+            "row": 3,
+            "col": 8
+          },
+          {
+            "ref": "I3",
+            "row": 3,
+            "col": 9
+          },
+          {
+            "ref": "J3",
+            "row": 3,
+            "col": 10
+          },
+          {
+            "ref": "K3",
+            "row": 3,
+            "col": 11
+          },
+          {
+            "ref": "L3",
+            "row": 3,
+            "col": 12
+          },
+          {
+            "ref": "M3",
+            "row": 3,
+            "col": 13
+          },
+          {
+            "ref": "N3",
+            "row": 3,
+            "col": 14
+          },
+          {
+            "ref": "O3",
+            "row": 3,
+            "col": 15
+          },
+          {
+            "ref": "P3",
+            "row": 3,
+            "col": 16
+          },
+          {
+            "ref": "Q3",
+            "row": 3,
+            "col": 17
+          },
+          {
+            "ref": "R3",
+            "row": 3,
+            "col": 18
+          },
+          {
+            "ref": "S3",
+            "row": 3,
+            "col": 19
+          },
+          {
+            "ref": "T3",
+            "row": 3,
+            "col": 20
+          },
+          {
+            "ref": "A4",
+            "row": 4,
+            "col": 1
+          },
+          {
+            "ref": "B4",
+            "row": 4,
+            "col": 2
+          },
+          {
+            "ref": "C4",
+            "row": 4,
+            "col": 3
+          },
+          {
+            "ref": "D4",
+            "row": 4,
+            "col": 4
+          },
+          {
+            "ref": "E4",
+            "row": 4,
+            "col": 5
+          },
+          {
+            "ref": "F4",
+            "row": 4,
+            "col": 6
+          },
+          {
+            "ref": "G4",
+            "row": 4,
+            "col": 7
+          },
+          {
+            "ref": "H4",
+            "row": 4,
+            "col": 8
+          },
+          {
+            "ref": "I4",
+            "row": 4,
+            "col": 9
+          },
+          {
+            "ref": "J4",
+            "row": 4,
+            "col": 10
+          },
+          {
+            "ref": "K4",
+            "row": 4,
+            "col": 11
+          },
+          {
+            "ref": "L4",
+            "row": 4,
+            "col": 12
+          },
+          {
+            "ref": "M4",
+            "row": 4,
+            "col": 13
+          },
+          {
+            "ref": "N4",
+            "row": 4,
+            "col": 14
+          },
+          {
+            "ref": "O4",
+            "row": 4,
+            "col": 15
+          },
+          {
+            "ref": "P4",
+            "row": 4,
+            "col": 16
+          },
+          {
+            "ref": "Q4",
+            "row": 4,
+            "col": 17
+          },
+          {
+            "ref": "R4",
+            "row": 4,
+            "col": 18
+          },
+          {
+            "ref": "S4",
+            "row": 4,
+            "col": 19
+          },
+          {
+            "ref": "T4",
+            "row": 4,
+            "col": 20
+          },
+          {
+            "ref": "A5",
+            "row": 5,
+            "col": 1
+          },
+          {
+            "ref": "B5",
+            "row": 5,
+            "col": 2
+          },
+          {
+            "ref": "C5",
+            "row": 5,
+            "col": 3
+          },
+          {
+            "ref": "D5",
+            "row": 5,
+            "col": 4
+          },
+          {
+            "ref": "E5",
+            "row": 5,
+            "col": 5
+          },
+          {
+            "ref": "F5",
+            "row": 5,
+            "col": 6
+          },
+          {
+            "ref": "G5",
+            "row": 5,
+            "col": 7
+          },
+          {
+            "ref": "H5",
+            "row": 5,
+            "col": 8
+          },
+          {
+            "ref": "I5",
+            "row": 5,
+            "col": 9
+          },
+          {
+            "ref": "J5",
+            "row": 5,
+            "col": 10
+          },
+          {
+            "ref": "K5",
+            "row": 5,
+            "col": 11
+          },
+          {
+            "ref": "L5",
+            "row": 5,
+            "col": 12
+          },
+          {
+            "ref": "M5",
+            "row": 5,
+            "col": 13
+          },
+          {
+            "ref": "N5",
+            "row": 5,
+            "col": 14
+          },
+          {
+            "ref": "O5",
+            "row": 5,
+            "col": 15
+          },
+          {
+            "ref": "P5",
+            "row": 5,
+            "col": 16
+          },
+          {
+            "ref": "Q5",
+            "row": 5,
+            "col": 17
+          },
+          {
+            "ref": "R5",
+            "row": 5,
+            "col": 18
+          },
+          {
+            "ref": "S5",
+            "row": 5,
+            "col": 19
+          },
+          {
+            "ref": "T5",
+            "row": 5,
+            "col": 20
+          }
+        ],
+        "headers": []
+      },
+      {
+        "name": "Hoja3",
+        "nrows": 0,
+        "ncols": 0,
+        "filled_cells": [],
+        "empty_cells": [],
+        "headers": []
+      },
+      {
+        "name": "Hoja1",
+        "nrows": 0,
+        "ncols": 0,
+        "filled_cells": [],
+        "empty_cells": [],
+        "headers": []
+      }
+    ]
+  },
+  {
+    "filename": "INSPECCION HERRAMIENTAS Y O EQUIPOS (9).xlsx",
+    "format": "xlsx",
+    "sheets": [
+      {
+        "name": "Hoja1",
+        "dimensions": "A1:M48",
+        "max_row": 48,
+        "max_column": 13,
+        "merged_cells": [
+          "I30:M30",
+          "I1:L1",
+          "B8:E9",
+          "F8:H8",
+          "A42:L47",
+          "B36:E36",
+          "I32:M32",
+          "J3:L3",
+          "B22:E22",
+          "B31:E31",
+          "F6:L6",
+          "B12:E12",
+          "B21:E21",
+          "I24:M24",
+          "I33:M33",
+          "A7:M7",
+          "F5:L5",
+          "B14:E14",
+          "I17:M17",
+          "B23:E23",
+          "B13:E13",
+          "B38:E38",
+          "I10:M10",
+          "I19:M19",
+          "I34:M34",
+          "B33:E33",
+          "I36:M36",
+          "I11:M11",
+          "A6:E6",
+          "B32:E32",
+          "B26:E26",
+          "B35:E35",
+          "B16:E16",
+          "B25:E25",
+          "I28:M28",
+          "I22:M22",
+          "I37:M37",
+          "I12:M12",
+          "I2:I4",
+          "B27:E27",
+          "I21:M21",
+          "B18:E18",
+          "A8:A9",
+          "J2:L2",
+          "B11:E11",
+          "I14:M14",
+          "A40:L40",
+          "A5:E5",
+          "I23:M23",
+          "B29:E29",
+          "B37:E37",
+          "B15:E15",
+          "B24:E24",
+          "I27:M27",
+          "J4:L4",
+          "I25:M25",
+          "B17:E17",
+          "I29:M29",
+          "I38:M38",
+          "I13:M13",
+          "B19:E19",
+          "B34:E34",
+          "B28:E28",
+          "I31:M31",
+          "A3:H4",
+          "I15:M15",
+          "A41:L41",
+          "B30:E30",
+          "B20:E20",
+          "I8:M9",
+          "I26:M26",
+          "I16:M16",
+          "A10:A38",
+          "I18:M18",
+          "A1:H2",
+          "A39:L39",
+          "I35:M35",
+          "I20:M20",
+          "B10:E10"
+        ],
+        "filled_cells": [
+          {
+            "ref": "A1",
+            "value": "INSPECCION DE HERRAMIENTAS Y/O EQUIPOS",
+            "row": 1,
+            "col": 1
+          },
+          {
+            "ref": "I1",
+            "value": "Formato",
+            "row": 1,
+            "col": 9
+          },
+          {
+            "ref": "J2",
+            "value": "Version: 01",
+            "row": 2,
+            "col": 10
+          },
+          {
+            "ref": "A3",
+            "value": "DIRECCIONAMIENTO ESTRATEGICO Y MEJORA CONTINUA",
+            "row": 3,
+            "col": 1
+          },
+          {
+            "ref": "J3",
+            "value": "Fecha: 13-07-2021",
+            "row": 3,
+            "col": 10
+          },
+          {
+            "ref": "J4",
+            "value": "Pagina 1 de 1",
+            "row": 4,
+            "col": 10
+          },
+          {
+            "ref": "A5",
+            "value": "REALIZADO POR:_________________________________________",
+            "row": 5,
+            "col": 1
+          },
+          {
+            "ref": "F5",
+            "value": "LUGAR ZONA DE TRABAJO:__________________________",
+            "row": 5,
+            "col": 6
+          },
+          {
+            "ref": "A6",
+            "value": "CARGO:________________________________________________",
+            "row": 6,
+            "col": 1
+          },
+          {
+            "ref": "F6",
+            "value": "FECHA: _________________________________________",
+            "row": 6,
+            "col": 6
+          },
+          {
+            "ref": "A8",
+            "value": "ITEM",
+            "row": 8,
+            "col": 1
+          },
+          {
+            "ref": "B8",
+            "value": "HERRAMIENTAS Y/O EQUIPOS A INSPECCIONAR",
+            "row": 8,
+            "col": 2
+          },
+          {
+            "ref": "F8",
+            "value": "CUMPLIMIENTO",
+            "row": 8,
+            "col": 6
+          },
+          {
+            "ref": "I8",
+            "value": "OBSERVACIONES",
+            "row": 8,
+            "col": 9
+          },
+          {
+            "ref": "F9",
+            "value": "SI ",
+            "row": 9,
+            "col": 6
+          },
+          {
+            "ref": "G9",
+            "value": "NO ",
+            "row": 9,
+            "col": 7
+          },
+          {
+            "ref": "H9",
+            "value": "N/A",
+            "row": 9,
+            "col": 8
+          },
+          {
+            "ref": "A10",
+            "value": "HERRAMIENTAS Y/0 EQUIPOS",
+            "row": 10,
+            "col": 1
+          },
+          {
+            "ref": "B10",
+            "value": "Agarradoras para cable \n",
+            "row": 10,
+            "col": 2
+          },
+          {
+            "ref": "B11",
+            "value": "Alicate aislado  \n",
+            "row": 11,
+            "col": 2
+          },
+          {
+            "ref": "B12",
+            "value": "Barreton- Barra punta\n",
+            "row": 12,
+            "col": 2
+          },
+          {
+            "ref": "B13",
+            "value": "Candados \n",
+            "row": 13,
+            "col": 2
+          },
+          {
+            "ref": "B14",
+            "value": "Cavador (hoyadoras/paladraga)\n",
+            "row": 14,
+            "col": 2
+          },
+          {
+            "ref": "B15",
+            "value": "Cizalla con mangos aislados\n",
+            "row": 15,
+            "col": 2
+          },
+          {
+            "ref": "B16",
+            "value": "Cuchilla de exacto\n",
+            "row": 16,
+            "col": 2
+          },
+          {
+            "ref": "B17",
+            "value": "Cuerda de nylon\n",
+            "row": 17,
+            "col": 2
+          },
+          {
+            "ref": "B18",
+            "value": "Destornilladores estriados  aislado \n",
+            "row": 18,
+            "col": 2
+          },
+          {
+            "ref": "B19",
+            "value": "Destornilladores pala aislado \n",
+            "row": 19,
+            "col": 2
+          },
+          {
+            "ref": "B20",
+            "value": "Diferencial tipo señorita (guaya o cadena)\n",
+            "row": 20,
+            "col": 2
+          },
+          {
+            "ref": "B21",
+            "value": "Flexometro ",
+            "row": 21,
+            "col": 2
+          },
+          {
+            "ref": "B22",
+            "value": "Macho solo boca recta - pinza de presion",
+            "row": 22,
+            "col": 2
+          },
+          {
+            "ref": "B23",
+            "value": "Linterna de mano",
+            "row": 23,
+            "col": 2
+          },
+          {
+            "ref": "B24",
+            "value": "Llave de expansion",
+            "row": 24,
+            "col": 2
+          },
+          {
+            "ref": "B25",
+            "value": "Llave tipo Rachet",
+            "row": 25,
+            "col": 2
+          },
+          {
+            "ref": "B26",
+            "value": "Llaves mixta (corona y boca) ",
+            "row": 26,
+            "col": 2
+          },
+          {
+            "ref": "B27",
+            "value": "Lima plana ",
+            "row": 27,
+            "col": 2
+          },
+          {
+            "ref": "B28",
+            "value": "Machete o Rula ",
+            "row": 28,
+            "col": 2
+          },
+          {
+            "ref": "B29",
+            "value": "Martillo mango aislado",
+            "row": 29,
+            "col": 2
+          },
+          {
+            "ref": "B30",
+            "value": "Pala cuadrada",
+            "row": 30,
+            "col": 2
+          },
+          {
+            "ref": "B31",
+            "value": "Segueta con marco aislado con hojas",
+            "row": 31,
+            "col": 2
+          },
+          {
+            "ref": "B32",
+            "value": "Zunchadora",
+            "row": 32,
+            "col": 2
+          },
+          {
+            "ref": "B33",
+            "value": "Pinza voltiamperimetrica",
+            "row": 33,
+            "col": 2
+          },
+          {
+            "ref": "B34",
+            "value": "Coratafrios",
+            "row": 34,
+            "col": 2
+          },
+          {
+            "ref": "B35",
+            "value": "Escalera dielectrica de dos cuerpos ",
+            "row": 35,
+            "col": 2
+          },
+          {
+            "ref": "B36",
+            "value": "Escalera tipo tijera",
+            "row": 36,
+            "col": 2
+          },
+          {
+            "ref": "B37",
+            "value": "Conos de seguridad ",
+            "row": 37,
+            "col": 2
+          },
+          {
+            "ref": "B38",
+            "value": "Rollo de cinta de seguridad para demarcar ",
+            "row": 38,
+            "col": 2
+          },
+          {
+            "ref": "A39",
+            "value": "________________________",
+            "row": 39,
+            "col": 1
+          },
+          {
+            "ref": "A40",
+            "value": "Firma",
+            "row": 40,
+            "col": 1
+          },
+          {
+            "ref": "A41",
+            "value": "OBSEVACIONES GENERALES",
+            "row": 41,
+            "col": 1
+          }
+        ],
+        "empty_cells": [
+          {
+            "ref": "B1",
+            "row": 1,
+            "col": 2
+          },
+          {
+            "ref": "C1",
+            "row": 1,
+            "col": 3
+          },
+          {
+            "ref": "D1",
+            "row": 1,
+            "col": 4
+          },
+          {
+            "ref": "E1",
+            "row": 1,
+            "col": 5
+          },
+          {
+            "ref": "F1",
+            "row": 1,
+            "col": 6
+          },
+          {
+            "ref": "G1",
+            "row": 1,
+            "col": 7
+          },
+          {
+            "ref": "H1",
+            "row": 1,
+            "col": 8
+          },
+          {
+            "ref": "J1",
+            "row": 1,
+            "col": 10
+          },
+          {
+            "ref": "K1",
+            "row": 1,
+            "col": 11
+          },
+          {
+            "ref": "L1",
+            "row": 1,
+            "col": 12
+          },
+          {
+            "ref": "M1",
+            "row": 1,
+            "col": 13
+          },
+          {
+            "ref": "A2",
+            "row": 2,
+            "col": 1
+          },
+          {
+            "ref": "B2",
+            "row": 2,
+            "col": 2
+          },
+          {
+            "ref": "C2",
+            "row": 2,
+            "col": 3
+          },
+          {
+            "ref": "D2",
+            "row": 2,
+            "col": 4
+          },
+          {
+            "ref": "E2",
+            "row": 2,
+            "col": 5
+          },
+          {
+            "ref": "F2",
+            "row": 2,
+            "col": 6
+          },
+          {
+            "ref": "G2",
+            "row": 2,
+            "col": 7
+          },
+          {
+            "ref": "H2",
+            "row": 2,
+            "col": 8
+          },
+          {
+            "ref": "I2",
+            "row": 2,
+            "col": 9
+          },
+          {
+            "ref": "K2",
+            "row": 2,
+            "col": 11
+          },
+          {
+            "ref": "L2",
+            "row": 2,
+            "col": 12
+          },
+          {
+            "ref": "M2",
+            "row": 2,
+            "col": 13
+          },
+          {
+            "ref": "B3",
+            "row": 3,
+            "col": 2
+          },
+          {
+            "ref": "C3",
+            "row": 3,
+            "col": 3
+          },
+          {
+            "ref": "D3",
+            "row": 3,
+            "col": 4
+          },
+          {
+            "ref": "E3",
+            "row": 3,
+            "col": 5
+          },
+          {
+            "ref": "F3",
+            "row": 3,
+            "col": 6
+          },
+          {
+            "ref": "G3",
+            "row": 3,
+            "col": 7
+          },
+          {
+            "ref": "H3",
+            "row": 3,
+            "col": 8
+          },
+          {
+            "ref": "I3",
+            "row": 3,
+            "col": 9
+          },
+          {
+            "ref": "K3",
+            "row": 3,
+            "col": 11
+          },
+          {
+            "ref": "L3",
+            "row": 3,
+            "col": 12
+          },
+          {
+            "ref": "M3",
+            "row": 3,
+            "col": 13
+          },
+          {
+            "ref": "A4",
+            "row": 4,
+            "col": 1
+          },
+          {
+            "ref": "B4",
+            "row": 4,
+            "col": 2
+          },
+          {
+            "ref": "C4",
+            "row": 4,
+            "col": 3
+          },
+          {
+            "ref": "D4",
+            "row": 4,
+            "col": 4
+          },
+          {
+            "ref": "E4",
+            "row": 4,
+            "col": 5
+          },
+          {
+            "ref": "F4",
+            "row": 4,
+            "col": 6
+          },
+          {
+            "ref": "G4",
+            "row": 4,
+            "col": 7
+          },
+          {
+            "ref": "H4",
+            "row": 4,
+            "col": 8
+          },
+          {
+            "ref": "I4",
+            "row": 4,
+            "col": 9
+          },
+          {
+            "ref": "K4",
+            "row": 4,
+            "col": 11
+          },
+          {
+            "ref": "L4",
+            "row": 4,
+            "col": 12
+          },
+          {
+            "ref": "M4",
+            "row": 4,
+            "col": 13
+          },
+          {
+            "ref": "B5",
+            "row": 5,
+            "col": 2
+          },
+          {
+            "ref": "C5",
+            "row": 5,
+            "col": 3
+          },
+          {
+            "ref": "D5",
+            "row": 5,
+            "col": 4
+          },
+          {
+            "ref": "E5",
+            "row": 5,
+            "col": 5
+          },
+          {
+            "ref": "G5",
+            "row": 5,
+            "col": 7
+          },
+          {
+            "ref": "H5",
+            "row": 5,
+            "col": 8
+          },
+          {
+            "ref": "I5",
+            "row": 5,
+            "col": 9
+          },
+          {
+            "ref": "J5",
+            "row": 5,
+            "col": 10
+          },
+          {
+            "ref": "K5",
+            "row": 5,
+            "col": 11
+          },
+          {
+            "ref": "L5",
+            "row": 5,
+            "col": 12
+          },
+          {
+            "ref": "M5",
+            "row": 5,
+            "col": 13
+          },
+          {
+            "ref": "B6",
+            "row": 6,
+            "col": 2
+          },
+          {
+            "ref": "C6",
+            "row": 6,
+            "col": 3
+          },
+          {
+            "ref": "D6",
+            "row": 6,
+            "col": 4
+          },
+          {
+            "ref": "E6",
+            "row": 6,
+            "col": 5
+          },
+          {
+            "ref": "G6",
+            "row": 6,
+            "col": 7
+          },
+          {
+            "ref": "H6",
+            "row": 6,
+            "col": 8
+          },
+          {
+            "ref": "I6",
+            "row": 6,
+            "col": 9
+          },
+          {
+            "ref": "J6",
+            "row": 6,
+            "col": 10
+          },
+          {
+            "ref": "K6",
+            "row": 6,
+            "col": 11
+          },
+          {
+            "ref": "L6",
+            "row": 6,
+            "col": 12
+          },
+          {
+            "ref": "M6",
+            "row": 6,
+            "col": 13
+          },
+          {
+            "ref": "A7",
+            "row": 7,
+            "col": 1
+          },
+          {
+            "ref": "B7",
+            "row": 7,
+            "col": 2
+          },
+          {
+            "ref": "C7",
+            "row": 7,
+            "col": 3
+          },
+          {
+            "ref": "D7",
+            "row": 7,
+            "col": 4
+          },
+          {
+            "ref": "E7",
+            "row": 7,
+            "col": 5
+          },
+          {
+            "ref": "F7",
+            "row": 7,
+            "col": 6
+          },
+          {
+            "ref": "G7",
+            "row": 7,
+            "col": 7
+          },
+          {
+            "ref": "H7",
+            "row": 7,
+            "col": 8
+          },
+          {
+            "ref": "I7",
+            "row": 7,
+            "col": 9
+          },
+          {
+            "ref": "J7",
+            "row": 7,
+            "col": 10
+          },
+          {
+            "ref": "K7",
+            "row": 7,
+            "col": 11
+          },
+          {
+            "ref": "L7",
+            "row": 7,
+            "col": 12
+          },
+          {
+            "ref": "M7",
+            "row": 7,
+            "col": 13
+          },
+          {
+            "ref": "C8",
+            "row": 8,
+            "col": 3
+          },
+          {
+            "ref": "D8",
+            "row": 8,
+            "col": 4
+          },
+          {
+            "ref": "E8",
+            "row": 8,
+            "col": 5
+          },
+          {
+            "ref": "G8",
+            "row": 8,
+            "col": 7
+          },
+          {
+            "ref": "H8",
+            "row": 8,
+            "col": 8
+          },
+          {
+            "ref": "J8",
+            "row": 8,
+            "col": 10
+          },
+          {
+            "ref": "K8",
+            "row": 8,
+            "col": 11
+          },
+          {
+            "ref": "L8",
+            "row": 8,
+            "col": 12
+          },
+          {
+            "ref": "M8",
+            "row": 8,
+            "col": 13
+          },
+          {
+            "ref": "A9",
+            "row": 9,
+            "col": 1
+          },
+          {
+            "ref": "B9",
+            "row": 9,
+            "col": 2
+          },
+          {
+            "ref": "C9",
+            "row": 9,
+            "col": 3
+          },
+          {
+            "ref": "D9",
+            "row": 9,
+            "col": 4
+          },
+          {
+            "ref": "E9",
+            "row": 9,
+            "col": 5
+          },
+          {
+            "ref": "I9",
+            "row": 9,
+            "col": 9
+          },
+          {
+            "ref": "J9",
+            "row": 9,
+            "col": 10
+          },
+          {
+            "ref": "K9",
+            "row": 9,
+            "col": 11
+          },
+          {
+            "ref": "L9",
+            "row": 9,
+            "col": 12
+          },
+          {
+            "ref": "M9",
+            "row": 9,
+            "col": 13
+          }
+        ],
+        "headers": [
+          {
+            "ref": "A1",
+            "value": "INSPECCION DE HERRAMIENTAS Y/O EQUIPOS",
+            "row": 1,
+            "col": 1
+          },
+          {
+            "ref": "J2",
+            "value": "Version: 01",
+            "row": 2,
+            "col": 10
+          },
+          {
+            "ref": "J3",
+            "value": "Fecha: 13-07-2021",
+            "row": 3,
+            "col": 10
+          }
+        ],
+        "potential_fields": []
+      }
+    ]
+  },
+  {
+    "filename": "ANALISIS DE TRABAJO SEGURO (ATS) actual (15) (9).xls",
+    "format": "xls",
+    "sheets": [
+      {
+        "name": "ATS ",
+        "nrows": 59,
+        "ncols": 27,
+        "filled_cells": [
+          {
+            "ref": "A1",
+            "value": "ANALISIS DE TRABAJO SEGURO (ATS)",
+            "row": 1,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "A3",
+            "value": "PROCEDIMIENTO PARA IDENTIFICACION DE PELIGROS, VALORACION Y CONTROL DE RIESGOS",
+            "row": 3,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "A6",
+            "value": "UBICACIÓN DEL TRABAJO: ",
+            "row": 6,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "A7",
+            "value": "DESCRIPCIÓN DEL TRABAJO:",
+            "row": 7,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "A8",
+            "value": "EQUIPO QUE ELABORA ATS:  ",
+            "row": 8,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "A9",
+            "value": "OBJETIVO:",
+            "row": 9,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "A10",
+            "value": "HERRAMIENTAS / EQUIPOS",
+            "row": 10,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "A12",
+            "value": "RIESGOS EN EL TRABAJO",
+            "row": 12,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "O12",
+            "value": "PROCEDIMIENTO ESTÁNDAR DEL TRABAJO",
+            "row": 12,
+            "col": 15,
+            "type": 1
+          },
+          {
+            "ref": "A13",
+            "value": "ETAPAS DEL TRABAJO",
+            "row": 13,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "D13",
+            "value": "RIESGOS POTENCIALES",
+            "row": 13,
+            "col": 4,
+            "type": 1
+          },
+          {
+            "ref": "I13",
+            "value": "ELEMENTOS DE PROTECCION PERSONAL",
+            "row": 13,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "O13",
+            "value": "PROCEDIMIENTO DE TRABAJOSEGURO (Actos y condiciones seguras)",
+            "row": 13,
+            "col": 15,
+            "type": 1
+          },
+          {
+            "ref": "A15",
+            "value": "Traslado del personal y herramientas hasta el lugar de trabajo",
+            "row": 15,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "D15",
+            "value": "Exposicion a cambios climaticos, rayos uv, caida a distinto nivel, atropellamiento, riesgo publico",
+            "row": 15,
+            "col": 4,
+            "type": 1
+          },
+          {
+            "ref": "I15",
+            "value": "Calzado de seguridad, casco de seguridad, gafas, guantes, dotacion ",
+            "row": 15,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "O15",
+            "value": "Refugiarse de la lluvia, hacer uso de los epp, inspeccionar el area de trabajo",
+            "row": 15,
+            "col": 15,
+            "type": 1
+          },
+          {
+            "ref": "A26",
+            "value": "Ascenso y descenso de personal mediante camion canasta ",
+            "row": 26,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "D26",
+            "value": "Fallos en el vehiculo, caida de personal, volcamiento del equipo, caidas por trabajos en alturas ",
+            "row": 26,
+            "col": 4,
+            "type": 1
+          },
+          {
+            "ref": "I26",
+            "value": "Calzado de seguridad, casco de seguridad con barbuquejo, gafas, guantes, eqipos de spcc, dotacion",
+            "row": 26,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "O26",
+            "value": "Hacer uso de epp, validar terreno, bueno uso de SPCC",
+            "row": 26,
+            "col": 15,
+            "type": 1
+          },
+          {
+            "ref": "A35",
+            "value": "Mantenimiento o revision de luminaria (Desmonte y colocacion)",
+            "row": 35,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "D35",
+            "value": "Caida de alturas, riesgo electrico, quemaduras, exposicion a rayos uv, lesiones por uso de herramien",
+            "row": 35,
+            "col": 4,
+            "type": 1
+          },
+          {
+            "ref": "I35",
+            "value": "Equipos de SPCC, guantes, calzado de seguridad, casco de seguridad, gafas",
+            "row": 35,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "O35",
+            "value": "Hacer uso de epp, validar terreno, bueno uso de SPCC",
+            "row": 35,
+            "col": 15,
+            "type": 1
+          },
+          {
+            "ref": "A40",
+            "value": "Orden y aseo",
+            "row": 40,
+            "col": 1,
+            "type": 1
+          },
+          {
+            "ref": "D40",
+            "value": "Atropellamiento, caidas a nivel,uso de herramientas menores",
+            "row": 40,
+            "col": 4,
+            "type": 1
+          },
+          {
+            "ref": "I40",
+            "value": "Calzado de seguridad, casco de seguridad, gafas, guantes, dotacion ",
+            "row": 40,
+            "col": 9,
+            "type": 1
+          },
+          {
+            "ref": "O40",
+            "value": "Señalizacion del area de trabajo, buen uso de herramientas",
+            "row": 40,
+            "col": 15,
+            "type": 1
+          }
+        ],
+        "empty_cells": [
+          {
+            "ref": "B1",
+            "row": 1,
+            "col": 2
+          },
+          {
+            "ref": "C1",
+            "row": 1,
+            "col": 3
+          },
+          {
+            "ref": "D1",
+            "row": 1,
+            "col": 4
+          },
+          {
+            "ref": "E1",
+            "row": 1,
+            "col": 5
+          },
+          {
+            "ref": "F1",
+            "row": 1,
+            "col": 6
+          },
+          {
+            "ref": "G1",
+            "row": 1,
+            "col": 7
+          },
+          {
+            "ref": "H1",
+            "row": 1,
+            "col": 8
+          },
+          {
+            "ref": "I1",
+            "row": 1,
+            "col": 9
+          },
+          {
+            "ref": "J1",
+            "row": 1,
+            "col": 10
+          },
+          {
+            "ref": "K1",
+            "row": 1,
+            "col": 11
+          },
+          {
+            "ref": "L1",
+            "row": 1,
+            "col": 12
+          },
+          {
+            "ref": "M1",
+            "row": 1,
+            "col": 13
+          },
+          {
+            "ref": "N1",
+            "row": 1,
+            "col": 14
+          },
+          {
+            "ref": "O1",
+            "row": 1,
+            "col": 15
+          },
+          {
+            "ref": "P1",
+            "row": 1,
+            "col": 16
+          },
+          {
+            "ref": "Q1",
+            "row": 1,
+            "col": 17
+          },
+          {
+            "ref": "R1",
+            "row": 1,
+            "col": 18
+          },
+          {
+            "ref": "S1",
+            "row": 1,
+            "col": 19
+          },
+          {
+            "ref": "T1",
+            "row": 1,
+            "col": 20
+          },
+          {
+            "ref": "A2",
+            "row": 2,
+            "col": 1
+          },
+          {
+            "ref": "B2",
+            "row": 2,
+            "col": 2
+          },
+          {
+            "ref": "C2",
+            "row": 2,
+            "col": 3
+          },
+          {
+            "ref": "D2",
+            "row": 2,
+            "col": 4
+          },
+          {
+            "ref": "E2",
+            "row": 2,
+            "col": 5
+          },
+          {
+            "ref": "F2",
+            "row": 2,
+            "col": 6
+          },
+          {
+            "ref": "G2",
+            "row": 2,
+            "col": 7
+          },
+          {
+            "ref": "H2",
+            "row": 2,
+            "col": 8
+          },
+          {
+            "ref": "I2",
+            "row": 2,
+            "col": 9
+          },
+          {
+            "ref": "J2",
+            "row": 2,
+            "col": 10
+          },
+          {
+            "ref": "K2",
+            "row": 2,
+            "col": 11
+          },
+          {
+            "ref": "L2",
+            "row": 2,
+            "col": 12
+          },
+          {
+            "ref": "M2",
+            "row": 2,
+            "col": 13
+          },
+          {
+            "ref": "N2",
+            "row": 2,
+            "col": 14
+          },
+          {
+            "ref": "O2",
+            "row": 2,
+            "col": 15
+          },
+          {
+            "ref": "P2",
+            "row": 2,
+            "col": 16
+          },
+          {
+            "ref": "Q2",
+            "row": 2,
+            "col": 17
+          },
+          {
+            "ref": "R2",
+            "row": 2,
+            "col": 18
+          },
+          {
+            "ref": "S2",
+            "row": 2,
+            "col": 19
+          },
+          {
+            "ref": "T2",
+            "row": 2,
+            "col": 20
+          },
+          {
+            "ref": "B3",
+            "row": 3,
+            "col": 2
+          },
+          {
+            "ref": "C3",
+            "row": 3,
+            "col": 3
+          },
+          {
+            "ref": "D3",
+            "row": 3,
+            "col": 4
+          },
+          {
+            "ref": "E3",
+            "row": 3,
+            "col": 5
+          },
+          {
+            "ref": "F3",
+            "row": 3,
+            "col": 6
+          },
+          {
+            "ref": "G3",
+            "row": 3,
+            "col": 7
+          },
+          {
+            "ref": "H3",
+            "row": 3,
+            "col": 8
+          },
+          {
+            "ref": "I3",
+            "row": 3,
+            "col": 9
+          },
+          {
+            "ref": "J3",
+            "row": 3,
+            "col": 10
+          },
+          {
+            "ref": "K3",
+            "row": 3,
+            "col": 11
+          },
+          {
+            "ref": "L3",
+            "row": 3,
+            "col": 12
+          },
+          {
+            "ref": "M3",
+            "row": 3,
+            "col": 13
+          },
+          {
+            "ref": "N3",
+            "row": 3,
+            "col": 14
+          },
+          {
+            "ref": "O3",
+            "row": 3,
+            "col": 15
+          },
+          {
+            "ref": "P3",
+            "row": 3,
+            "col": 16
+          },
+          {
+            "ref": "Q3",
+            "row": 3,
+            "col": 17
+          },
+          {
+            "ref": "R3",
+            "row": 3,
+            "col": 18
+          },
+          {
+            "ref": "S3",
+            "row": 3,
+            "col": 19
+          },
+          {
+            "ref": "T3",
+            "row": 3,
+            "col": 20
+          },
+          {
+            "ref": "A4",
+            "row": 4,
+            "col": 1
+          },
+          {
+            "ref": "B4",
+            "row": 4,
+            "col": 2
+          },
+          {
+            "ref": "C4",
+            "row": 4,
+            "col": 3
+          },
+          {
+            "ref": "D4",
+            "row": 4,
+            "col": 4
+          },
+          {
+            "ref": "E4",
+            "row": 4,
+            "col": 5
+          },
+          {
+            "ref": "F4",
+            "row": 4,
+            "col": 6
+          },
+          {
+            "ref": "G4",
+            "row": 4,
+            "col": 7
+          },
+          {
+            "ref": "H4",
+            "row": 4,
+            "col": 8
+          },
+          {
+            "ref": "I4",
+            "row": 4,
+            "col": 9
+          },
+          {
+            "ref": "J4",
+            "row": 4,
+            "col": 10
+          },
+          {
+            "ref": "K4",
+            "row": 4,
+            "col": 11
+          },
+          {
+            "ref": "L4",
+            "row": 4,
+            "col": 12
+          },
+          {
+            "ref": "M4",
+            "row": 4,
+            "col": 13
+          },
+          {
+            "ref": "N4",
+            "row": 4,
+            "col": 14
+          },
+          {
+            "ref": "O4",
+            "row": 4,
+            "col": 15
+          },
+          {
+            "ref": "P4",
+            "row": 4,
+            "col": 16
+          },
+          {
+            "ref": "Q4",
+            "row": 4,
+            "col": 17
+          },
+          {
+            "ref": "R4",
+            "row": 4,
+            "col": 18
+          },
+          {
+            "ref": "S4",
+            "row": 4,
+            "col": 19
+          },
+          {
+            "ref": "T4",
+            "row": 4,
+            "col": 20
+          },
+          {
+            "ref": "A5",
+            "row": 5,
+            "col": 1
+          },
+          {
+            "ref": "B5",
+            "row": 5,
+            "col": 2
+          },
+          {
+            "ref": "C5",
+            "row": 5,
+            "col": 3
+          },
+          {
+            "ref": "D5",
+            "row": 5,
+            "col": 4
+          },
+          {
+            "ref": "E5",
+            "row": 5,
+            "col": 5
+          },
+          {
+            "ref": "F5",
+            "row": 5,
+            "col": 6
+          },
+          {
+            "ref": "G5",
+            "row": 5,
+            "col": 7
+          },
+          {
+            "ref": "H5",
+            "row": 5,
+            "col": 8
+          },
+          {
+            "ref": "I5",
+            "row": 5,
+            "col": 9
+          },
+          {
+            "ref": "J5",
+            "row": 5,
+            "col": 10
+          },
+          {
+            "ref": "K5",
+            "row": 5,
+            "col": 11
+          },
+          {
+            "ref": "L5",
+            "row": 5,
+            "col": 12
+          },
+          {
+            "ref": "M5",
+            "row": 5,
+            "col": 13
+          },
+          {
+            "ref": "N5",
+            "row": 5,
+            "col": 14
+          },
+          {
+            "ref": "O5",
+            "row": 5,
+            "col": 15
+          },
+          {
+            "ref": "P5",
+            "row": 5,
+            "col": 16
+          },
+          {
+            "ref": "Q5",
+            "row": 5,
+            "col": 17
+          },
+          {
+            "ref": "R5",
+            "row": 5,
+            "col": 18
+          },
+          {
+            "ref": "S5",
+            "row": 5,
+            "col": 19
+          },
+          {
+            "ref": "T5",
+            "row": 5,
+            "col": 20
+          },
+          {
+            "ref": "B6",
+            "row": 6,
+            "col": 2
+          },
+          {
+            "ref": "C6",
+            "row": 6,
+            "col": 3
+          }
+        ],
+        "headers": [
+          {
+            "ref": "A1",
+            "value": "ANALISIS DE TRABAJO SEGURO (ATS)",
+            "row": 1,
+            "col": 1,
+            "type": 1
+          }
+        ]
+      },
+      {
+        "name": "Hoja1",
+        "nrows": 0,
+        "ncols": 0,
+        "filled_cells": [],
+        "empty_cells": [],
+        "headers": []
+      }
+    ]
+  },
+  {
+    "filename": "INSPECCION CAMION GRUA MANLIFT (15).xlsx",
+    "format": "xlsx",
+    "sheets": [
+      {
+        "name": "Hoja1",
+        "dimensions": "A1:P51",
+        "max_row": 51,
+        "max_column": 16,
+        "merged_cells": [
+          "P35:P36",
+          "H9:H10",
+          "B22:C22",
+          "J19:K19",
+          "B31:C31",
+          "P21:P22",
+          "A6:H6",
+          "P37:P39",
+          "B12:C12",
+          "B21:C21",
+          "A43:A45",
+          "A17:A27",
+          "L9:N9",
+          "D9:F9",
+          "I6:O6",
+          "J45:K45",
+          "B13:C13",
+          "G31:G37",
+          "D29:F29",
+          "J29:K30",
+          "A31:A37",
+          "I29:I30",
+          "J31:K31",
+          "G41:G42",
+          "H15:H16",
+          "O8:P8",
+          "J21:K21",
+          "B24:C24",
+          "A1:P5",
+          "B33:C33",
+          "O9:O10",
+          "B32:C32",
+          "I15:I16",
+          "H23:H24",
+          "B26:C26",
+          "J23:K23",
+          "B35:C35",
+          "A7:F7",
+          "L15:N15",
+          "B25:C25",
+          "D41:F41",
+          "P9:P10",
+          "O43:O47",
+          "O11:O13",
+          "H41:H42",
+          "B27:C27",
+          "B18:C18",
+          "B9:C10",
+          "J41:K42",
+          "L41:N41",
+          "J34:K34",
+          "B11:C11",
+          "O29:O30",
+          "H17:H18",
+          "O17:O25",
+          "J27:K27",
+          "J36:K36",
+          "H19:H20",
+          "P45:P47",
+          "H35:H37",
+          "J20:K20",
+          "J11:K11",
+          "I31:I39",
+          "B37:C37",
+          "H25:H27",
+          "J22:K22",
+          "P15:P16",
+          "G9:G10",
+          "J12:K12",
+          "I9:I10",
+          "J46:K46",
+          "A9:A10",
+          "B29:C30",
+          "J15:K16",
+          "P41:P42",
+          "P23:P25",
+          "I43:I47",
+          "H29:H30",
+          "A14:P14",
+          "J38:K38",
+          "B15:C16",
+          "A41:A42",
+          "H31:H32",
+          "B43:C43",
+          "O31:O39",
+          "I17:I25",
+          "J24:K24",
+          "P17:P18",
+          "A8:F8",
+          "G15:G16",
+          "B17:C17",
+          "J26:K26",
+          "P19:P20",
+          "J35:K35",
+          "B44:C44",
+          "B19:C19",
+          "B41:C42",
+          "B34:C34",
+          "J25:K25",
+          "J9:K10",
+          "H33:H34",
+          "B20:C20",
+          "B45:C45",
+          "G17:G27",
+          "J39:K39",
+          "J44:K44",
+          "J37:K37",
+          "H21:H22",
+          "I41:I42",
+          "J13:K13",
+          "P31:P32",
+          "L29:N29",
+          "H8:N8",
+          "G43:G45",
+          "B23:C23",
+          "O41:O42",
+          "A46:H46",
+          "D15:F15",
+          "G29:G30",
+          "H43:H45",
+          "G11:G13",
+          "J32:K32",
+          "I11:I13",
+          "A29:A30",
+          "A11:A13",
+          "I7:O7",
+          "J47:K47",
+          "P43:P44",
+          "J43:K43",
+          "P33:P34",
+          "A15:A16",
+          "J18:K18",
+          "J33:K33",
+          "B36:C36",
+          "P29:P30",
+          "O15:O16",
+          "J17:K17"
+        ],
+        "filled_cells": [
+          {
+            "ref": "A6",
+            "value": "REALIZADO POR:",
+            "row": 6,
+            "col": 1
+          },
+          {
+            "ref": "I6",
+            "value": "MARCA:",
+            "row": 6,
+            "col": 9
+          },
+          {
+            "ref": "P6",
+            "value": "LINEA:",
+            "row": 6,
+            "col": 16
+          },
+          {
+            "ref": "A7",
+            "value": "CARGO:",
+            "row": 7,
+            "col": 1
+          },
+          {
+            "ref": "H7",
+            "value": "PLACA:",
+            "row": 7,
+            "col": 8
+          },
+          {
+            "ref": "I7",
+            "value": "MODELO:",
+            "row": 7,
+            "col": 9
+          },
+          {
+            "ref": "P7",
+            "value": "FECHA:",
+            "row": 7,
+            "col": 16
+          },
+          {
+            "ref": "A8",
+            "value": "KILOMETRAJE ACTUAL:",
+            "row": 8,
+            "col": 1
+          },
+          {
+            "ref": "H8",
+            "value": "ULTIMO CAMBIO DE ACEITE FECHA: ",
+            "row": 8,
+            "col": 8
+          },
+          {
+            "ref": "O8",
+            "value": "KILOMETRAJE CAMBIO DE ACEITE:",
+            "row": 8,
+            "col": 15
+          },
+          {
+            "ref": "A9",
+            "value": "ITEM",
+            "row": 9,
+            "col": 1
+          },
+          {
+            "ref": "B9",
+            "value": "REQUERIMIENTO",
+            "row": 9,
+            "col": 2
+          },
+          {
+            "ref": "D9",
+            "value": "CUMPLE",
+            "row": 9,
+            "col": 4
+          },
+          {
+            "ref": "G9",
+            "value": "INSPECCIONADO POR:",
+            "row": 9,
+            "col": 7
+          },
+          {
+            "ref": "H9",
+            "value": "OBSERVACIONES",
+            "row": 9,
+            "col": 8
+          },
+          {
+            "ref": "I9",
+            "value": "ITEM",
+            "row": 9,
+            "col": 9
+          },
+          {
+            "ref": "J9",
+            "value": "REQUERIMIENTO",
+            "row": 9,
+            "col": 10
+          },
+          {
+            "ref": "L9",
+            "value": "CUMPLE",
+            "row": 9,
+            "col": 12
+          },
+          {
+            "ref": "O9",
+            "value": "INSPECCIONADO POR:",
+            "row": 9,
+            "col": 15
+          },
+          {
+            "ref": "P9",
+            "value": "OBSERVACIONES",
+            "row": 9,
+            "col": 16
+          },
+          {
+            "ref": "D10",
+            "value": "SI",
+            "row": 10,
+            "col": 4
+          },
+          {
+            "ref": "E10",
+            "value": "NO",
+            "row": 10,
+            "col": 5
+          },
+          {
+            "ref": "F10",
+            "value": "N/A",
+            "row": 10,
+            "col": 6
+          },
+          {
+            "ref": "L10",
+            "value": "SI ",
+            "row": 10,
+            "col": 12
+          },
+          {
+            "ref": "M10",
+            "value": "NO",
+            "row": 10,
+            "col": 13
+          },
+          {
+            "ref": "N10",
+            "value": "N/A",
+            "row": 10,
+            "col": 14
+          },
+          {
+            "ref": "A11",
+            "value": "DOCUMENTACION DEL EQUIPO",
+            "row": 11,
+            "col": 1
+          },
+          {
+            "ref": "B11",
+            "value": "PERMISO DE CIRCULACION AL DIA",
+            "row": 11,
+            "col": 2
+          },
+          {
+            "ref": "I11",
+            "value": "OPERADOR",
+            "row": 11,
+            "col": 9
+          },
+          {
+            "ref": "J11",
+            "value": "LICENCIA MUNICIPAL",
+            "row": 11,
+            "col": 10
+          },
+          {
+            "ref": "B12",
+            "value": "REVISION TECNOMECANICA AL DIA",
+            "row": 12,
+            "col": 2
+          },
+          {
+            "ref": "J12",
+            "value": "CURSO DE OPERADOR",
+            "row": 12,
+            "col": 10
+          },
+          {
+            "ref": "B13",
+            "value": "SOAT VIGENTE",
+            "row": 13,
+            "col": 2
+          },
+          {
+            "ref": "J13",
+            "value": "LICENCIA INTERNA",
+            "row": 13,
+            "col": 10
+          },
+          {
+            "ref": "A15",
+            "value": "ITEM",
+            "row": 15,
+            "col": 1
+          },
+          {
+            "ref": "B15",
+            "value": "REQUERIMIENTO",
+            "row": 15,
+            "col": 2
+          },
+          {
+            "ref": "D15",
+            "value": "CUMPLE",
+            "row": 15,
+            "col": 4
+          },
+          {
+            "ref": "G15",
+            "value": "INSPECCIONADO POR:",
+            "row": 15,
+            "col": 7
+          },
+          {
+            "ref": "H15",
+            "value": "OBSERVACIONES",
+            "row": 15,
+            "col": 8
+          },
+          {
+            "ref": "I15",
+            "value": "ITEM",
+            "row": 15,
+            "col": 9
+          },
+          {
+            "ref": "J15",
+            "value": "REQUERIMIENTO",
+            "row": 15,
+            "col": 10
+          },
+          {
+            "ref": "L15",
+            "value": "CUMPLE",
+            "row": 15,
+            "col": 12
+          },
+          {
+            "ref": "O15",
+            "value": "INSPECCIONADO POR:",
+            "row": 15,
+            "col": 15
+          },
+          {
+            "ref": "P15",
+            "value": "OBSERVACIONES",
+            "row": 15,
+            "col": 16
+          },
+          {
+            "ref": "D16",
+            "value": "SI",
+            "row": 16,
+            "col": 4
+          },
+          {
+            "ref": "E16",
+            "value": "NO",
+            "row": 16,
+            "col": 5
+          },
+          {
+            "ref": "F16",
+            "value": "N/A",
+            "row": 16,
+            "col": 6
+          },
+          {
+            "ref": "L16",
+            "value": "SI",
+            "row": 16,
+            "col": 12
+          },
+          {
+            "ref": "M16",
+            "value": "NO",
+            "row": 16,
+            "col": 13
+          },
+          {
+            "ref": "N16",
+            "value": "N/A",
+            "row": 16,
+            "col": 14
+          },
+          {
+            "ref": "A17",
+            "value": "LUCES",
+            "row": 17,
+            "col": 1
+          },
+          {
+            "ref": "B17",
+            "value": "ALTAS",
+            "row": 17,
+            "col": 2
+          },
+          {
+            "ref": "I17",
+            "value": "ACCESORIO Y SEGURIDAD",
+            "row": 17,
+            "col": 9
+          },
+          {
+            "ref": "J17",
+            "value": "EXTINTOR",
+            "row": 17,
+            "col": 10
+          },
+          {
+            "ref": "B18",
+            "value": "BAJAS",
+            "row": 18,
+            "col": 2
+          },
+          {
+            "ref": "J18",
+            "value": "BOTIQUIN ",
+            "row": 18,
+            "col": 10
+          },
+          {
+            "ref": "B19",
+            "value": "RETROCESO",
+            "row": 19,
+            "col": 2
+          },
+          {
+            "ref": "J19",
+            "value": "CONOS",
+            "row": 19,
+            "col": 10
+          },
+          {
+            "ref": "B20",
+            "value": "LATERAL DERECHA DELANTERA",
+            "row": 20,
+            "col": 2
+          },
+          {
+            "ref": "J20",
+            "value": "BOCINA",
+            "row": 20,
+            "col": 10
+          },
+          {
+            "ref": "B21",
+            "value": "LATERAL IZQUIERDA DELANTERA",
+            "row": 21,
+            "col": 2
+          },
+          {
+            "ref": "J21",
+            "value": "SIRENA",
+            "row": 21,
+            "col": 10
+          },
+          {
+            "ref": "B22",
+            "value": "LATERAL DERECHA TRASERA",
+            "row": 22,
+            "col": 2
+          },
+          {
+            "ref": "J22",
+            "value": "ESCALERAS",
+            "row": 22,
+            "col": 10
+          },
+          {
+            "ref": "B23",
+            "value": "LATERAL IZQUIERDA TRASERA",
+            "row": 23,
+            "col": 2
+          },
+          {
+            "ref": "J23",
+            "value": "INDICADOR DE CAPACIDAD",
+            "row": 23,
+            "col": 10
+          },
+          {
+            "ref": "B24",
+            "value": "FRENO",
+            "row": 24,
+            "col": 2
+          },
+          {
+            "ref": "J24",
+            "value": "CORTACORRIENTES",
+            "row": 24,
+            "col": 10
+          },
+          {
+            "ref": "B25",
+            "value": "ESTACIONAMIENTO",
+            "row": 25,
+            "col": 2
+          },
+          {
+            "ref": "J25",
+            "value": "SISTEMA DE COMUNICACIÓN O RADIO",
+            "row": 25,
+            "col": 10
+          },
+          {
+            "ref": "B26",
+            "value": "CABINA INTERIOR",
+            "row": 26,
+            "col": 2
+          },
+          {
+            "ref": "B27",
+            "value": "EMERGENCIA",
+            "row": 27,
+            "col": 2
+          },
+          {
+            "ref": "A29",
+            "value": "ITEM",
+            "row": 29,
+            "col": 1
+          },
+          {
+            "ref": "B29",
+            "value": "REQUERIMIENTO",
+            "row": 29,
+            "col": 2
+          },
+          {
+            "ref": "D29",
+            "value": "CUMPLE",
+            "row": 29,
+            "col": 4
+          },
+          {
+            "ref": "G29",
+            "value": "INSPECCIONADO POR:",
+            "row": 29,
+            "col": 7
+          },
+          {
+            "ref": "H29",
+            "value": "OBSERVACIONES",
+            "row": 29,
+            "col": 8
+          },
+          {
+            "ref": "I29",
+            "value": "ITEM",
+            "row": 29,
+            "col": 9
+          },
+          {
+            "ref": "J29",
+            "value": "REQUERIMIENTO",
+            "row": 29,
+            "col": 10
+          },
+          {
+            "ref": "L29",
+            "value": "CUMPLE",
+            "row": 29,
+            "col": 12
+          },
+          {
+            "ref": "O29",
+            "value": "INSPECCIONADO POR:",
+            "row": 29,
+            "col": 15
+          },
+          {
+            "ref": "P29",
+            "value": "OBSERVACIONES",
+            "row": 29,
+            "col": 16
+          },
+          {
+            "ref": "D30",
+            "value": "SI",
+            "row": 30,
+            "col": 4
+          },
+          {
+            "ref": "E30",
+            "value": "NO",
+            "row": 30,
+            "col": 5
+          },
+          {
+            "ref": "F30",
+            "value": "N/A",
+            "row": 30,
+            "col": 6
+          },
+          {
+            "ref": "L30",
+            "value": "SI",
+            "row": 30,
+            "col": 12
+          },
+          {
+            "ref": "M30",
+            "value": "NO",
+            "row": 30,
+            "col": 13
+          },
+          {
+            "ref": "N30",
+            "value": "N/A",
+            "row": 30,
+            "col": 14
+          },
+          {
+            "ref": "A31",
+            "value": "NEUMATICOS",
+            "row": 31,
+            "col": 1
+          },
+          {
+            "ref": "B31",
+            "value": "DELANTERO IZQUIERDO",
+            "row": 31,
+            "col": 2
+          },
+          {
+            "ref": "I31",
+            "value": "GENERAL",
+            "row": 31,
+            "col": 9
+          },
+          {
+            "ref": "J31",
+            "value": "ESTABILIZADORES",
+            "row": 31,
+            "col": 10
+          },
+          {
+            "ref": "B32",
+            "value": "DELANTERO DERECHO",
+            "row": 32,
+            "col": 2
+          },
+          {
+            "ref": "J32",
+            "value": "BRAZO GIRATORIO",
+            "row": 32,
+            "col": 10
+          },
+          {
+            "ref": "B33",
+            "value": "TRASERO INTERNO DERECHO",
+            "row": 33,
+            "col": 2
+          },
+          {
+            "ref": "J33",
+            "value": "ESCALERA DE ACCESO",
+            "row": 33,
+            "col": 10
+          },
+          {
+            "ref": "B34",
+            "value": "TRASERO INTERNO IZQUIERDO",
+            "row": 34,
+            "col": 2
+          },
+          {
+            "ref": "J34",
+            "value": "SISTEMA OPERACIONAL",
+            "row": 34,
+            "col": 10
+          },
+          {
+            "ref": "B35",
+            "value": "TRASERO DERECHO",
+            "row": 35,
+            "col": 2
+          },
+          {
+            "ref": "J35",
+            "value": "CANASTA",
+            "row": 35,
+            "col": 10
+          },
+          {
+            "ref": "B36",
+            "value": "TRASERO IZQUIERDO",
+            "row": 36,
+            "col": 2
+          },
+          {
+            "ref": "J36",
+            "value": "POLEAS",
+            "row": 36,
+            "col": 10
+          },
+          {
+            "ref": "B37",
+            "value": "REPUESTOS",
+            "row": 37,
+            "col": 2
+          },
+          {
+            "ref": "J37",
+            "value": "CABLES ",
+            "row": 37,
+            "col": 10
+          },
+          {
+            "ref": "J38",
+            "value": "GANCHOS",
+            "row": 38,
+            "col": 10
+          },
+          {
+            "ref": "J39",
+            "value": "SEGURO GANCHOS",
+            "row": 39,
+            "col": 10
+          },
+          {
+            "ref": "A41",
+            "value": "ITEM",
+            "row": 41,
+            "col": 1
+          },
+          {
+            "ref": "B41",
+            "value": "REQUERIMIENTO",
+            "row": 41,
+            "col": 2
+          },
+          {
+            "ref": "D41",
+            "value": "CUMPLE",
+            "row": 41,
+            "col": 4
+          },
+          {
+            "ref": "G41",
+            "value": "INSPECCIONADO POR:",
+            "row": 41,
+            "col": 7
+          },
+          {
+            "ref": "H41",
+            "value": "OBSERVACIONES",
+            "row": 41,
+            "col": 8
+          },
+          {
+            "ref": "I41",
+            "value": "ITEM",
+            "row": 41,
+            "col": 9
+          },
+          {
+            "ref": "J41",
+            "value": "REQUERIMIENTO",
+            "row": 41,
+            "col": 10
+          },
+          {
+            "ref": "L41",
+            "value": "CUMPLE",
+            "row": 41,
+            "col": 12
+          },
+          {
+            "ref": "O41",
+            "value": "INSPECCIONADO POR:",
+            "row": 41,
+            "col": 15
+          },
+          {
+            "ref": "P41",
+            "value": "OBSERVACIONES",
+            "row": 41,
+            "col": 16
+          },
+          {
+            "ref": "D42",
+            "value": "SI",
+            "row": 42,
+            "col": 4
+          },
+          {
+            "ref": "E42",
+            "value": "NO",
+            "row": 42,
+            "col": 5
+          },
+          {
+            "ref": "F42",
+            "value": "N/A",
+            "row": 42,
+            "col": 6
+          },
+          {
+            "ref": "L42",
+            "value": "SI",
+            "row": 42,
+            "col": 12
+          },
+          {
+            "ref": "M42",
+            "value": "NO",
+            "row": 42,
+            "col": 13
+          },
+          {
+            "ref": "N42",
+            "value": "N/A",
+            "row": 42,
+            "col": 14
+          },
+          {
+            "ref": "A43",
+            "value": "ESPEJOS",
+            "row": 43,
+            "col": 1
+          },
+          {
+            "ref": "B43",
+            "value": "LATERAL IZQUIERDO",
+            "row": 43,
+            "col": 2
+          },
+          {
+            "ref": "I43",
+            "value": "VIDRIOS",
+            "row": 43,
+            "col": 9
+          },
+          {
+            "ref": "J43",
+            "value": "PARABRISAS",
+            "row": 43,
+            "col": 10
+          },
+          {
+            "ref": "B44",
+            "value": "LATERAL DERECHO",
+            "row": 44,
+            "col": 2
+          },
+          {
+            "ref": "J44",
+            "value": "IZQUIERDO",
+            "row": 44,
+            "col": 10
+          },
+          {
+            "ref": "B45",
+            "value": "FRONTAL CABINA",
+            "row": 45,
+            "col": 2
+          },
+          {
+            "ref": "J45",
+            "value": "DERECHO",
+            "row": 45,
+            "col": 10
+          },
+          {
+            "ref": "J46",
+            "value": "LUNETAS",
+            "row": 46,
+            "col": 10
+          },
+          {
+            "ref": "J47",
+            "value": "TRASERO",
+            "row": 47,
+            "col": 10
+          }
+        ],
+        "empty_cells": [
+          {
+            "ref": "A1",
+            "row": 1,
+            "col": 1
+          },
+          {
+            "ref": "B1",
+            "row": 1,
+            "col": 2
+          },
+          {
+            "ref": "C1",
+            "row": 1,
+            "col": 3
+          },
+          {
+            "ref": "D1",
+            "row": 1,
+            "col": 4
+          },
+          {
+            "ref": "E1",
+            "row": 1,
+            "col": 5
+          },
+          {
+            "ref": "F1",
+            "row": 1,
+            "col": 6
+          },
+          {
+            "ref": "G1",
+            "row": 1,
+            "col": 7
+          },
+          {
+            "ref": "H1",
+            "row": 1,
+            "col": 8
+          },
+          {
+            "ref": "I1",
+            "row": 1,
+            "col": 9
+          },
+          {
+            "ref": "J1",
+            "row": 1,
+            "col": 10
+          },
+          {
+            "ref": "K1",
+            "row": 1,
+            "col": 11
+          },
+          {
+            "ref": "L1",
+            "row": 1,
+            "col": 12
+          },
+          {
+            "ref": "M1",
+            "row": 1,
+            "col": 13
+          },
+          {
+            "ref": "N1",
+            "row": 1,
+            "col": 14
+          },
+          {
+            "ref": "O1",
+            "row": 1,
+            "col": 15
+          },
+          {
+            "ref": "P1",
+            "row": 1,
+            "col": 16
+          },
+          {
+            "ref": "A2",
+            "row": 2,
+            "col": 1
+          },
+          {
+            "ref": "B2",
+            "row": 2,
+            "col": 2
+          },
+          {
+            "ref": "C2",
+            "row": 2,
+            "col": 3
+          },
+          {
+            "ref": "D2",
+            "row": 2,
+            "col": 4
+          },
+          {
+            "ref": "E2",
+            "row": 2,
+            "col": 5
+          },
+          {
+            "ref": "F2",
+            "row": 2,
+            "col": 6
+          },
+          {
+            "ref": "G2",
+            "row": 2,
+            "col": 7
+          },
+          {
+            "ref": "H2",
+            "row": 2,
+            "col": 8
+          },
+          {
+            "ref": "I2",
+            "row": 2,
+            "col": 9
+          },
+          {
+            "ref": "J2",
+            "row": 2,
+            "col": 10
+          },
+          {
+            "ref": "K2",
+            "row": 2,
+            "col": 11
+          },
+          {
+            "ref": "L2",
+            "row": 2,
+            "col": 12
+          },
+          {
+            "ref": "M2",
+            "row": 2,
+            "col": 13
+          },
+          {
+            "ref": "N2",
+            "row": 2,
+            "col": 14
+          },
+          {
+            "ref": "O2",
+            "row": 2,
+            "col": 15
+          },
+          {
+            "ref": "P2",
+            "row": 2,
+            "col": 16
+          },
+          {
+            "ref": "A3",
+            "row": 3,
+            "col": 1
+          },
+          {
+            "ref": "B3",
+            "row": 3,
+            "col": 2
+          },
+          {
+            "ref": "C3",
+            "row": 3,
+            "col": 3
+          },
+          {
+            "ref": "D3",
+            "row": 3,
+            "col": 4
+          },
+          {
+            "ref": "E3",
+            "row": 3,
+            "col": 5
+          },
+          {
+            "ref": "F3",
+            "row": 3,
+            "col": 6
+          },
+          {
+            "ref": "G3",
+            "row": 3,
+            "col": 7
+          },
+          {
+            "ref": "H3",
+            "row": 3,
+            "col": 8
+          },
+          {
+            "ref": "I3",
+            "row": 3,
+            "col": 9
+          },
+          {
+            "ref": "J3",
+            "row": 3,
+            "col": 10
+          },
+          {
+            "ref": "K3",
+            "row": 3,
+            "col": 11
+          },
+          {
+            "ref": "L3",
+            "row": 3,
+            "col": 12
+          },
+          {
+            "ref": "M3",
+            "row": 3,
+            "col": 13
+          },
+          {
+            "ref": "N3",
+            "row": 3,
+            "col": 14
+          },
+          {
+            "ref": "O3",
+            "row": 3,
+            "col": 15
+          },
+          {
+            "ref": "P3",
+            "row": 3,
+            "col": 16
+          },
+          {
+            "ref": "A4",
+            "row": 4,
+            "col": 1
+          },
+          {
+            "ref": "B4",
+            "row": 4,
+            "col": 2
+          },
+          {
+            "ref": "C4",
+            "row": 4,
+            "col": 3
+          },
+          {
+            "ref": "D4",
+            "row": 4,
+            "col": 4
+          },
+          {
+            "ref": "E4",
+            "row": 4,
+            "col": 5
+          },
+          {
+            "ref": "F4",
+            "row": 4,
+            "col": 6
+          },
+          {
+            "ref": "G4",
+            "row": 4,
+            "col": 7
+          },
+          {
+            "ref": "H4",
+            "row": 4,
+            "col": 8
+          },
+          {
+            "ref": "I4",
+            "row": 4,
+            "col": 9
+          },
+          {
+            "ref": "J4",
+            "row": 4,
+            "col": 10
+          },
+          {
+            "ref": "K4",
+            "row": 4,
+            "col": 11
+          },
+          {
+            "ref": "L4",
+            "row": 4,
+            "col": 12
+          },
+          {
+            "ref": "M4",
+            "row": 4,
+            "col": 13
+          },
+          {
+            "ref": "N4",
+            "row": 4,
+            "col": 14
+          },
+          {
+            "ref": "O4",
+            "row": 4,
+            "col": 15
+          },
+          {
+            "ref": "P4",
+            "row": 4,
+            "col": 16
+          },
+          {
+            "ref": "A5",
+            "row": 5,
+            "col": 1
+          },
+          {
+            "ref": "B5",
+            "row": 5,
+            "col": 2
+          },
+          {
+            "ref": "C5",
+            "row": 5,
+            "col": 3
+          },
+          {
+            "ref": "D5",
+            "row": 5,
+            "col": 4
+          },
+          {
+            "ref": "E5",
+            "row": 5,
+            "col": 5
+          },
+          {
+            "ref": "F5",
+            "row": 5,
+            "col": 6
+          },
+          {
+            "ref": "G5",
+            "row": 5,
+            "col": 7
+          },
+          {
+            "ref": "H5",
+            "row": 5,
+            "col": 8
+          },
+          {
+            "ref": "I5",
+            "row": 5,
+            "col": 9
+          },
+          {
+            "ref": "J5",
+            "row": 5,
+            "col": 10
+          },
+          {
+            "ref": "K5",
+            "row": 5,
+            "col": 11
+          },
+          {
+            "ref": "L5",
+            "row": 5,
+            "col": 12
+          },
+          {
+            "ref": "M5",
+            "row": 5,
+            "col": 13
+          },
+          {
+            "ref": "N5",
+            "row": 5,
+            "col": 14
+          },
+          {
+            "ref": "O5",
+            "row": 5,
+            "col": 15
+          },
+          {
+            "ref": "P5",
+            "row": 5,
+            "col": 16
+          },
+          {
+            "ref": "B6",
+            "row": 6,
+            "col": 2
+          },
+          {
+            "ref": "C6",
+            "row": 6,
+            "col": 3
+          },
+          {
+            "ref": "D6",
+            "row": 6,
+            "col": 4
+          },
+          {
+            "ref": "E6",
+            "row": 6,
+            "col": 5
+          },
+          {
+            "ref": "F6",
+            "row": 6,
+            "col": 6
+          },
+          {
+            "ref": "G6",
+            "row": 6,
+            "col": 7
+          },
+          {
+            "ref": "H6",
+            "row": 6,
+            "col": 8
+          },
+          {
+            "ref": "J6",
+            "row": 6,
+            "col": 10
+          },
+          {
+            "ref": "K6",
+            "row": 6,
+            "col": 11
+          },
+          {
+            "ref": "L6",
+            "row": 6,
+            "col": 12
+          },
+          {
+            "ref": "M6",
+            "row": 6,
+            "col": 13
+          },
+          {
+            "ref": "N6",
+            "row": 6,
+            "col": 14
+          },
+          {
+            "ref": "O6",
+            "row": 6,
+            "col": 15
+          },
+          {
+            "ref": "B7",
+            "row": 7,
+            "col": 2
+          },
+          {
+            "ref": "C7",
+            "row": 7,
+            "col": 3
+          },
+          {
+            "ref": "D7",
+            "row": 7,
+            "col": 4
+          },
+          {
+            "ref": "E7",
+            "row": 7,
+            "col": 5
+          },
+          {
+            "ref": "F7",
+            "row": 7,
+            "col": 6
+          },
+          {
+            "ref": "G7",
+            "row": 7,
+            "col": 7
+          },
+          {
+            "ref": "J7",
+            "row": 7,
+            "col": 10
+          }
+        ],
+        "headers": [],
+        "potential_fields": []
+      },
+      {
+        "name": "Hoja2",
+        "dimensions": "A1:C7",
+        "max_row": 7,
+        "max_column": 3,
+        "merged_cells": [
+          "A1:C1"
+        ],
+        "filled_cells": [
+          {
+            "ref": "A1",
+            "value": "SEÑAS PARA REALIZAR IZAJE",
+            "row": 1,
+            "col": 1
+          },
+          {
+            "ref": "A2",
+            "value": "ELEVAR",
+            "row": 2,
+            "col": 1
+          },
+          {
+            "ref": "B2",
+            "value": "BAJAR",
+            "row": 2,
+            "col": 2
+          },
+          {
+            "ref": "C2",
+            "value": "PARADA",
+            "row": 2,
+            "col": 3
+          },
+          {
+            "ref": "A4",
+            "value": "MOVIMIENTO LENTO",
+            "row": 4,
+            "col": 1
+          },
+          {
+            "ref": "B4",
+            "value": "PARADA DE EMERGENCIA",
+            "row": 4,
+            "col": 2
+          }
+        ],
+        "empty_cells": [
+          {
+            "ref": "B1",
+            "row": 1,
+            "col": 2
+          },
+          {
+            "ref": "C1",
+            "row": 1,
+            "col": 3
+          },
+          {
+            "ref": "A3",
+            "row": 3,
+            "col": 1
+          },
+          {
+            "ref": "B3",
+            "row": 3,
+            "col": 2
+          },
+          {
+            "ref": "C3",
+            "row": 3,
+            "col": 3
+          },
+          {
+            "ref": "C4",
+            "row": 4,
+            "col": 3
+          },
+          {
+            "ref": "A5",
+            "row": 5,
+            "col": 1
+          },
+          {
+            "ref": "B5",
+            "row": 5,
+            "col": 2
+          },
+          {
+            "ref": "C5",
+            "row": 5,
+            "col": 3
+          },
+          {
+            "ref": "A6",
+            "row": 6,
+            "col": 1
+          },
+          {
+            "ref": "B6",
+            "row": 6,
+            "col": 2
+          },
+          {
+            "ref": "C6",
+            "row": 6,
+            "col": 3
+          },
+          {
+            "ref": "A7",
+            "row": 7,
+            "col": 1
+          },
+          {
+            "ref": "B7",
+            "row": 7,
+            "col": 2
+          },
+          {
+            "ref": "C7",
+            "row": 7,
+            "col": 3
+          }
+        ],
+        "headers": [],
+        "potential_fields": []
+      }
+    ]
+  }
+]
