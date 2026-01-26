@@ -279,9 +279,9 @@ export default function AdminDashboard() {
                         const success = await syncFromServer();
                         setIsSyncing(false);
                         if (success) {
-                          alert('✅ Datos sincronizados correctamente');
+                          alert('Datos sincronizados correctamente');
                         } else {
-                          alert('❌ Error al sincronizar. Intente de nuevo.');
+                          alert('Error al sincronizar. Intente de nuevo.');
                         }
                       }
                     }}
@@ -289,27 +289,6 @@ export default function AdminDashboard() {
                     className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSyncing ? 'Sincronizando...' : 'Sincronizar desde Servidor'}
-                  </button>
-                </div>
-
-                {/* Database */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Base de Datos</h4>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Restaurar a los datos originales del repositorio (elimina cambios locales).
-                  </p>
-                  <button
-                    onClick={async () => {
-                      if (confirm('¿Seguro? Esto eliminará todos los cambios y restaurará datos predeterminados desde el repositorio.')) {
-                        const { db } = await import('@/lib/db');
-                        await db.resetToDefaults();
-                        alert('Base de datos reinicializada');
-                        window.location.reload();
-                      }
-                    }}
-                    className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors"
-                  >
-                    Restaurar Datos Predeterminados
                   </button>
                 </div>
 
