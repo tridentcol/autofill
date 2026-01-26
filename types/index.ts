@@ -271,7 +271,7 @@ export interface DatabaseState {
   getGruaById: (id: string) => Grua | undefined;
 
   // User management
-  setCurrentUser: (user: User) => void;
+  setCurrentUser: (user: User | null) => void;
   isAdmin: () => boolean;
 
   // Initialize with default data
