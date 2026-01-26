@@ -1,10 +1,11 @@
-import type { Worker, Cuadrilla, Camioneta, Grua } from '@/types';
+import type { Worker, Cuadrilla, Camioneta, Grua, Signature } from '@/types';
 import {
   syncWorkersToGit,
   syncCuadrillasToGit,
   syncCamionetasToGit,
   syncGruasToGit,
   syncCargosToGit,
+  syncSignaturesToGit,
   syncAllDataToGit,
 } from './gitSync';
 
@@ -15,11 +16,18 @@ import {
 
 export async function syncWorkersToServer(workers: Worker[]): Promise<boolean> {
   try {
+    // Excluir signatureData del JSON (es demasiado grande - base64)
+    // Solo guardamos signatureId, la imagen está en /public/signatures/
+    const workersForSync = workers.map(w => {
+      const { signatureData, ...workerWithoutSignatureData } = w as any;
+      return workerWithoutSignatureData;
+    });
+
     // 1. Write to local JSON file (works in development)
     const response = await fetch('/api/data/workers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(workers),
+      body: JSON.stringify(workersForSync),
     });
 
     if (!response.ok) {
@@ -29,7 +37,7 @@ export async function syncWorkersToServer(workers: Worker[]): Promise<boolean> {
     console.log('✅ Workers synced to local files');
 
     // 2. Commit to git (works in production)
-    const gitSuccess = await syncWorkersToGit(workers);
+    const gitSuccess = await syncWorkersToGit(workersForSync);
     if (!gitSuccess) {
       console.warn('⚠️ Git sync failed, but local files were updated');
     }
@@ -149,6 +157,34 @@ export async function syncCargosToServer(cargos: string[]): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('❌ Error syncing cargos:', error);
+    return false;
+  }
+}
+
+export async function syncSignaturesToServer(signatures: Signature[]): Promise<boolean> {
+  try {
+    // 1. Write to local JSON file (works in development)
+    const response = await fetch('/api/data/signatures', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(signatures),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to sync signatures');
+    }
+
+    console.log('✅ Signatures synced to local files');
+
+    // 2. Commit to git (works in production)
+    const gitSuccess = await syncSignaturesToGit(signatures);
+    if (!gitSuccess) {
+      console.warn('⚠️ Git sync failed, but local files were updated');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('❌ Error syncing signatures:', error);
     return false;
   }
 }

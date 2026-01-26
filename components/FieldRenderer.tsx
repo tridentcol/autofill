@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useFormStore } from '@/store/useFormStore';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
-import type { Field } from '@/types';
+import type { Field, Signature } from '@/types';
 
 interface FieldRendererProps {
   field: Field;
@@ -13,6 +13,15 @@ interface FieldRendererProps {
   compact?: boolean;
 }
 
+// Interfaz para las firmas derivadas de workers
+interface WorkerSignature {
+  id: string;
+  name: string;
+  dataUrl: string;
+  workerId: string;
+  cargo: string;
+}
+
 export default function FieldRenderer({
   field,
   sheetIndex,
@@ -20,69 +29,65 @@ export default function FieldRenderer({
   hideLabel = false,
   compact = false,
 }: FieldRendererProps) {
-  const { currentFormData, updateFieldValue, signatures } = useFormStore();
+  const { currentFormData, updateFieldValue } = useFormStore();
   const { workers } = useDatabaseStore();
   const [value, setValue] = useState<any>(field.value || '');
 
+  // Construir firmas disponibles desde los workers que tienen signatureId
+  const availableSignatures = useMemo((): WorkerSignature[] => {
+    return workers
+      .filter(w => w.isActive && w.signatureId)
+      .map(w => ({
+        id: w.signatureId!,
+        name: w.nombre,
+        dataUrl: w.signatureData || `/signatures/${w.signatureId}.png`,
+        workerId: w.id,
+        cargo: w.cargo,
+      }));
+  }, [workers]);
+
   // Filtrar firmas por rol si es necesario
   const filteredSignatures = useMemo(() => {
-    if (field.type !== 'signature' || !field.validation?.pattern) {
-      return signatures;
+    if (field.type !== 'signature') {
+      return availableSignatures;
     }
 
-    const pattern = field.validation.pattern;
+    const pattern = field.validation?.pattern;
+    if (!pattern) {
+      return availableSignatures;
+    }
 
     if (pattern === 'supervisor_only') {
       // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
-      // También incluye variantes más cortas para compatibilidad
       const supervisorRoles = [
-        'Supervisor', 'Supervisor de cuadrilla',
-        'Coordinador de zona',
-        'Asistente técnico', 'Asistente técnico de mantenimiento'
+        'supervisor', 'coordinador', 'asistente técnico', 'asistente tecnico'
       ];
-      const supervisorWorkerIds = workers
-        .filter(w => w.isActive && supervisorRoles.some(role =>
-          w.cargo.toLowerCase().includes(role.toLowerCase()) ||
-          role.toLowerCase().includes(w.cargo.toLowerCase())
-        ) && w.signatureId)
-        .map(w => w.signatureId);
-
-      return signatures.filter(sig => supervisorWorkerIds.includes(sig.id));
+      return availableSignatures.filter(sig =>
+        supervisorRoles.some(role => sig.cargo.toLowerCase().includes(role))
+      );
     } else if (pattern === 'conductor_only') {
       // Solo conductores (excluye conductor ayudante)
-      const conductorWorkerIds = workers
-        .filter(w => w.isActive &&
-          w.cargo.toLowerCase().includes('conductor') &&
-          !w.cargo.toLowerCase().includes('ayudante') &&
-          w.signatureId)
-        .map(w => w.signatureId);
-
-      return signatures.filter(sig => conductorWorkerIds.includes(sig.id));
+      return availableSignatures.filter(sig =>
+        sig.cargo.toLowerCase().includes('conductor') &&
+        !sig.cargo.toLowerCase().includes('ayudante')
+      );
     } else if (pattern === 'tecnico_conductor') {
       // Técnico electricista o Conductor ayudante
-      const tecnicoConductorWorkerIds = workers
-        .filter(w => w.isActive && (
-          w.cargo.toLowerCase().includes('técnico') ||
-          w.cargo.toLowerCase().includes('tecnico') ||
-          (w.cargo.toLowerCase().includes('conductor') && w.cargo.toLowerCase().includes('ayudante'))
-        ) && w.signatureId)
-        .map(w => w.signatureId);
-
-      return signatures.filter(sig => tecnicoConductorWorkerIds.includes(sig.id));
+      return availableSignatures.filter(sig =>
+        sig.cargo.toLowerCase().includes('técnico') ||
+        sig.cargo.toLowerCase().includes('tecnico') ||
+        (sig.cargo.toLowerCase().includes('conductor') && sig.cargo.toLowerCase().includes('ayudante'))
+      );
     } else if (pattern === 'conductor_ayudante') {
       // Solo Conductor ayudante
-      const conductorAyudanteWorkerIds = workers
-        .filter(w => w.isActive &&
-          w.cargo.toLowerCase().includes('conductor') &&
-          w.cargo.toLowerCase().includes('ayudante') &&
-          w.signatureId)
-        .map(w => w.signatureId);
-
-      return signatures.filter(sig => conductorAyudanteWorkerIds.includes(sig.id));
+      return availableSignatures.filter(sig =>
+        sig.cargo.toLowerCase().includes('conductor') &&
+        sig.cargo.toLowerCase().includes('ayudante')
+      );
     }
 
-    return signatures;
-  }, [field.type, field.validation?.pattern, signatures, workers]);
+    return availableSignatures;
+  }, [field.type, field.validation?.pattern, availableSignatures]);
 
   // Cargar valor existente del store
   useEffect(() => {
@@ -258,7 +263,7 @@ export default function FieldRenderer({
                 <option value="">Seleccione una firma</option>
                 {filteredSignatures.map((sig) => (
                   <option key={sig.id} value={sig.id}>
-                    {sig.name}
+                    {sig.name} ({sig.cargo})
                   </option>
                 ))}
               </select>
@@ -269,21 +274,28 @@ export default function FieldRenderer({
             {filteredSignatures.length === 0 && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
                 <p className="text-sm text-yellow-800">
-                  ⚠️ No hay firmas disponibles con el rol requerido. Por favor asigna firmas a los trabajadores en la base de datos.
+                  No hay firmas disponibles con el rol requerido. Por favor asigna firmas a los trabajadores con el cargo correspondiente desde el panel de administración.
                 </p>
               </div>
             )}
             {value && (() => {
-              const selectedSig = signatures.find((s) => s.id === value);
+              const selectedSig = filteredSignatures.find((s) => s.id === value) || availableSignatures.find((s) => s.id === value);
               return selectedSig ? (
                 <div className="border border-gray-300 rounded-md p-2 bg-gray-50">
                   <img
                     src={selectedSig.dataUrl}
                     alt={selectedSig.name}
                     className="max-h-24 mx-auto"
+                    onError={(e) => {
+                      // Si falla la URL del servidor, intentar con la URL alternativa
+                      const target = e.target as HTMLImageElement;
+                      if (!target.src.startsWith('data:')) {
+                        target.src = `/signatures/${selectedSig.id}.png`;
+                      }
+                    }}
                   />
                   <p className="text-xs text-center text-gray-600 mt-1">
-                    {selectedSig.name}
+                    {selectedSig.name} - {selectedSig.cargo}
                   </p>
                 </div>
               ) : null;
