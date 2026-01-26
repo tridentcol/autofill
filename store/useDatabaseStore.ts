@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { db } from '@/lib/db';
-import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer } from '@/lib/dataSync';
+import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer, syncCargosToServer } from '@/lib/dataSync';
 import { loadAllDefaultData } from '@/lib/dataLoader';
 import type { DatabaseState, Worker, Cuadrilla, User, Camioneta, Grua } from '@/types';
 import { DEFAULT_CARGOS } from '@/types';
@@ -377,38 +377,62 @@ export const useDatabaseStore = create<DatabaseState>()(
 
       // ==================== CARGOS CRUD ====================
 
-      addCargo: (cargo) => {
+      addCargo: async (cargo) => {
         const trimmed = cargo.trim();
         if (!trimmed) return;
 
         const currentCargos = get().cargos;
         if (currentCargos.includes(trimmed)) return; // Already exists
 
-        set({ cargos: [...currentCargos, trimmed] });
+        const newCargos = [...currentCargos, trimmed];
+        set({ cargos: newCargos });
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncCargosToServer(newCargos);
+        }
       },
 
-      updateCargo: (oldCargo, newCargo) => {
+      updateCargo: async (oldCargo, newCargo) => {
         const trimmedNew = newCargo.trim();
         if (!trimmedNew || oldCargo === trimmedNew) return;
 
         const currentCargos = get().cargos;
         if (currentCargos.includes(trimmedNew)) return; // New name already exists
 
+        const newCargos = currentCargos.map(c => c === oldCargo ? trimmedNew : c);
+        const updatedWorkers = get().workers.map(w =>
+          w.cargo === oldCargo ? { ...w, cargo: trimmedNew, updatedAt: new Date() } : w
+        );
+
         // Update the cargo in the list
         set({
-          cargos: currentCargos.map(c => c === oldCargo ? trimmedNew : c),
+          cargos: newCargos,
           // Also update any workers that have this cargo
-          workers: get().workers.map(w =>
-            w.cargo === oldCargo ? { ...w, cargo: trimmedNew, updatedAt: new Date() } : w
-          ),
+          workers: updatedWorkers,
         });
+
+        // Sync to server if admin (both cargos and workers were modified)
+        if (get().isAdmin()) {
+          await syncCargosToServer(newCargos);
+          // Also sync workers since their cargo field was updated
+          if (updatedWorkers.some(w => w.cargo === trimmedNew)) {
+            await syncWorkersToServer(updatedWorkers);
+          }
+        }
       },
 
-      deleteCargo: (cargo) => {
+      deleteCargo: async (cargo) => {
         const currentCargos = get().cargos;
         if (currentCargos.length <= 1) return; // Keep at least one cargo
 
-        set({ cargos: currentCargos.filter(c => c !== cargo) });
+        const newCargos = currentCargos.filter(c => c !== cargo);
+        set({ cargos: newCargos });
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncCargosToServer(newCargos);
+        }
       },
 
       // ==================== USER MANAGEMENT ====================
@@ -520,12 +544,13 @@ export const useDatabaseStore = create<DatabaseState>()(
             await db.gruas.bulkAdd(serverData.gruas);
           }
 
-          // Update Zustand state
+          // Update Zustand state (including cargos from server)
           set({
             workers: serverData.workers,
             cuadrillas: serverData.cuadrillas,
             camionetas: serverData.camionetas,
             gruas: serverData.gruas,
+            cargos: serverData.cargos.length > 0 ? serverData.cargos : get().cargos,
           });
 
           console.log('✅ Sincronización completada');
@@ -533,6 +558,7 @@ export const useDatabaseStore = create<DatabaseState>()(
           console.log(`   - ${serverData.cuadrillas.length} cuadrillas`);
           console.log(`   - ${serverData.camionetas.length} camionetas`);
           console.log(`   - ${serverData.gruas.length} grúas`);
+          console.log(`   - ${serverData.cargos.length} cargos`);
 
           return true;
         } catch (error) {
