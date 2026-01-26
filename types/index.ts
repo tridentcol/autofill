@@ -177,7 +177,9 @@ export interface ParserConfig {
 
 export type UserRole = 'admin' | 'user';
 
-export type WorkerCargo = 'Conductor' | 'Técnico' | 'Supervisor' | 'Coordinador de zona' | 'Asistente técnico';
+// Cargos por defecto - pueden ser extendidos dinámicamente
+export const DEFAULT_CARGOS = ['Conductor', 'Técnico', 'Supervisor', 'Coordinador de zona', 'Asistente técnico'] as const;
+export type WorkerCargo = string;
 
 export interface Worker {
   id: string;
@@ -240,6 +242,7 @@ export interface DatabaseState {
   cuadrillas: Cuadrilla[];
   camionetas: Camioneta[];
   gruas: Grua[];
+  cargos: string[];
   currentUser: User | null;
 
   // Workers CRUD
@@ -269,6 +272,11 @@ export interface DatabaseState {
   updateGrua: (id: string, updates: Partial<Grua>) => void;
   deleteGrua: (id: string) => void;
   getGruaById: (id: string) => Grua | undefined;
+
+  // Cargos CRUD
+  addCargo: (cargo: string) => void;
+  updateCargo: (oldCargo: string, newCargo: string) => void;
+  deleteCargo: (cargo: string) => void;
 
   // User management
   setCurrentUser: (user: User | null) => void;
