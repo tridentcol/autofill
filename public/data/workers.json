@@ -33,5 +33,16 @@
     "id": "worker_1769442699511_07msvzouu",
     "createdAt": "2026-01-26T15:51:39.512Z",
     "updatedAt": "2026-01-26T15:51:39.512Z"
+  },
+  {
+    "nombre": "Antonio Cabarcas",
+    "cargo": "Supervisor",
+    "cedula": "",
+    "cuadrillaId": "",
+    "signatureId": "",
+    "isActive": true,
+    "id": "worker_1769442713606_gl8ozb9cd",
+    "createdAt": "2026-01-26T15:51:53.606Z",
+    "updatedAt": "2026-01-26T15:51:53.606Z"
   }
 ]
