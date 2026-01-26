@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 import type { Worker } from '@/types';
 
@@ -12,6 +12,12 @@ export default function UserLogin() {
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Wait for store to hydrate from localStorage before showing modal
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const activeWorkers = workers.filter((w) => w.isActive);
 
@@ -58,6 +64,22 @@ export default function UserLogin() {
     setPassword('');
     setPasswordError('');
   };
+
+  // Handle guest login
+  const handleGuestContinue = () => {
+    const guestUser = {
+      id: 'guest',
+      nombre: 'Invitado',
+      email: undefined,
+      role: 'user' as const,
+      createdAt: new Date(),
+      lastLogin: new Date(),
+    };
+    setCurrentUser(guestUser);
+  };
+
+  // Don't render while hydrating (prevents flash)
+  if (!isHydrated) return null;
 
   // Don't render if user is logged in - AppMenu handles user display
   if (currentUser) return null;
@@ -207,6 +229,16 @@ export default function UserLogin() {
               </p>
             </form>
           )}
+
+          {/* Continue as guest */}
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <button
+              onClick={handleGuestContinue}
+              className="w-full px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+            >
+              Continuar como invitado
+            </button>
+          </div>
         </div>
       </div>
     </div>
