@@ -49,7 +49,7 @@ export default function UserLogin() {
 
     const adminUser = {
       id: 'admin',
-      nombre: 'Administrador del Sistema',
+      nombre: 'Administrador',
       email: 'admin@sistema.com',
       role: 'admin' as const,
       createdAt: new Date(),
@@ -62,43 +62,7 @@ export default function UserLogin() {
     setPasswordError('');
   };
 
-  const handleLogout = () => {
-    if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-      setCurrentUser(null as any);
-      setShowModal(true);
-      setIsAdminMode(false);
-      setPassword('');
-      setPasswordError('');
-      setSearchQuery('');
-    }
-  };
-
-  if (!showModal && currentUser) {
-    return (
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-            <svg className="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div className="hidden sm:block">
-            <p className="text-sm font-medium text-gray-900">{currentUser.nombre}</p>
-            <p className="text-xs text-gray-500">
-              {currentUser.role === 'admin' ? 'Administrador' : 'Usuario'}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
-        >
-          Salir
-        </button>
-      </div>
-    );
-  }
-
+  // Don't render if user is logged in - AppMenu handles user display now
   if (!showModal) return null;
 
   return (
