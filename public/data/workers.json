@@ -36,14 +36,14 @@
   },
   {
     "nombre": "Antonio Cabarcas",
-    "cargo": "Supervisor",
+    "cargo": "Asistente técnico de mantenimiento",
     "cedula": "",
     "cuadrillaId": "",
     "signatureId": "",
     "isActive": true,
     "id": "worker_1769442713606_gl8ozb9cd",
     "createdAt": "2026-01-26T15:51:53.606Z",
-    "updatedAt": "2026-01-26T15:51:53.606Z"
+    "updatedAt": "2026-01-26T19:28:37.054Z"
   },
   {
     "nombre": "Leonardo Torres",
