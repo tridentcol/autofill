@@ -9,6 +9,9 @@ export default function AppMenu() {
   const [isSyncing, setIsSyncing] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const isAdmin = currentUser?.role === 'admin';
+  const isWorker = currentUser && !isAdmin;
+
   // Close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -38,6 +41,12 @@ export default function AppMenu() {
     // UserLogin will automatically show when currentUser is null
   };
 
+  const handleChangeWorker = () => {
+    setCurrentUser(null as any);
+    setIsOpen(false);
+    // This will trigger the login modal to show for selecting another worker
+  };
+
   return (
     <div className="relative" ref={menuRef}>
       {/* Menu Button */}
@@ -48,7 +57,7 @@ export default function AppMenu() {
       >
         {currentUser ? (
           <>
-            <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center text-white text-sm font-medium">
+            <div className={`w-8 h-8 ${isAdmin ? 'bg-purple-600' : 'bg-gray-900'} rounded-full flex items-center justify-center text-white text-sm font-medium`}>
               {currentUser.nombre?.charAt(0)?.toUpperCase() || '?'}
             </div>
             <span className="hidden sm:block text-sm font-medium text-gray-900 max-w-[120px] truncate">
@@ -75,13 +84,20 @@ export default function AppMenu() {
       {/* Dropdown Menu */}
       {isOpen && (
         <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-          {/* User Info */}
+          {/* User Info - Different display for admin vs worker */}
           {currentUser && (
             <div className="px-4 py-3 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">{currentUser.nombre || 'Usuario'}</p>
-              <p className="text-xs text-gray-500">
-                {currentUser.role === 'admin' ? 'Administrador' : 'Usuario'}
-              </p>
+              {isWorker ? (
+                <>
+                  <p className="text-xs text-gray-500 mb-0.5">Identificado como</p>
+                  <p className="text-sm font-medium text-gray-900">{currentUser.nombre || 'Usuario'}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-medium text-gray-900">{currentUser.nombre || 'Usuario'}</p>
+                  <p className="text-xs text-gray-500">Administrador</p>
+                </>
+              )}
             </div>
           )}
 
@@ -113,7 +129,7 @@ export default function AppMenu() {
             </button>
 
             {/* Admin Panel Link - Only for admin */}
-            {currentUser?.role === 'admin' && (
+            {isAdmin && (
               <a
                 href="/admin"
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
@@ -135,8 +151,28 @@ export default function AppMenu() {
             )}
           </div>
 
-          {/* Logout - Only if logged in */}
-          {currentUser && (
+          {/* Change Worker - Only for workers (non-admin) */}
+          {isWorker && (
+            <div className="border-t border-gray-100 pt-1 mt-1">
+              <button
+                onClick={handleChangeWorker}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                  />
+                </svg>
+                <span className="font-medium">Cambiar trabajador</span>
+              </button>
+            </div>
+          )}
+
+          {/* Logout - Only for admin */}
+          {isAdmin && (
             <div className="border-t border-gray-100 pt-1 mt-1">
               <button
                 onClick={handleLogout}
