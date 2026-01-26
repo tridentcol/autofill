@@ -41,7 +41,7 @@
     "isActive": true,
     "id": "worker_1769442713606_gl8ozb9cd",
     "createdAt": "2026-01-26T15:51:53.606Z",
-    "updatedAt": "2026-01-26T21:06:31.072Z"
+    "updatedAt": "2026-01-26T21:06:31.069Z"
   },
   {
     "nombre": "Leonardo Torres",
@@ -52,6 +52,17 @@
     "isActive": true,
     "id": "worker_1769442741393_16zqc91t0",
     "createdAt": "2026-01-26T15:52:21.393Z",
-    "updatedAt": "2026-01-26T21:06:42.789Z"
+    "updatedAt": "2026-01-26T21:06:42.787Z"
+  },
+  {
+    "nombre": "Jose",
+    "cargo": "Conductor ayudante",
+    "cedula": "",
+    "cuadrillaId": "",
+    "signatureId": "",
+    "isActive": true,
+    "id": "worker_1769462535539_9jdowg198",
+    "createdAt": "2026-01-26T21:22:15.539Z",
+    "updatedAt": "2026-01-26T21:22:15.539Z"
   }
 ]
