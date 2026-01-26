@@ -49,10 +49,10 @@ export default function AppMenu() {
         {currentUser ? (
           <>
             <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center text-white text-sm font-medium">
-              {currentUser.nombre.charAt(0).toUpperCase()}
+              {currentUser.nombre?.charAt(0)?.toUpperCase() || '?'}
             </div>
             <span className="hidden sm:block text-sm font-medium text-gray-900 max-w-[120px] truncate">
-              {currentUser.nombre}
+              {currentUser.nombre || 'Usuario'}
             </span>
           </>
         ) : (
@@ -78,7 +78,7 @@ export default function AppMenu() {
           {/* User Info */}
           {currentUser && (
             <div className="px-4 py-3 border-b border-gray-100">
-              <p className="text-sm font-medium text-gray-900">{currentUser.nombre}</p>
+              <p className="text-sm font-medium text-gray-900">{currentUser.nombre || 'Usuario'}</p>
               <p className="text-xs text-gray-500">
                 {currentUser.role === 'admin' ? 'Administrador' : 'Usuario'}
               </p>
