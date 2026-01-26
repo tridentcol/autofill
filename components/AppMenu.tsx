@@ -33,11 +33,9 @@ export default function AppMenu() {
   };
 
   const handleLogout = () => {
-    if (confirm('¿Cerrar sesión?')) {
-      setCurrentUser(null as any);
-      setIsOpen(false);
-      window.location.reload();
-    }
+    setCurrentUser(null as any);
+    setIsOpen(false);
+    // UserLogin will automatically show when currentUser is null
   };
 
   return (
