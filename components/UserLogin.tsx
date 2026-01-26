@@ -7,17 +7,26 @@ import type { Worker } from '@/types';
 const ADMIN_PASSWORD = 'admin123';
 
 export default function UserLogin() {
-  const { workers, currentUser, setCurrentUser } = useDatabaseStore();
+  const { workers, currentUser, setCurrentUser, syncFromServer } = useDatabaseStore();
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [hasSynced, setHasSynced] = useState(false);
 
   // Wait for store to hydrate from localStorage before showing modal
   useEffect(() => {
     setIsHydrated(true);
   }, []);
+
+  // Auto-sync workers from server when modal shows and workers are empty
+  useEffect(() => {
+    if (isHydrated && !currentUser && workers.length === 0 && !hasSynced && !isSyncing) {
+      handleSync();
+    }
+  }, [isHydrated, currentUser, workers.length, hasSynced, isSyncing]);
 
   const activeWorkers = workers.filter((w) => w.isActive);
 
@@ -29,6 +38,17 @@ export default function UserLogin() {
           w.cedula.includes(searchQuery)
       )
     : activeWorkers;
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      await syncFromServer();
+      setHasSynced(true);
+    } catch (error) {
+      console.error('Error syncing:', error);
+    }
+    setIsSyncing(false);
+  };
 
   const handleWorkerLogin = (worker: Worker) => {
     const user = {
@@ -63,19 +83,6 @@ export default function UserLogin() {
     setCurrentUser(adminUser);
     setPassword('');
     setPasswordError('');
-  };
-
-  // Handle guest login
-  const handleGuestContinue = () => {
-    const guestUser = {
-      id: 'guest',
-      nombre: 'Invitado',
-      email: undefined,
-      role: 'user' as const,
-      createdAt: new Date(),
-      lastLogin: new Date(),
-    };
-    setCurrentUser(guestUser);
   };
 
   // Don't render while hydrating (prevents flash)
@@ -142,12 +149,25 @@ export default function UserLogin() {
 
               {/* Workers Grid */}
               <div className="max-h-80 overflow-y-auto space-y-2">
-                {filteredWorkers.length === 0 ? (
+                {isSyncing ? (
+                  <div className="text-center py-12 text-gray-400">
+                    <svg className="mx-auto w-12 h-12 mb-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <p className="text-sm">Cargando trabajadores...</p>
+                  </div>
+                ) : filteredWorkers.length === 0 ? (
                   <div className="text-center py-12 text-gray-400">
                     <svg className="mx-auto w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                     <p className="text-sm">No se encontraron trabajadores</p>
+                    <button
+                      onClick={handleSync}
+                      className="mt-3 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      Sincronizar datos
+                    </button>
                   </div>
                 ) : (
                   filteredWorkers.map((worker) => (
@@ -230,14 +250,31 @@ export default function UserLogin() {
             </form>
           )}
 
-          {/* Continue as guest */}
+          {/* Sync Button */}
           <div className="mt-6 pt-4 border-t border-gray-200">
             <button
-              onClick={handleGuestContinue}
-              className="w-full px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors"
+              onClick={handleSync}
+              disabled={isSyncing}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Continuar como invitado
+              <svg
+                className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              {isSyncing ? 'Sincronizando...' : 'Sincronizar datos'}
             </button>
+            <p className="text-xs text-center text-gray-400 mt-2">
+              Actualiza la lista de trabajadores desde el servidor
+            </p>
           </div>
         </div>
       </div>
