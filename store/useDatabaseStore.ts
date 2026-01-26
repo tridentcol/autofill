@@ -3,7 +3,8 @@ import { persist } from 'zustand/middleware';
 import { db } from '@/lib/db';
 import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer } from '@/lib/dataSync';
 import { loadAllDefaultData } from '@/lib/dataLoader';
-import type { DatabaseState, Worker, Cuadrilla, User, WorkerCargo, Camioneta, Grua } from '@/types';
+import type { DatabaseState, Worker, Cuadrilla, User, Camioneta, Grua } from '@/types';
+import { DEFAULT_CARGOS } from '@/types';
 
 export const useDatabaseStore = create<DatabaseState>()(
   persist(
@@ -13,6 +14,7 @@ export const useDatabaseStore = create<DatabaseState>()(
       cuadrillas: [],
       camionetas: [],
       gruas: [],
+      cargos: [...DEFAULT_CARGOS],
       currentUser: null,
 
       // ==================== WORKERS CRUD ====================
@@ -373,6 +375,42 @@ export const useDatabaseStore = create<DatabaseState>()(
         return get().gruas.find((g) => g.id === id && g.isActive);
       },
 
+      // ==================== CARGOS CRUD ====================
+
+      addCargo: (cargo) => {
+        const trimmed = cargo.trim();
+        if (!trimmed) return;
+
+        const currentCargos = get().cargos;
+        if (currentCargos.includes(trimmed)) return; // Already exists
+
+        set({ cargos: [...currentCargos, trimmed] });
+      },
+
+      updateCargo: (oldCargo, newCargo) => {
+        const trimmedNew = newCargo.trim();
+        if (!trimmedNew || oldCargo === trimmedNew) return;
+
+        const currentCargos = get().cargos;
+        if (currentCargos.includes(trimmedNew)) return; // New name already exists
+
+        // Update the cargo in the list
+        set({
+          cargos: currentCargos.map(c => c === oldCargo ? trimmedNew : c),
+          // Also update any workers that have this cargo
+          workers: get().workers.map(w =>
+            w.cargo === oldCargo ? { ...w, cargo: trimmedNew, updatedAt: new Date() } : w
+          ),
+        });
+      },
+
+      deleteCargo: (cargo) => {
+        const currentCargos = get().cargos;
+        if (currentCargos.length <= 1) return; // Keep at least one cargo
+
+        set({ cargos: currentCargos.filter(c => c !== cargo) });
+      },
+
       // ==================== USER MANAGEMENT ====================
 
       setCurrentUser: (user) => {
@@ -508,6 +546,7 @@ export const useDatabaseStore = create<DatabaseState>()(
       // Solo persistir el usuario actual en localStorage
       partialize: (state) => ({
         currentUser: state.currentUser,
+        cargos: state.cargos,
       }),
     }
   )
