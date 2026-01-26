@@ -139,6 +139,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // 3. FIRMA
+    // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
     sections.push({
       id: 'signatures',
       type: 'signatures',
@@ -155,6 +156,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           validation: {
             mergedRows: 2,   // Filas 39-40 (firma puede sobresalir naturalmente sobre la línea)
             mergedCols: 12,  // A39:L40 tiene 12 columnas (A-L), ancho total: 1116px
+            pattern: 'supervisor_only'
           },
         },
       ],
@@ -620,10 +622,10 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     const sections: Section[] = [];
 
     // PASO 1: FECHA DE DILIGENCIAMIENTO (Fila 6)
-    // Formato calendario con zona horaria Colombia (UTC-5)
-    // Auto-completado con fecha/hora actual, hora por defecto 7:00 AM
+    // Formato calendario compacto con zona horaria Colombia (UTC-5)
     const now = new Date();
     const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+    const colombiaDateStr = colombiaTime.toISOString().split('T')[0];
 
     sections.push({
       id: 'fecha_diligenciamiento',
@@ -631,34 +633,17 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       title: 'Paso 1: Fecha de Diligenciamiento',
       fields: [
         {
-          id: 'fecha_dia',
-          label: 'Día',
-          type: 'number',
-          cellRef: 'F6',
+          id: 'fecha_completa',
+          label: 'Fecha',
+          type: 'date',
+          cellRef: 'F6', // Se descompondrá en F6 (día), G6 (mes), H6 (año) al exportar
           row: 6,
           col: 6,
           required: true,
-          value: colombiaTime.getDate()
-        },
-        {
-          id: 'fecha_mes',
-          label: 'Mes',
-          type: 'number',
-          cellRef: 'G6',
-          row: 6,
-          col: 7,
-          required: true,
-          value: colombiaTime.getMonth() + 1
-        },
-        {
-          id: 'fecha_año',
-          label: 'Año',
-          type: 'number',
-          cellRef: 'H6',
-          row: 6,
-          col: 8,
-          required: true,
-          value: colombiaTime.getFullYear()
+          value: colombiaDateStr,
+          validation: {
+            pattern: 'decompose_date' // Indicador para descomponer al exportar
+          }
         },
         {
           id: 'hora',
@@ -716,6 +701,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // Una sola firma que se aplica a todas las filas (Q9:Q19)
+    // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
     riesgosFields.push({
       id: 'riesgo_responsable',
       label: 'Responsable de la evaluación de riesgos',
@@ -726,6 +712,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       required: true,
       validation: {
         applyToAll: true, // Esta firma se replica en Q9, Q10, Q11... hasta Q19
+        pattern: 'supervisor_only'
       }
     });
 
@@ -817,7 +804,10 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           row,
           col: 14,
           required: false,
-          group: 'trabajadores_tabla'
+          group: 'trabajadores_tabla',
+          validation: {
+            pattern: 'tecnico_conductor' // Solo Técnico electricista o Conductor ayudante
+          }
         }
       );
     }
@@ -852,68 +842,43 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     // Botones de turno para auto-completar horarios:
     // - Turno Mañana: 7:00 AM - 3:00 PM
     // - Turno Noche: 3:00 PM - 11:00 PM
-    // Separar claramente DESDE y HASTA
-
-    // Botones de selección de turno (UI helper)
-    const turnoButtons = {
-      manana: { desde: '07:00', hasta: '15:00' },
-      noche: { desde: '15:00', hasta: '23:00' }
-    };
+    // UI simplificada con selector de turno y campos de fecha/hora compactos
 
     sections.push({
       id: 'periodo_validez',
       type: 'basic_info',
       title: 'Paso 5: Período de Validez',
       fields: [
-        // Selector de turno (helper UI, no va al Excel)
+        // Selector de turno (UI helper)
         {
           id: 'turno_select',
           label: 'Seleccionar Turno',
           type: 'radio',
-          cellRef: 'B28', // Fila antes del período
+          cellRef: 'B28',
           row: 28,
           col: 2,
           required: false,
-          options: ['Turno Mañana (7:00 AM - 3:00 PM)', 'Turno Noche (3:00 PM - 11:00 PM)', 'Personalizado'],
+          options: ['Mañana', 'Noche', 'Personalizado'],
           group: 'turno_selector'
         },
-        // DESDE
+        // DESDE - Fecha compacta
         {
-          id: 'desde_dia',
-          label: 'Desde - Día',
-          type: 'number',
-          cellRef: 'F29',
+          id: 'desde_fecha',
+          label: 'Fecha Inicio',
+          type: 'date',
+          cellRef: 'F29', // Se descompondrá en F29 (día), G29 (mes), H29 (año)
           row: 29,
           col: 6,
           required: true,
-          value: colombiaTime.getDate(),
-          group: 'desde'
-        },
-        {
-          id: 'desde_mes',
-          label: 'Desde - Mes',
-          type: 'number',
-          cellRef: 'G29',
-          row: 29,
-          col: 7,
-          required: true,
-          value: colombiaTime.getMonth() + 1,
-          group: 'desde'
-        },
-        {
-          id: 'desde_año',
-          label: 'Desde - Año',
-          type: 'number',
-          cellRef: 'H29',
-          row: 29,
-          col: 8,
-          required: true,
-          value: colombiaTime.getFullYear(),
-          group: 'desde'
+          value: colombiaDateStr,
+          group: 'desde',
+          validation: {
+            pattern: 'decompose_date_desde'
+          }
         },
         {
           id: 'desde_hora',
-          label: 'Desde - Hora',
+          label: 'Hora Inicio',
           type: 'time',
           cellRef: 'J29',
           row: 29,
@@ -922,43 +887,24 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           value: '07:00',
           group: 'desde'
         },
-        // HASTA
+        // HASTA - Fecha compacta
         {
-          id: 'hasta_dia',
-          label: 'Hasta - Día',
-          type: 'number',
-          cellRef: 'P29',
+          id: 'hasta_fecha',
+          label: 'Fecha Fin',
+          type: 'date',
+          cellRef: 'P29', // Se descompondrá en P29 (día), Q29 (mes), R29 (año)
           row: 29,
           col: 16,
           required: true,
-          value: colombiaTime.getDate(),
-          group: 'hasta'
-        },
-        {
-          id: 'hasta_mes',
-          label: 'Hasta - Mes',
-          type: 'number',
-          cellRef: 'Q29',
-          row: 29,
-          col: 17,
-          required: true,
-          value: colombiaTime.getMonth() + 1,
-          group: 'hasta'
-        },
-        {
-          id: 'hasta_año',
-          label: 'Hasta - Año',
-          type: 'number',
-          cellRef: 'R29',
-          row: 29,
-          col: 18,
-          required: true,
-          value: colombiaTime.getFullYear(),
-          group: 'hasta'
+          value: colombiaDateStr,
+          group: 'hasta',
+          validation: {
+            pattern: 'decompose_date_hasta'
+          }
         },
         {
           id: 'hasta_hora',
-          label: 'Hasta - Hora',
+          label: 'Hora Fin',
           type: 'time',
           cellRef: 'T29',
           row: 29,
@@ -1136,7 +1082,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           col: 14,
           required: true,
           validation: {
-            pattern: 'conductor_only' // Solo conductores
+            pattern: 'conductor_ayudante' // Solo Conductor ayudante
           }
         },
         {
@@ -1655,6 +1601,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // 4. FIRMA ÚNICA (Se aplicará a todas las firmas)
+    // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
     sections.push({
       id: 'signatures',
       type: 'signatures',
@@ -1671,6 +1618,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           validation: {
             mergedRows: 3,
             applyToAll: true, // Nueva propiedad para indicar que se replica
+            pattern: 'supervisor_only'
           },
         },
       ],

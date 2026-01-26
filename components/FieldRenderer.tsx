@@ -33,20 +33,52 @@ export default function FieldRenderer({
     const pattern = field.validation.pattern;
 
     if (pattern === 'supervisor_only') {
-      // Solo supervisores: Supervisor, Coordinador de zona, Asistente técnico
-      const supervisorRoles = ['Supervisor', 'Coordinador de zona', 'Asistente técnico'];
+      // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
+      // También incluye variantes más cortas para compatibilidad
+      const supervisorRoles = [
+        'Supervisor', 'Supervisor de cuadrilla',
+        'Coordinador de zona',
+        'Asistente técnico', 'Asistente técnico de mantenimiento'
+      ];
       const supervisorWorkerIds = workers
-        .filter(w => w.isActive && supervisorRoles.includes(w.cargo) && w.signatureId)
+        .filter(w => w.isActive && supervisorRoles.some(role =>
+          w.cargo.toLowerCase().includes(role.toLowerCase()) ||
+          role.toLowerCase().includes(w.cargo.toLowerCase())
+        ) && w.signatureId)
         .map(w => w.signatureId);
 
       return signatures.filter(sig => supervisorWorkerIds.includes(sig.id));
     } else if (pattern === 'conductor_only') {
-      // Solo conductores
+      // Solo conductores (excluye conductor ayudante)
       const conductorWorkerIds = workers
-        .filter(w => w.isActive && w.cargo === 'Conductor' && w.signatureId)
+        .filter(w => w.isActive &&
+          w.cargo.toLowerCase().includes('conductor') &&
+          !w.cargo.toLowerCase().includes('ayudante') &&
+          w.signatureId)
         .map(w => w.signatureId);
 
       return signatures.filter(sig => conductorWorkerIds.includes(sig.id));
+    } else if (pattern === 'tecnico_conductor') {
+      // Técnico electricista o Conductor ayudante
+      const tecnicoConductorWorkerIds = workers
+        .filter(w => w.isActive && (
+          w.cargo.toLowerCase().includes('técnico') ||
+          w.cargo.toLowerCase().includes('tecnico') ||
+          (w.cargo.toLowerCase().includes('conductor') && w.cargo.toLowerCase().includes('ayudante'))
+        ) && w.signatureId)
+        .map(w => w.signatureId);
+
+      return signatures.filter(sig => tecnicoConductorWorkerIds.includes(sig.id));
+    } else if (pattern === 'conductor_ayudante') {
+      // Solo Conductor ayudante
+      const conductorAyudanteWorkerIds = workers
+        .filter(w => w.isActive &&
+          w.cargo.toLowerCase().includes('conductor') &&
+          w.cargo.toLowerCase().includes('ayudante') &&
+          w.signatureId)
+        .map(w => w.signatureId);
+
+      return signatures.filter(sig => conductorAyudanteWorkerIds.includes(sig.id));
     }
 
     return signatures;
@@ -209,8 +241,10 @@ export default function FieldRenderer({
             {field.validation?.pattern && (
               <div className="bg-blue-50 border border-blue-200 rounded-md p-2 mb-2">
                 <p className="text-xs text-blue-800">
-                  {field.validation.pattern === 'supervisor_only' && '👤 Solo supervisores pueden firmar aquí'}
-                  {field.validation.pattern === 'conductor_only' && '🚗 Solo conductores pueden firmar aquí'}
+                  {field.validation.pattern === 'supervisor_only' && 'Solo supervisores, coordinadores o asistentes técnicos'}
+                  {field.validation.pattern === 'conductor_only' && 'Solo conductores'}
+                  {field.validation.pattern === 'tecnico_conductor' && 'Solo técnicos o conductores ayudantes'}
+                  {field.validation.pattern === 'conductor_ayudante' && 'Solo conductores ayudantes'}
                 </p>
               </div>
             )}

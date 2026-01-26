@@ -6,6 +6,8 @@ import FieldRenderer from './FieldRenderer';
 import WorkerSection from './WorkerSection';
 import VehicleInfoSection from './VehicleInfoSection';
 import GruaInfoSection from './GruaInfoSection';
+import TurnoSelector from './TurnoSelector';
+import HerramientasInfoSection from './HerramientasInfoSection';
 import { ExcelGenerator, downloadExcelFile } from '@/lib/excelGenerator';
 import type { Field } from '@/types';
 
@@ -177,8 +179,9 @@ export default function FormWizard() {
           </p>
         </div>
 
-        {/* Quick fill options for checklists */}
-        {currentWizardStep.section.type === 'checklist' && (
+        {/* Quick fill options for checklists - solo si tiene campos tipo radio (SI/NO/N/A) */}
+        {currentWizardStep.section.type === 'checklist' &&
+         currentWizardStep.section.fields.some(f => f.type === 'radio') && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm font-medium text-blue-900 mb-3">
               Opciones de llenado rápido:
@@ -372,6 +375,19 @@ export default function FormWizard() {
                 ))}
               </div>
             </>
+          ) : selectedFormat?.id === 'permiso-trabajo' && currentWizardStep.section.id === 'periodo_validez' ? (
+            // Renderizado especial para el período de validez con selector de turno
+            <TurnoSelector
+              sheetIndex={0}
+              sectionIndex={currentStep}
+            />
+          ) : selectedFormat?.id === 'inspeccion-herramientas' && currentWizardStep.section.id === 'basic_info' ? (
+            // Renderizado especial para la información básica de inspección de herramientas
+            <HerramientasInfoSection
+              sheetIndex={0}
+              sectionIndex={currentStep}
+              fields={currentWizardStep.section.fields}
+            />
           ) : (
             // Renderizado normal para otras secciones
             currentWizardStep.section.fields.map((field) => (
