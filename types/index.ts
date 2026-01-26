@@ -274,9 +274,9 @@ export interface DatabaseState {
   getGruaById: (id: string) => Grua | undefined;
 
   // Cargos CRUD
-  addCargo: (cargo: string) => void;
-  updateCargo: (oldCargo: string, newCargo: string) => void;
-  deleteCargo: (cargo: string) => void;
+  addCargo: (cargo: string) => Promise<void>;
+  updateCargo: (oldCargo: string, newCargo: string) => Promise<void>;
+  deleteCargo: (cargo: string) => Promise<void>;
 
   // User management
   setCurrentUser: (user: User | null) => void;
