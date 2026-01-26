@@ -135,8 +135,8 @@ export default function AppMenu() {
             )}
           </div>
 
-          {/* Logout - Only if logged in */}
-          {currentUser && (
+          {/* Logout - Only if logged in as non-guest */}
+          {currentUser && currentUser.id !== 'guest' && (
             <div className="border-t border-gray-100 pt-1 mt-1">
               <button
                 onClick={handleLogout}
@@ -155,14 +155,18 @@ export default function AppMenu() {
             </div>
           )}
 
-          {/* Login prompt if not logged in */}
-          {!currentUser && (
+          {/* Login option for guests */}
+          {currentUser?.id === 'guest' && (
             <div className="border-t border-gray-100 pt-1 mt-1">
-              <div className="px-4 py-3">
-                <p className="text-xs text-gray-500 text-center">
-                  Inicia sesión para acceder a más opciones
-                </p>
-              </div>
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                <span className="font-medium">Iniciar sesión</span>
+              </button>
             </div>
           )}
         </div>
