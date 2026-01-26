@@ -143,3 +143,20 @@ export async function syncGruasToGit(gruas: Grua[]): Promise<boolean> {
     ],
   });
 }
+
+/**
+ * Sync cargos data to git
+ */
+export async function syncCargosToGit(cargos: string[]): Promise<boolean> {
+  const timestamp = new Date().toISOString();
+
+  return await commitAndPushChanges({
+    message: `chore: Update cargos data - ${timestamp}`,
+    files: [
+      {
+        path: 'public/data/cargos.json',
+        content: JSON.stringify(cargos, null, 2),
+      },
+    ],
+  });
+}

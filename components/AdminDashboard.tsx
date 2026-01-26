@@ -11,7 +11,8 @@ import VehicleManagement from './VehicleManagement';
 type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'settings';
 
 export default function AdminDashboard() {
-  const { workers, cuadrillas, camionetas, gruas, isAdmin, currentUser } = useDatabaseStore();
+  const { workers, cuadrillas, camionetas, gruas, isAdmin, currentUser, syncFromServer } = useDatabaseStore();
+  const [isSyncing, setIsSyncing] = useState(false);
   const { signatures } = useFormStore();
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
 
@@ -265,25 +266,29 @@ export default function AdminDashboard() {
                   </p>
                 </div>
 
-                {/* Database */}
+                {/* Sync from Server */}
                 <div className="border border-gray-200 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Base de Datos</h4>
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Sincronización</h4>
                   <p className="text-sm text-gray-600 mb-4">
-                    Los datos predeterminados se cargan desde archivos JSON en el repositorio.
-                    Los cambios se guardan localmente en IndexedDB.
+                    Descarga los datos más recientes del servidor. Útil cuando otro dispositivo hizo cambios.
                   </p>
                   <button
                     onClick={async () => {
-                      if (confirm('¿Seguro? Esto eliminará todos los cambios y restaurará datos predeterminados desde el repositorio.')) {
-                        const { db } = await import('@/lib/db');
-                        await db.resetToDefaults();
-                        alert('Base de datos reinicializada');
-                        window.location.reload();
+                      if (confirm('¿Descargar datos del servidor? Esto reemplazará los datos locales con los del servidor.')) {
+                        setIsSyncing(true);
+                        const success = await syncFromServer();
+                        setIsSyncing(false);
+                        if (success) {
+                          alert('Datos sincronizados correctamente');
+                        } else {
+                          alert('Error al sincronizar. Intente de nuevo.');
+                        }
                       }
                     }}
-                    className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors"
+                    disabled={isSyncing}
+                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Restaurar Datos Predeterminados
+                    {isSyncing ? 'Sincronizando...' : 'Sincronizar desde Servidor'}
                   </button>
                 </div>
 

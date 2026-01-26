@@ -4,6 +4,7 @@ import {
   syncCuadrillasToGit,
   syncCamionetasToGit,
   syncGruasToGit,
+  syncCargosToGit,
   syncAllDataToGit,
 } from './gitSync';
 
@@ -120,6 +121,34 @@ export async function syncGruasToServer(gruas: Grua[]): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('❌ Error syncing gruas:', error);
+    return false;
+  }
+}
+
+export async function syncCargosToServer(cargos: string[]): Promise<boolean> {
+  try {
+    // 1. Write to local JSON file (works in development)
+    const response = await fetch('/api/data/cargos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cargos),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to sync cargos');
+    }
+
+    console.log('✅ Cargos synced to local files');
+
+    // 2. Commit to git (works in production)
+    const gitSuccess = await syncCargosToGit(cargos);
+    if (!gitSuccess) {
+      console.warn('⚠️ Git sync failed, but local files were updated');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('❌ Error syncing cargos:', error);
     return false;
   }
 }

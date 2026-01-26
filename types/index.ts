@@ -177,7 +177,9 @@ export interface ParserConfig {
 
 export type UserRole = 'admin' | 'user';
 
-export type WorkerCargo = 'Conductor' | 'Técnico' | 'Supervisor' | 'Coordinador de zona' | 'Asistente técnico';
+// Cargos por defecto - pueden ser extendidos dinámicamente
+export const DEFAULT_CARGOS = ['Conductor', 'Técnico', 'Supervisor', 'Coordinador de zona', 'Asistente técnico'] as const;
+export type WorkerCargo = string;
 
 export interface Worker {
   id: string;
@@ -186,6 +188,7 @@ export interface Worker {
   cedula: string;
   cuadrillaId?: string; // ID de la cuadrilla a la que pertenece
   signatureId?: string; // ID de la firma asignada
+  signatureData?: string; // Base64 de la firma para mostrar localmente mientras se sincroniza
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean; // Para desactivar sin eliminar
@@ -239,6 +242,7 @@ export interface DatabaseState {
   cuadrillas: Cuadrilla[];
   camionetas: Camioneta[];
   gruas: Grua[];
+  cargos: string[];
   currentUser: User | null;
 
   // Workers CRUD
@@ -269,8 +273,13 @@ export interface DatabaseState {
   deleteGrua: (id: string) => void;
   getGruaById: (id: string) => Grua | undefined;
 
+  // Cargos CRUD
+  addCargo: (cargo: string) => Promise<void>;
+  updateCargo: (oldCargo: string, newCargo: string) => Promise<void>;
+  deleteCargo: (cargo: string) => Promise<void>;
+
   // User management
-  setCurrentUser: (user: User) => void;
+  setCurrentUser: (user: User | null) => void;
   isAdmin: () => boolean;
 
   // Initialize with default data
@@ -281,4 +290,7 @@ export interface DatabaseState {
 
   // Load data from IndexedDB
   loadFromDB: () => Promise<void>;
+
+  // Sync from server (reload from JSON files)
+  syncFromServer: () => Promise<boolean>;
 }

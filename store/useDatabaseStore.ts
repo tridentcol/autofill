@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { db } from '@/lib/db';
-import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer } from '@/lib/dataSync';
-import type { DatabaseState, Worker, Cuadrilla, User, WorkerCargo, Camioneta, Grua } from '@/types';
+import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer, syncCargosToServer } from '@/lib/dataSync';
+import { loadAllDefaultData } from '@/lib/dataLoader';
+import type { DatabaseState, Worker, Cuadrilla, User, Camioneta, Grua } from '@/types';
+import { DEFAULT_CARGOS } from '@/types';
 
 export const useDatabaseStore = create<DatabaseState>()(
   persist(
@@ -12,6 +14,7 @@ export const useDatabaseStore = create<DatabaseState>()(
       cuadrillas: [],
       camionetas: [],
       gruas: [],
+      cargos: [...DEFAULT_CARGOS],
       currentUser: null,
 
       // ==================== WORKERS CRUD ====================
@@ -372,10 +375,74 @@ export const useDatabaseStore = create<DatabaseState>()(
         return get().gruas.find((g) => g.id === id && g.isActive);
       },
 
+      // ==================== CARGOS CRUD ====================
+
+      addCargo: async (cargo) => {
+        const trimmed = cargo.trim();
+        if (!trimmed) return;
+
+        const currentCargos = get().cargos;
+        if (currentCargos.includes(trimmed)) return; // Already exists
+
+        const newCargos = [...currentCargos, trimmed];
+        set({ cargos: newCargos });
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncCargosToServer(newCargos);
+        }
+      },
+
+      updateCargo: async (oldCargo, newCargo) => {
+        const trimmedNew = newCargo.trim();
+        if (!trimmedNew || oldCargo === trimmedNew) return;
+
+        const currentCargos = get().cargos;
+        if (currentCargos.includes(trimmedNew)) return; // New name already exists
+
+        const newCargos = currentCargos.map(c => c === oldCargo ? trimmedNew : c);
+        const updatedWorkers = get().workers.map(w =>
+          w.cargo === oldCargo ? { ...w, cargo: trimmedNew, updatedAt: new Date() } : w
+        );
+
+        // Update the cargo in the list
+        set({
+          cargos: newCargos,
+          // Also update any workers that have this cargo
+          workers: updatedWorkers,
+        });
+
+        // Sync to server if admin (both cargos and workers were modified)
+        if (get().isAdmin()) {
+          await syncCargosToServer(newCargos);
+          // Also sync workers since their cargo field was updated
+          if (updatedWorkers.some(w => w.cargo === trimmedNew)) {
+            await syncWorkersToServer(updatedWorkers);
+          }
+        }
+      },
+
+      deleteCargo: async (cargo) => {
+        const currentCargos = get().cargos;
+        if (currentCargos.length <= 1) return; // Keep at least one cargo
+
+        const newCargos = currentCargos.filter(c => c !== cargo);
+        set({ cargos: newCargos });
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncCargosToServer(newCargos);
+        }
+      },
+
       // ==================== USER MANAGEMENT ====================
 
       setCurrentUser: (user) => {
-        set({ currentUser: { ...user, lastLogin: new Date() } });
+        if (user === null) {
+          set({ currentUser: null });
+        } else {
+          set({ currentUser: { ...user, lastLogin: new Date() } });
+        }
       },
 
       isAdmin: () => {
@@ -445,12 +512,67 @@ export const useDatabaseStore = create<DatabaseState>()(
 
         console.log('🗑️ Todos los datos eliminados');
       },
+
+      // ==================== SYNC FROM SERVER ====================
+
+      syncFromServer: async () => {
+        try {
+          console.log('🔄 Sincronizando desde el servidor...');
+
+          // Load fresh data from server
+          const serverData = await loadAllDefaultData();
+
+          if (serverData.workers.length === 0 && serverData.cuadrillas.length === 0) {
+            console.warn('⚠️ No se encontraron datos en el servidor');
+            return false;
+          }
+
+          // Clear local IndexedDB
+          await db.clearAll();
+
+          // Save server data to IndexedDB
+          if (serverData.workers.length > 0) {
+            await db.workers.bulkAdd(serverData.workers);
+          }
+          if (serverData.cuadrillas.length > 0) {
+            await db.cuadrillas.bulkAdd(serverData.cuadrillas);
+          }
+          if (serverData.camionetas.length > 0) {
+            await db.camionetas.bulkAdd(serverData.camionetas);
+          }
+          if (serverData.gruas.length > 0) {
+            await db.gruas.bulkAdd(serverData.gruas);
+          }
+
+          // Update Zustand state (including cargos from server)
+          set({
+            workers: serverData.workers,
+            cuadrillas: serverData.cuadrillas,
+            camionetas: serverData.camionetas,
+            gruas: serverData.gruas,
+            cargos: serverData.cargos.length > 0 ? serverData.cargos : get().cargos,
+          });
+
+          console.log('✅ Sincronización completada');
+          console.log(`   - ${serverData.workers.length} trabajadores`);
+          console.log(`   - ${serverData.cuadrillas.length} cuadrillas`);
+          console.log(`   - ${serverData.camionetas.length} camionetas`);
+          console.log(`   - ${serverData.gruas.length} grúas`);
+          console.log(`   - ${serverData.cargos.length} cargos`);
+
+          return true;
+        } catch (error) {
+          console.error('❌ Error al sincronizar desde el servidor:', error);
+          return false;
+        }
+      },
     }),
     {
       name: 'autofill-database-storage',
       // Solo persistir el usuario actual en localStorage
       partialize: (state) => ({
         currentUser: state.currentUser,
+        cargos: state.cargos,
       }),
     }
   )

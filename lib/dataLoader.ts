@@ -73,15 +73,28 @@ export async function loadGruasFromJSON(): Promise<Grua[]> {
   }
 }
 
+export async function loadCargosFromJSON(): Promise<string[]> {
+  try {
+    const response = await fetch('/data/cargos.json');
+    if (!response.ok) throw new Error('Failed to load cargos');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error loading cargos from JSON:', error);
+    return [];
+  }
+}
+
 /**
  * Load all default data from JSON files
  */
 export async function loadAllDefaultData() {
-  const [workers, cuadrillas, camionetas, gruas] = await Promise.all([
+  const [workers, cuadrillas, camionetas, gruas, cargos] = await Promise.all([
     loadWorkersFromJSON(),
     loadCuadrillasFromJSON(),
     loadCamionetasFromJSON(),
     loadGruasFromJSON(),
+    loadCargosFromJSON(),
   ]);
 
   return {
@@ -89,5 +102,6 @@ export async function loadAllDefaultData() {
     cuadrillas,
     camionetas,
     gruas,
+    cargos,
   };
 }
