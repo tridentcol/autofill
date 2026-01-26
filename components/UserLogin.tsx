@@ -8,7 +8,6 @@ const ADMIN_PASSWORD = 'admin123';
 
 export default function UserLogin() {
   const { workers, currentUser, setCurrentUser } = useDatabaseStore();
-  const [showModal, setShowModal] = useState(!currentUser);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -36,7 +35,6 @@ export default function UserLogin() {
     };
 
     setCurrentUser(user);
-    setShowModal(false);
   };
 
   const handleAdminLogin = (e: React.FormEvent) => {
@@ -57,13 +55,12 @@ export default function UserLogin() {
     };
 
     setCurrentUser(adminUser);
-    setShowModal(false);
     setPassword('');
     setPasswordError('');
   };
 
-  // Don't render if user is logged in - AppMenu handles user display now
-  if (!showModal) return null;
+  // Don't render if user is logged in - AppMenu handles user display
+  if (currentUser) return null;
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
