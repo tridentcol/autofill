@@ -48,10 +48,10 @@
     "cargo": "Supervisor de cuadrilla",
     "cedula": "",
     "cuadrillaId": "",
-    "signatureId": "",
+    "signatureId": "worker_1769442741393_16zqc91t0",
     "isActive": true,
     "id": "worker_1769442741393_16zqc91t0",
     "createdAt": "2026-01-26T15:52:21.393Z",
-    "updatedAt": "2026-01-26T19:28:44.305Z"
+    "updatedAt": "2026-01-26T21:06:42.789Z"
   }
 ]
