@@ -47,13 +47,13 @@
   },
   {
     "nombre": "Leonardo Torres",
-    "cargo": "Asistente técnico",
+    "cargo": "Asistente técnico de mantenimiento",
     "cedula": "",
     "cuadrillaId": "",
     "signatureId": "",
     "isActive": true,
     "id": "worker_1769442741393_16zqc91t0",
     "createdAt": "2026-01-26T15:52:21.393Z",
-    "updatedAt": "2026-01-26T15:52:21.393Z"
+    "updatedAt": "2026-01-26T19:25:00.821Z"
   }
 ]
