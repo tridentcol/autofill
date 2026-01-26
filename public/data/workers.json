@@ -44,5 +44,16 @@
     "id": "worker_1769442713606_gl8ozb9cd",
     "createdAt": "2026-01-26T15:51:53.606Z",
     "updatedAt": "2026-01-26T15:51:53.606Z"
+  },
+  {
+    "nombre": "Leonardo Torres",
+    "cargo": "Asistente técnico",
+    "cedula": "",
+    "cuadrillaId": "",
+    "signatureId": "",
+    "isActive": true,
+    "id": "worker_1769442741393_16zqc91t0",
+    "createdAt": "2026-01-26T15:52:21.393Z",
+    "updatedAt": "2026-01-26T15:52:21.393Z"
   }
 ]
