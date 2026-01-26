@@ -376,7 +376,11 @@ export const useDatabaseStore = create<DatabaseState>()(
       // ==================== USER MANAGEMENT ====================
 
       setCurrentUser: (user) => {
-        set({ currentUser: { ...user, lastLogin: new Date() } });
+        if (user === null) {
+          set({ currentUser: null });
+        } else {
+          set({ currentUser: { ...user, lastLogin: new Date() } });
+        }
       },
 
       isAdmin: () => {
