@@ -36,14 +36,14 @@
   },
   {
     "nombre": "Antonio Cabarcas",
-    "cargo": "Supervisor",
+    "cargo": "Supervisor de cuadrilla",
     "cedula": "",
     "cuadrillaId": "",
     "signatureId": "",
     "isActive": true,
     "id": "worker_1769442713606_gl8ozb9cd",
     "createdAt": "2026-01-26T15:51:53.606Z",
-    "updatedAt": "2026-01-26T15:51:53.606Z"
+    "updatedAt": "2026-01-26T19:24:38.425Z"
   },
   {
     "nombre": "Leonardo Torres",
