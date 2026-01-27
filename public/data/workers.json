@@ -13,11 +13,11 @@
   {
     "id": "worker_10",
     "nombre": "Antonio Cabarcas",
-    "cargo": "Asistente técnico",
+    "cargo": "Asistente técnico de mantenimiento",
     "cedula": "",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-27T16:13:27.020Z"
   },
   {
     "id": "worker_11",
