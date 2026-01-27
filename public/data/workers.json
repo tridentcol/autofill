@@ -1,68 +1,111 @@
 [
   {
-    "nombre": "Carlos",
-    "cargo": "Técnico electricista",
-    "cedula": "",
-    "cuadrillaId": "",
-    "signatureId": "worker_1769370551536_9vvwl6z8c",
+    "id": "worker_1",
+    "nombre": "Carlos Guzmán",
+    "cargo": "Conductor ayudante",
+    "cedula": "1143359194",
+    "cuadrillaId": "cuad_1",
     "isActive": true,
-    "id": "worker_1769370551536_9vvwl6z8c",
-    "createdAt": "2026-01-25T19:49:11.536Z",
-    "updatedAt": "2026-01-26T19:25:40.720Z"
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-27T16:11:50.472Z",
+    "signatureId": "worker_1"
   },
   {
-    "nombre": "Carlos",
-    "cargo": "Conductor",
+    "id": "worker_10",
+    "nombre": "Antonio Cabarcas",
+    "cargo": "Asistente técnico",
     "cedula": "",
-    "cuadrillaId": "",
-    "signatureId": "worker_1769370944692_8n4sfj0rt",
-    "isActive": false,
-    "id": "worker_1769370944692_8n4sfj0rt",
-    "createdAt": "2026-01-25T19:55:44.692Z",
-    "updatedAt": "2026-01-25T19:56:17.265Z"
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
   },
   {
+    "id": "worker_11",
     "nombre": "Deivi Zabaleta",
     "cargo": "Coordinador de zona",
     "cedula": "",
-    "cuadrillaId": "",
-    "signatureId": "worker_1769442699511_07msvzouu",
     "isActive": true,
-    "id": "worker_1769442699511_07msvzouu",
-    "createdAt": "2026-01-26T15:51:39.512Z",
-    "updatedAt": "2026-01-26T20:02:12.218Z"
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
   },
   {
-    "nombre": "Antonio Cabarcas",
-    "cargo": "Asistente técnico de mantenimiento",
-    "cedula": "",
-    "cuadrillaId": "",
-    "signatureId": "worker_1769442713606_gl8ozb9cd",
+    "id": "worker_2",
+    "nombre": "Kleiver Polo",
+    "cargo": "Técnico",
+    "cedula": "9288327",
+    "cuadrillaId": "cuad_1",
     "isActive": true,
-    "id": "worker_1769442713606_gl8ozb9cd",
-    "createdAt": "2026-01-26T15:51:53.606Z",
-    "updatedAt": "2026-01-26T21:06:31.069Z"
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
   },
   {
-    "nombre": "Leonardo Torres",
-    "cargo": "Supervisor de cuadrilla",
-    "cedula": "",
-    "cuadrillaId": "",
-    "signatureId": "worker_1769442741393_16zqc91t0",
-    "isActive": true,
-    "id": "worker_1769442741393_16zqc91t0",
-    "createdAt": "2026-01-26T15:52:21.393Z",
-    "updatedAt": "2026-01-26T21:06:42.787Z"
-  },
-  {
-    "nombre": "Jose",
+    "id": "worker_3",
+    "nombre": "Luis Hernández",
     "cargo": "Conductor ayudante",
     "cedula": "",
-    "cuadrillaId": "",
-    "signatureId": "worker_1769462535539_9jdowg198",
+    "cuadrillaId": "cuad_2",
     "isActive": true,
-    "id": "worker_1769462535539_9jdowg198",
-    "createdAt": "2026-01-26T21:22:15.539Z",
-    "updatedAt": "2026-01-26T21:24:25.122Z"
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-27T16:11:50.472Z"
+  },
+  {
+    "id": "worker_4",
+    "nombre": "Jefferson Genes",
+    "cargo": "Técnico",
+    "cedula": "1050967799",
+    "cuadrillaId": "cuad_2",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_5",
+    "nombre": "Andrés Puello",
+    "cargo": "Conductor ayudante",
+    "cedula": "1050963621",
+    "cuadrillaId": "cuad_3",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-27T16:11:50.472Z"
+  },
+  {
+    "id": "worker_6",
+    "nombre": "Juan Carlos Romero",
+    "cargo": "Técnico",
+    "cedula": "73228082",
+    "cuadrillaId": "cuad_3",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_7",
+    "nombre": "Leonardo Torres",
+    "cargo": "Supervisor",
+    "cedula": "1124034299",
+    "cuadrillaId": "cuad_3",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "worker_8",
+    "nombre": "Joseph Puello",
+    "cargo": "Conductor ayudante",
+    "cedula": "9298718",
+    "cuadrillaId": "cuad_4",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2026-01-27T16:11:50.472Z"
+  },
+  {
+    "id": "worker_9",
+    "nombre": "Remberto Martínez",
+    "cargo": "Técnico",
+    "cedula": "1047425281",
+    "cuadrillaId": "cuad_4",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
   }
 ]
