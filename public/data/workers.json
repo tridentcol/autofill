@@ -81,12 +81,12 @@
   {
     "id": "worker_7",
     "nombre": "Leonardo Torres",
-    "cargo": "Supervisor",
+    "cargo": "Supervisor de cuadrilla",
     "cedula": "1124034299",
     "cuadrillaId": "cuad_3",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-27T16:13:12.588Z"
   },
   {
     "id": "worker_8",
