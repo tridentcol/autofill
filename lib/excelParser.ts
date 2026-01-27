@@ -1,4 +1,5 @@
 import * as ExcelJS from 'exceljs';
+import * as XLSX from 'xlsx';
 import type {
   ExcelFormat,
   SheetStructure,
@@ -8,6 +9,31 @@ import type {
   ParserConfig,
   FieldType,
 } from '@/types';
+
+/**
+ * Converts an XLS file (binary format) to XLSX format using SheetJS
+ * This is needed because ExcelJS only supports XLSX format
+ */
+export async function convertXlsToXlsx(xlsBuffer: ArrayBuffer): Promise<ArrayBuffer> {
+  // Read the XLS file with SheetJS
+  const workbook = XLSX.read(new Uint8Array(xlsBuffer), { type: 'array' });
+
+  // Write it back as XLSX
+  const xlsxData = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
+
+  return xlsxData.buffer;
+}
+
+/**
+ * Detects if the buffer is an XLS file (not XLSX)
+ * XLS files start with D0 CF 11 E0 (Microsoft Compound File)
+ * XLSX files start with 50 4B (PK - ZIP archive)
+ */
+export function isXlsFile(buffer: ArrayBuffer): boolean {
+  const header = new Uint8Array(buffer.slice(0, 4));
+  // D0 CF 11 E0 = Microsoft Compound File (XLS)
+  return header[0] === 0xD0 && header[1] === 0xCF && header[2] === 0x11 && header[3] === 0xE0;
+}
 
 /**
  * Configuración por defecto del parser
@@ -41,13 +67,25 @@ export class ExcelParser {
 
   /**
    * Parsea un archivo Excel y extrae toda su estructura
+   * Automatically converts XLS files to XLSX format
    */
   async parseExcelFile(
     fileBuffer: ArrayBuffer,
     formatInfo: { id: string; name: string; description: string }
   ): Promise<ExcelFormat> {
+    // Check if the file is XLS format (not XLSX)
+    let bufferToLoad = fileBuffer;
+    let fileType: 'xlsx' | 'xls' = 'xlsx';
+
+    if (isXlsFile(fileBuffer)) {
+      console.log('📄 Detected XLS format, converting to XLSX...');
+      bufferToLoad = await convertXlsToXlsx(fileBuffer);
+      fileType = 'xls';
+      console.log('✅ Conversion complete');
+    }
+
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(fileBuffer);
+    await workbook.xlsx.load(bufferToLoad);
 
     const sheets: SheetStructure[] = [];
 
@@ -61,7 +99,7 @@ export class ExcelParser {
       name: formatInfo.name,
       description: formatInfo.description,
       filePath: '',
-      fileType: 'xlsx',
+      fileType,
       sheets,
     };
   }

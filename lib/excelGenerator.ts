@@ -1,6 +1,7 @@
 import * as ExcelJS from 'exceljs';
 import { Buffer } from 'buffer';
 import type { FormData, Signature } from '@/types';
+import { convertXlsToXlsx, isXlsFile } from './excelParser';
 
 /**
  * Genera un archivo Excel rellenado con los datos del formulario
@@ -8,6 +9,8 @@ import type { FormData, Signature } from '@/types';
 export class ExcelGenerator {
   /**
    * Genera el archivo Excel rellenado
+   * Automatically handles XLS files by converting them to XLSX first
+   * Output is always XLSX format
    */
   async generateFilledExcel(
     originalFileBuffer: ArrayBuffer,
@@ -15,8 +18,17 @@ export class ExcelGenerator {
     signatures: Map<string, Signature>,
     excelFormat: any
   ): Promise<Blob> {
+    // Check if the file is XLS format (not XLSX) and convert if necessary
+    let bufferToLoad = originalFileBuffer;
+
+    if (isXlsFile(originalFileBuffer)) {
+      console.log('📄 Detected XLS format for generation, converting to XLSX...');
+      bufferToLoad = await convertXlsToXlsx(originalFileBuffer);
+      console.log('✅ Conversion complete');
+    }
+
     const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(originalFileBuffer);
+    await workbook.xlsx.load(bufferToLoad);
 
     // Crear un mapa de fields por ID para búsqueda rápida
     const fieldsMap = new Map<string, any>();

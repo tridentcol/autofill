@@ -1,0 +1,58 @@
+[
+  {
+    "id": "zona_1",
+    "nombre": "Clemencia",
+    "descripcion": "Municipio de Clemencia, Bolivar",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "isActive": true
+  },
+  {
+    "id": "zona_2",
+    "nombre": "Arjona",
+    "descripcion": "Municipio de Arjona, Bolivar",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "isActive": true
+  },
+  {
+    "id": "zona_3",
+    "nombre": "Turbaco",
+    "descripcion": "Municipio de Turbaco, Bolivar",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "isActive": true
+  },
+  {
+    "id": "zona_4",
+    "nombre": "Turbana",
+    "descripcion": "Municipio de Turbana, Bolivar",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "isActive": true
+  },
+  {
+    "id": "zona_5",
+    "nombre": "San Estanislao",
+    "descripcion": "Municipio de San Estanislao, Bolivar",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "isActive": true
+  },
+  {
+    "id": "zona_6",
+    "nombre": "Santa Rosa de Lima",
+    "descripcion": "Municipio de Santa Rosa de Lima, Bolivar",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "isActive": true
+  },
+  {
+    "id": "zona_7",
+    "nombre": "Villanueva",
+    "descripcion": "Municipio de Villanueva, Bolivar",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "isActive": true
+  }
+]

@@ -226,6 +226,27 @@ export interface Grua {
   isActive: boolean;
 }
 
+// Zonas de trabajo (ubicaciones donde se realizan las labores)
+export interface Zona {
+  id: string;
+  nombre: string; // Clemencia, Arjona, Turbaco, etc.
+  descripcion?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isActive: boolean;
+}
+
+// Zonas por defecto
+export const DEFAULT_ZONAS = [
+  'Clemencia',
+  'Arjona',
+  'Turbaco',
+  'Turbana',
+  'San Estanislao',
+  'Santa Rosa de Lima',
+  'Villanueva',
+] as const;
+
 export interface User {
   id: string;
   nombre: string;
@@ -242,6 +263,7 @@ export interface DatabaseState {
   cuadrillas: Cuadrilla[];
   camionetas: Camioneta[];
   gruas: Grua[];
+  zonas: Zona[];
   cargos: string[];
   currentUser: User | null;
 
@@ -272,6 +294,12 @@ export interface DatabaseState {
   updateGrua: (id: string, updates: Partial<Grua>) => void;
   deleteGrua: (id: string) => void;
   getGruaById: (id: string) => Grua | undefined;
+
+  // Zonas CRUD
+  addZona: (zona: Omit<Zona, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateZona: (id: string, updates: Partial<Zona>) => Promise<void>;
+  deleteZona: (id: string) => Promise<void>;
+  getZonaById: (id: string) => Zona | undefined;
 
   // Cargos CRUD
   addCargo: (cargo: string) => Promise<void>;

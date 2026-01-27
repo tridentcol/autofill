@@ -7,11 +7,12 @@ import DatabaseAdmin from './DatabaseAdmin';
 import SignatureManager from './SignatureManager';
 import WorkerSignatureManager from './WorkerSignatureManager';
 import VehicleManagement from './VehicleManagement';
+import ZonaManagement from './ZonaManagement';
 
-type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'settings';
+type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'zonas' | 'signatures' | 'settings';
 
 export default function AdminDashboard() {
-  const { workers, cuadrillas, camionetas, gruas, isAdmin, currentUser, syncFromServer } = useDatabaseStore();
+  const { workers, cuadrillas, camionetas, gruas, zonas, isAdmin, currentUser, syncFromServer } = useDatabaseStore();
   const [isSyncing, setIsSyncing] = useState(false);
   const { signatures } = useFormStore();
   const [activeTab, setActiveTab] = useState<DashboardTab>('overview');
@@ -36,6 +37,7 @@ export default function AdminDashboard() {
   const activeCuadrillas = cuadrillas.filter(c => c.isActive);
   const activeCamionetas = camionetas.filter(c => c.isActive);
   const activeGruas = gruas.filter(g => g.isActive);
+  const activeZonas = zonas.filter(z => z.isActive);
 
   const stats = [
     {
@@ -75,6 +77,15 @@ export default function AdminDashboard() {
         </svg>
       ),
     },
+    {
+      name: 'Zonas',
+      value: activeZonas.length,
+      icon: (
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+        </svg>
+      ),
+    },
   ];
 
   const tabs = [
@@ -83,6 +94,7 @@ export default function AdminDashboard() {
     { id: 'cuadrillas' as const, name: 'Cuadrillas' },
     { id: 'camionetas' as const, name: 'Camionetas' },
     { id: 'gruas' as const, name: 'Grúas' },
+    { id: 'zonas' as const, name: 'Zonas' },
     { id: 'signatures' as const, name: 'Firmas' },
     { id: 'settings' as const, name: 'Configuración' },
   ];
@@ -223,6 +235,10 @@ export default function AdminDashboard() {
 
             {activeTab === 'gruas' && (
               <VehicleManagement type="grua" />
+            )}
+
+            {activeTab === 'zonas' && (
+              <ZonaManagement />
             )}
 
             {activeTab === 'signatures' && (

@@ -3,13 +3,14 @@
  * Automatically commits and pushes data changes to the repository
  */
 
-import { Worker, Cuadrilla, Camioneta, Grua } from '@/types';
+import { Worker, Cuadrilla, Camioneta, Grua, Zona } from '@/types';
 
 interface GitCommitOptions {
   message: string;
   files: {
     path: string;
     content: string;
+    isBinary?: boolean; // If true, content is base64-encoded binary data
   }[];
 }
 
@@ -156,6 +157,23 @@ export async function syncCargosToGit(cargos: string[]): Promise<boolean> {
       {
         path: 'public/data/cargos.json',
         content: JSON.stringify(cargos, null, 2),
+      },
+    ],
+  });
+}
+
+/**
+ * Sync zonas data to git
+ */
+export async function syncZonasToGit(zonas: Zona[]): Promise<boolean> {
+  const timestamp = new Date().toISOString();
+
+  return await commitAndPushChanges({
+    message: `chore: Update zonas data - ${timestamp}`,
+    files: [
+      {
+        path: 'public/data/zonas.json',
+        content: JSON.stringify(zonas, null, 2),
       },
     ],
   });

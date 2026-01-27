@@ -4,6 +4,15 @@ import { useState, useEffect, useMemo } from 'react';
 import { useFormStore } from '@/store/useFormStore';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 import type { Field } from '@/types';
+import ZonaSelector from './ZonaSelector';
+
+// Check if a field label indicates it's a zona/location field
+function isZonaField(label: string): boolean {
+  const lowercaseLabel = label.toLowerCase();
+  return lowercaseLabel.includes('lugar') && lowercaseLabel.includes('zona') ||
+         lowercaseLabel.includes('ubicación') && lowercaseLabel.includes('trabajo') ||
+         lowercaseLabel.includes('ubicacion') && lowercaseLabel.includes('trabajo');
+}
 
 interface FieldRendererProps {
   field: Field;
@@ -74,6 +83,17 @@ export default function FieldRenderer({
   };
 
   const renderField = () => {
+    // Check if this is a zona/location field and render ZonaSelector
+    if (field.type === 'text' && isZonaField(field.label)) {
+      return (
+        <ZonaSelector
+          value={value || ''}
+          onChange={handleChange}
+          placeholder="Seleccionar zona de trabajo..."
+        />
+      );
+    }
+
     switch (field.type) {
       case 'text':
       case 'number':

@@ -49,6 +49,7 @@ export async function uploadSignature(options: UploadSignatureOptions): Promise<
         {
           path: `public/signatures/${signatureId}.png`,
           content: base64Data,
+          isBinary: true, // Signal that this is binary data (base64 encoded)
         },
       ],
     });

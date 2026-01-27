@@ -5,6 +5,7 @@ interface GitCommitRequest {
   files: {
     path: string;
     content: string;
+    isBinary?: boolean; // If true, content is base64-encoded binary data
   }[];
 }
 
@@ -63,12 +64,17 @@ export async function POST(request: NextRequest) {
     // 3. Create blobs for each file
     const blobs = await Promise.all(
       files.map(async (file) => {
+        // Determine if file is binary (e.g., images)
+        // Check explicit flag or detect by file extension
+        const isBinaryFile = file.isBinary ||
+          /\.(png|jpg|jpeg|gif|ico|webp|bmp|svg)$/i.test(file.path);
+
         const blobResponse = await fetch(`${baseUrl}/git/blobs`, {
           method: 'POST',
           headers,
           body: JSON.stringify({
             content: file.content,
-            encoding: 'utf-8',
+            encoding: isBinaryFile ? 'base64' : 'utf-8',
           }),
         });
 

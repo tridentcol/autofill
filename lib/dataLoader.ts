@@ -1,4 +1,4 @@
-import type { Worker, Cuadrilla, Camioneta, Grua } from '@/types';
+import type { Worker, Cuadrilla, Camioneta, Grua, Zona } from '@/types';
 
 /**
  * Service to load default data from JSON files in the repository
@@ -85,16 +85,34 @@ export async function loadCargosFromJSON(): Promise<string[]> {
   }
 }
 
+export async function loadZonasFromJSON(): Promise<Zona[]> {
+  try {
+    const response = await fetch('/data/zonas.json');
+    if (!response.ok) throw new Error('Failed to load zonas');
+    const data = await response.json();
+
+    return data.map((zona: any) => ({
+      ...zona,
+      createdAt: new Date(zona.createdAt),
+      updatedAt: new Date(zona.updatedAt),
+    }));
+  } catch (error) {
+    console.error('Error loading zonas from JSON:', error);
+    return [];
+  }
+}
+
 /**
  * Load all default data from JSON files
  */
 export async function loadAllDefaultData() {
-  const [workers, cuadrillas, camionetas, gruas, cargos] = await Promise.all([
+  const [workers, cuadrillas, camionetas, gruas, cargos, zonas] = await Promise.all([
     loadWorkersFromJSON(),
     loadCuadrillasFromJSON(),
     loadCamionetasFromJSON(),
     loadGruasFromJSON(),
     loadCargosFromJSON(),
+    loadZonasFromJSON(),
   ]);
 
   return {
@@ -103,5 +121,6 @@ export async function loadAllDefaultData() {
     camionetas,
     gruas,
     cargos,
+    zonas,
   };
 }

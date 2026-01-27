@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { db } from '@/lib/db';
-import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer, syncCargosToServer } from '@/lib/dataSync';
+import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer, syncCargosToServer, syncZonasToServer } from '@/lib/dataSync';
 import { loadAllDefaultData } from '@/lib/dataLoader';
-import type { DatabaseState, Worker, Cuadrilla, User, Camioneta, Grua } from '@/types';
+import type { DatabaseState, Worker, Cuadrilla, User, Camioneta, Grua, Zona } from '@/types';
 import { DEFAULT_CARGOS } from '@/types';
 
 export const useDatabaseStore = create<DatabaseState>()(
@@ -14,6 +14,7 @@ export const useDatabaseStore = create<DatabaseState>()(
       cuadrillas: [],
       camionetas: [],
       gruas: [],
+      zonas: [],
       cargos: [...DEFAULT_CARGOS],
       currentUser: null,
 
@@ -375,6 +376,67 @@ export const useDatabaseStore = create<DatabaseState>()(
         return get().gruas.find((g) => g.id === id && g.isActive);
       },
 
+      // ==================== ZONAS CRUD ====================
+
+      addZona: async (zonaData) => {
+        const newZona: Zona = {
+          ...zonaData,
+          id: `zona_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        await db.zonas.add(newZona);
+
+        set((state) => ({
+          zonas: [...state.zonas, newZona],
+        }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncZonasToServer(get().zonas);
+        }
+      },
+
+      updateZona: async (id, updates) => {
+        await db.zonas.update(id, { ...updates, updatedAt: new Date() });
+
+        set((state) => ({
+          zonas: state.zonas.map((zona) =>
+            zona.id === id
+              ? { ...zona, ...updates, updatedAt: new Date() }
+              : zona
+          ),
+        }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncZonasToServer(get().zonas);
+        }
+      },
+
+      deleteZona: async (id) => {
+        // Soft delete
+        await db.zonas.update(id, { isActive: false, updatedAt: new Date() });
+
+        set((state) => ({
+          zonas: state.zonas.map((zona) =>
+            zona.id === id
+              ? { ...zona, isActive: false, updatedAt: new Date() }
+              : zona
+          ),
+        }));
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncZonasToServer(get().zonas);
+        }
+      },
+
+      getZonaById: (id) => {
+        return get().zonas.find((z) => z.id === id && z.isActive);
+      },
+
       // ==================== CARGOS CRUD ====================
 
       addCargo: async (cargo) => {
@@ -453,11 +515,12 @@ export const useDatabaseStore = create<DatabaseState>()(
 
       loadFromDB: async () => {
         try {
-          const [workers, cuadrillas, camionetas, gruas] = await Promise.all([
+          const [workers, cuadrillas, camionetas, gruas, zonas] = await Promise.all([
             db.workers.toArray(),
             db.cuadrillas.toArray(),
             db.camionetas.toArray(),
             db.gruas.toArray(),
+            db.zonas.toArray(),
           ]);
 
           set({
@@ -465,6 +528,7 @@ export const useDatabaseStore = create<DatabaseState>()(
             cuadrillas,
             camionetas,
             gruas,
+            zonas,
           });
 
           console.log('✅ Datos cargados desde IndexedDB');
@@ -472,6 +536,7 @@ export const useDatabaseStore = create<DatabaseState>()(
           console.log(`   - ${cuadrillas.length} cuadrillas`);
           console.log(`   - ${camionetas.length} camionetas`);
           console.log(`   - ${gruas.length} grúas`);
+          console.log(`   - ${zonas.length} zonas`);
         } catch (error) {
           console.error('❌ Error al cargar datos desde IndexedDB:', error);
         }
@@ -507,6 +572,7 @@ export const useDatabaseStore = create<DatabaseState>()(
           cuadrillas: [],
           camionetas: [],
           gruas: [],
+          zonas: [],
           currentUser: null,
         });
 
@@ -543,6 +609,9 @@ export const useDatabaseStore = create<DatabaseState>()(
           if (serverData.gruas.length > 0) {
             await db.gruas.bulkAdd(serverData.gruas);
           }
+          if (serverData.zonas.length > 0) {
+            await db.zonas.bulkAdd(serverData.zonas);
+          }
 
           // Update Zustand state (including cargos from server)
           set({
@@ -550,6 +619,7 @@ export const useDatabaseStore = create<DatabaseState>()(
             cuadrillas: serverData.cuadrillas,
             camionetas: serverData.camionetas,
             gruas: serverData.gruas,
+            zonas: serverData.zonas,
             cargos: serverData.cargos.length > 0 ? serverData.cargos : get().cargos,
           });
 
@@ -558,6 +628,7 @@ export const useDatabaseStore = create<DatabaseState>()(
           console.log(`   - ${serverData.cuadrillas.length} cuadrillas`);
           console.log(`   - ${serverData.camionetas.length} camionetas`);
           console.log(`   - ${serverData.gruas.length} grúas`);
+          console.log(`   - ${serverData.zonas.length} zonas`);
           console.log(`   - ${serverData.cargos.length} cargos`);
 
           return true;
