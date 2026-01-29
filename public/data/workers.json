@@ -7,7 +7,7 @@
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-29T20:35:05.857Z",
+    "updatedAt": "2026-01-29T20:35:05.855Z",
     "signatureId": "worker_1"
   },
   {
@@ -17,7 +17,7 @@
     "cedula": "",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-29T20:34:43.223Z"
+    "updatedAt": "2026-01-29T20:34:43.216Z"
   },
   {
     "id": "worker_11",
@@ -26,7 +26,8 @@
     "cedula": "",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-29T20:34:44.334Z"
+    "updatedAt": "2026-01-29T21:40:08.053Z",
+    "signatureId": "worker_11"
   },
   {
     "id": "worker_2",
@@ -56,7 +57,7 @@
     "cuadrillaId": "cuad_2",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-29T20:34:49.461Z"
+    "updatedAt": "2026-01-29T20:34:49.457Z"
   },
   {
     "id": "worker_5",
