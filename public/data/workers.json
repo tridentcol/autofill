@@ -27,7 +27,8 @@
     "cedula": "",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-29T20:12:26.671Z"
+    "updatedAt": "2026-01-29T20:12:57.673Z",
+    "signatureId": "worker_11"
   },
   {
     "id": "worker_2",
