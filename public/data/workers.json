@@ -58,7 +58,8 @@
     "cuadrillaId": "cuad_2",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-29T00:00:00.000Z"
+    "updatedAt": "2026-01-29T20:13:12.508Z",
+    "signatureId": "worker_4"
   },
   {
     "id": "worker_5",
