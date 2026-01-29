@@ -2,12 +2,12 @@
   {
     "id": "worker_1",
     "nombre": "Carlos Guzmán",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "1143359194",
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-29T19:49:41.166Z",
+    "updatedAt": "2026-01-29T19:51:20.957Z",
     "signatureId": "worker_1"
   },
   {
@@ -41,12 +41,12 @@
   {
     "id": "worker_3",
     "nombre": "Luis Hernández",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "",
     "cuadrillaId": "cuad_2",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T19:51:20.957Z"
   },
   {
     "id": "worker_4",
@@ -61,12 +61,12 @@
   {
     "id": "worker_5",
     "nombre": "Andrés Puello",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "1050963621",
     "cuadrillaId": "cuad_3",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T19:51:20.957Z"
   },
   {
     "id": "worker_6",
@@ -91,12 +91,12 @@
   {
     "id": "worker_8",
     "nombre": "Joseph Puello",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "9298718",
     "cuadrillaId": "cuad_4",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T19:51:20.957Z"
   },
   {
     "id": "worker_9",
