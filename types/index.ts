@@ -178,7 +178,7 @@ export interface ParserConfig {
 export type UserRole = 'admin' | 'user';
 
 // Cargos por defecto - pueden ser extendidos dinámicamente
-export const DEFAULT_CARGOS = ['Conductor', 'Técnico', 'Supervisor', 'Coordinador de zona', 'Asistente técnico'] as const;
+export const DEFAULT_CARGOS = ['Conductor ayudante', 'Técnico electricista', 'Supervisor de cuadrilla', 'Coordinador de zona1', 'Asistente técnico de mantenimiento'] as const;
 export type WorkerCargo = string;
 
 export interface Worker {
