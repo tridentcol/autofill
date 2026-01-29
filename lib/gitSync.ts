@@ -177,3 +177,20 @@ export async function syncSignaturesToGit(signatures: Signature[]): Promise<bool
     ],
   });
 }
+
+/**
+ * Sync zonas data to git
+ */
+export async function syncZonasToGit(zonas: string[]): Promise<boolean> {
+  const timestamp = new Date().toISOString();
+
+  return await commitAndPushChanges({
+    message: `chore: Update zonas data - ${timestamp}`,
+    files: [
+      {
+        path: 'public/data/zonas.json',
+        content: JSON.stringify(zonas, null, 2),
+      },
+    ],
+  });
+}

@@ -243,6 +243,7 @@ export interface DatabaseState {
   camionetas: Camioneta[];
   gruas: Grua[];
   cargos: string[];
+  zonas: string[];
   currentUser: User | null;
 
   // Workers CRUD
@@ -277,6 +278,11 @@ export interface DatabaseState {
   addCargo: (cargo: string) => Promise<void>;
   updateCargo: (oldCargo: string, newCargo: string) => Promise<void>;
   deleteCargo: (cargo: string) => Promise<void>;
+
+  // Zonas CRUD
+  addZona: (zona: string) => Promise<void>;
+  updateZona: (oldZona: string, newZona: string) => Promise<void>;
+  deleteZona: (zona: string) => Promise<void>;
 
   // User management
   setCurrentUser: (user: User | null) => void;

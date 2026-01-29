@@ -30,7 +30,7 @@ export default function FieldRenderer({
   compact = false,
 }: FieldRendererProps) {
   const { currentFormData, updateFieldValue } = useFormStore();
-  const { workers } = useDatabaseStore();
+  const { workers, zonas } = useDatabaseStore();
   const [value, setValue] = useState<any>(field.value || '');
 
   // Construir firmas disponibles desde los workers que tienen signatureId
@@ -45,6 +45,13 @@ export default function FieldRenderer({
         cargo: w.cargo,
       }));
   }, [workers]);
+
+  // Detectar si es un campo de zona de trabajo
+  const isZonaField = useMemo(() => {
+    const label = field.label.toLowerCase();
+    return (label.includes('lugar') && label.includes('zona')) ||
+           (label.includes('zona') && label.includes('trabajo'));
+  }, [field.label]);
 
   // Filtrar firmas por rol si es necesario
   const filteredSignatures = useMemo(() => {
@@ -111,6 +118,25 @@ export default function FieldRenderer({
   };
 
   const renderField = () => {
+    // Campos de zona de trabajo usan select con zonas de la base de datos
+    if (isZonaField && zonas.length > 0) {
+      return (
+        <select
+          value={value}
+          onChange={(e) => handleChange(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          required={field.required}
+        >
+          <option value="">Seleccione una zona</option>
+          {zonas.map((zona) => (
+            <option key={zona} value={zona}>
+              {zona}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
     switch (field.type) {
       case 'text':
       case 'number':

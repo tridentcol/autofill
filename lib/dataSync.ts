@@ -6,6 +6,7 @@ import {
   syncGruasToGit,
   syncCargosToGit,
   syncSignaturesToGit,
+  syncZonasToGit,
   syncAllDataToGit,
 } from './gitSync';
 
@@ -185,6 +186,34 @@ export async function syncSignaturesToServer(signatures: Signature[]): Promise<b
     return true;
   } catch (error) {
     console.error('❌ Error syncing signatures:', error);
+    return false;
+  }
+}
+
+export async function syncZonasToServer(zonas: string[]): Promise<boolean> {
+  try {
+    // 1. Write to local JSON file (works in development)
+    const response = await fetch('/api/data/zonas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(zonas),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to sync zonas');
+    }
+
+    console.log('✅ Zonas synced to local files');
+
+    // 2. Commit to git (works in production)
+    const gitSuccess = await syncZonasToGit(zonas);
+    if (!gitSuccess) {
+      console.warn('⚠️ Git sync failed, but local files were updated');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('❌ Error syncing zonas:', error);
     return false;
   }
 }
