@@ -7,7 +7,7 @@
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-29T00:00:00.000Z",
+    "updatedAt": "2026-01-29T19:58:24.318Z",
     "signatureId": "worker_1"
   },
   {
@@ -22,11 +22,12 @@
   {
     "id": "worker_11",
     "nombre": "Deivi Zabaleta",
-    "cargo": "Coordinador de zona1",
+    "cargo": "Coordinador de zona",
     "cedula": "",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-29T00:00:00.000Z"
+    "updatedAt": "2026-01-29T19:57:00.434Z",
+    "signatureId": "worker_11"
   },
   {
     "id": "worker_2",
