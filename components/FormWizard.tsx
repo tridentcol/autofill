@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useFormStore } from '@/store/useFormStore';
+import { useDatabaseStore } from '@/store/useDatabaseStore';
 import FieldRenderer from './FieldRenderer';
 import WorkerSection from './WorkerSection';
 import VehicleInfoSection from './VehicleInfoSection';
@@ -9,7 +10,7 @@ import GruaInfoSection from './GruaInfoSection';
 import TurnoSelector from './TurnoSelector';
 import HerramientasInfoSection from './HerramientasInfoSection';
 import { ExcelGenerator, downloadExcelFile } from '@/lib/excelGenerator';
-import type { Field } from '@/types';
+import type { Field, Signature } from '@/types';
 
 export default function FormWizard() {
   const {
@@ -20,9 +21,22 @@ export default function FormWizard() {
     goToNextStep,
     goToPreviousStep,
     goToStep,
-    signatures,
     updateFieldValue,
   } = useFormStore();
+
+  const { workers } = useDatabaseStore();
+
+  // Construir firmas desde los workers que tienen signatureId
+  const signatures = useMemo((): Signature[] => {
+    return workers
+      .filter(w => w.isActive && w.signatureId)
+      .map(w => ({
+        id: w.signatureId!,
+        name: w.nombre,
+        dataUrl: w.signatureData || `/signatures/${w.signatureId}.png`,
+        createdAt: new Date(),
+      }));
+  }, [workers]);
 
   const [generating, setGenerating] = useState(false);
   const [quickFillMode, setQuickFillMode] = useState<'all_yes' | 'all_no' | 'all_na' | null>(null);
@@ -67,9 +81,33 @@ export default function FormWizard() {
     alert(`Se han marcado ${radioFields.length} items como "${value}"`);
   };
 
+  // Función para convertir URL de imagen a base64
+  const loadImageAsBase64 = async (url: string): Promise<string> => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch image');
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Error loading image:', error);
+      throw error;
+    }
+  };
+
   // Generar archivo Excel rellenado
   const handleGenerateExcel = async () => {
     if (!selectedFormat || !currentFormData) return;
+
+    // Verificar si el archivo es .xls (no soportado)
+    if (selectedFormat.fileType === 'xls') {
+      alert('El formato .xls no es compatible con la exportación automática. Por favor contacta al administrador para convertir el archivo a .xlsx');
+      return;
+    }
 
     setGenerating(true);
     try {
@@ -92,8 +130,27 @@ export default function FormWizard() {
 
       const originalBuffer = base64ToArrayBuffer(originalBufferBase64);
 
+      // Cargar firmas que son URLs (no base64) y convertirlas
+      const loadedSignatures: Signature[] = await Promise.all(
+        signatures.map(async (sig) => {
+          if (sig.dataUrl.startsWith('data:')) {
+            // Ya es base64
+            return sig;
+          } else {
+            // Es una URL, cargar y convertir
+            try {
+              const base64 = await loadImageAsBase64(sig.dataUrl);
+              return { ...sig, dataUrl: base64 };
+            } catch (error) {
+              console.error(`Error loading signature for ${sig.name}:`, error);
+              return sig; // Devolver sin cambios si falla
+            }
+          }
+        })
+      );
+
       // Convertir signatures array a Map
-      const signaturesMap = new Map(signatures.map((sig) => [sig.id, sig]));
+      const signaturesMap = new Map(loadedSignatures.map((sig) => [sig.id, sig]));
 
       const blob = await generator.generateFilledExcel(
         originalBuffer,
