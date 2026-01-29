@@ -101,17 +101,30 @@ export async function loadSignaturesFromJSON(): Promise<Signature[]> {
   }
 }
 
+export async function loadZonasFromJSON(): Promise<string[]> {
+  try {
+    const response = await fetch('/data/zonas.json');
+    if (!response.ok) throw new Error('Failed to load zonas');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error loading zonas from JSON:', error);
+    return [];
+  }
+}
+
 /**
  * Load all default data from JSON files
  */
 export async function loadAllDefaultData() {
-  const [workers, cuadrillas, camionetas, gruas, cargos, signatures] = await Promise.all([
+  const [workers, cuadrillas, camionetas, gruas, cargos, signatures, zonas] = await Promise.all([
     loadWorkersFromJSON(),
     loadCuadrillasFromJSON(),
     loadCamionetasFromJSON(),
     loadGruasFromJSON(),
     loadCargosFromJSON(),
     loadSignaturesFromJSON(),
+    loadZonasFromJSON(),
   ]);
 
   return {
@@ -121,5 +134,6 @@ export async function loadAllDefaultData() {
     gruas,
     cargos,
     signatures,
+    zonas,
   };
 }
