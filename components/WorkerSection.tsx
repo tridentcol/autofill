@@ -124,7 +124,9 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
     }
     const section = currentFormData.sheets[sheetIndex].sections[sectionIndex];
     const fieldKey = `trabajador${index + 1}_firma`;
-    return (section?.fields as Record<string, any>)?.[fieldKey] || '';
+    // fields es un array de {fieldId, value, completed}
+    const field = section?.fields?.find((f: any) => f.fieldId === fieldKey);
+    return field?.value || '';
   };
 
   return (
@@ -152,7 +154,18 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
           const worker = selectedWorkers[index];
           const signatureId = getSignatureValue(index);
           // Buscar en availableSignatures (firmas de workers de la DB)
-          const signature = availableSignatures.find(s => s.id === signatureId);
+          // También verificar si el worker tiene firma directamente
+          let signature = availableSignatures.find(s => s.id === signatureId);
+          // Si no encontramos en availableSignatures pero el worker tiene signatureId y signatureData
+          if (!signature && worker?.signatureId && worker?.signatureData) {
+            signature = {
+              id: worker.signatureId,
+              name: worker.nombre,
+              dataUrl: worker.signatureData,
+              workerId: worker.id,
+              cargo: worker.cargo,
+            };
+          }
 
           return (
             <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">

@@ -167,8 +167,8 @@ export class ExcelGenerator {
               if (field.validation?.pattern === 'decompose_date' && field.validation?.dayCellRef) {
                 // Descomponer fecha en día, mes, año
                 const date = new Date(fieldData.value);
-                const day = date.getDate();
-                const month = date.getMonth() + 1; // getMonth() es 0-indexed
+                const day = date.getDate().toString().padStart(2, '0');  // 01, 02, ..., 31
+                const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 01, 02, ..., 12
                 const year = date.getFullYear();
 
                 // Escribir día
@@ -293,79 +293,73 @@ export class ExcelGenerator {
       const img = await this.getImageDimensions(signature.dataUrl);
       const aspectRatio = img.width / img.height;
 
+      // Constantes de conversión más precisas
+      // Excel: 1 unidad de ancho de columna ≈ 7.5 píxeles (puede variar según fuente)
+      // Excel: altura de fila en puntos, 1 punto = 1.33 píxeles (96 DPI)
+      const PIXELS_PER_COLUMN_UNIT = 7.5;
+      const PIXELS_PER_ROW_POINT = 1.33;
+
       // Calcular ancho total del área de columnas (en píxeles)
-      // Excel usa aproximadamente 7 píxeles por unidad de ancho de columna
-      let columnWidth = 0;
+      let columnWidthPixels = 0;
       for (let i = 0; i < mergedCols; i++) {
         const currentCol = worksheet.getColumn(col + i);
-        const colWidth = (currentCol.width || 8.43) * 7;
-        columnWidth += colWidth;
+        const colWidth = (currentCol.width || 8.43) * PIXELS_PER_COLUMN_UNIT;
+        columnWidthPixels += colWidth;
       }
 
       // Calcular el alto total del contenedor (en píxeles)
-      // Excel usa aproximadamente 1.33 píxeles por punto de altura de fila
-      let totalHeight = 0;
+      let totalHeightPixels = 0;
       if (containerHeight) {
-        totalHeight = containerHeight;
+        totalHeightPixels = containerHeight;
       } else {
         for (let i = 0; i < mergedRows; i++) {
           const currentRow = worksheet.getRow(row + i);
           const rowHeight = currentRow.height || 15;
-          totalHeight += rowHeight * 1.33;
+          totalHeightPixels += rowHeight * PIXELS_PER_ROW_POINT;
         }
       }
 
-      // TAMAÑO DE FIRMA - MUCHO MÁS GRANDE
-      // Usar el 85% del ancho disponible y hasta 90px de altura
-      const maxWidth = columnWidth * 0.85;
-      const maxHeight = Math.max(totalHeight * 0.85, 90);  // Al menos 90px de altura
+      // TAMAÑO DE FIRMA - MUY GRANDE
+      // Usar el 90% del espacio disponible
+      const availableWidth = columnWidthPixels * 0.90;
+      const availableHeight = Math.max(totalHeightPixels * 0.85, 120);  // Al menos 120px de altura
 
       let imgWidth: number;
       let imgHeight: number;
 
       // Calcular dimensiones manteniendo aspecto
-      if (aspectRatio > 1) {
-        // Imagen más ancha que alta
-        imgWidth = Math.min(maxWidth, 300);  // Máximo 300px de ancho
-        imgHeight = imgWidth / aspectRatio;
-        if (imgHeight > maxHeight) {
-          imgHeight = maxHeight;
-          imgWidth = imgHeight * aspectRatio;
-        }
-      } else {
-        // Imagen más alta que ancha
-        imgHeight = Math.min(maxHeight, 90);
+      // Priorizar llenar el espacio disponible
+      imgWidth = Math.min(availableWidth, 400);  // Máximo 400px de ancho
+      imgHeight = imgWidth / aspectRatio;
+
+      if (imgHeight > availableHeight) {
+        imgHeight = availableHeight;
         imgWidth = imgHeight * aspectRatio;
-        if (imgWidth > maxWidth) {
-          imgWidth = maxWidth;
-          imgHeight = imgWidth / aspectRatio;
-        }
       }
 
       // Asegurar tamaño mínimo visible
-      imgWidth = Math.max(imgWidth, 80);
-      imgHeight = Math.max(imgHeight, 30);
+      imgWidth = Math.max(imgWidth, 120);
+      imgHeight = Math.max(imgHeight, 50);
 
-      // CENTRADO MEJORADO
-      // Calcular offset horizontal para centrar
-      let horizontalOffset = (columnWidth - imgWidth) / 2;
-      horizontalOffset = Math.max(horizontalOffset, 5);
+      // CENTRADO - Calcular offsets para centrar la imagen en el contenedor
+      // Horizontal: centrar en el ancho total de las columnas combinadas
+      const horizontalCenterOffset = (columnWidthPixels - imgWidth) / 2;
 
-      // Calcular offset vertical para centrar
-      let verticalOffset = (totalHeight - imgHeight) / 2;
-      verticalOffset = Math.max(verticalOffset, 2);
+      // Vertical: centrar en el alto total de las filas
+      const verticalCenterOffset = (totalHeightPixels - imgHeight) / 2;
 
-      // Agregar offset adicional si se especifica (para firmas finales)
-      horizontalOffset += extraHorizontalOffset;
+      // Asegurar offsets positivos con margen mínimo
+      let finalHorizontalOffset = Math.max(horizontalCenterOffset, 10);
+      let finalVerticalOffset = Math.max(verticalCenterOffset, 5);
 
-      // Determinar columna de inicio (ExcelJS usa índice 0)
-      let startCol = col - 1;
+      // Agregar offset adicional si se especifica (para firmas finales hacia la derecha)
+      finalHorizontalOffset += extraHorizontalOffset;
 
-      // Convertir a EMU (English Metric Units) - Excel usa 914400 EMU por pulgada
-      // 1 pixel = 9525 EMU aproximadamente
+      // Convertir píxeles a EMU (English Metric Units)
+      // 914400 EMU = 1 pulgada, a 96 DPI: 914400/96 = 9525 EMU por píxel
       const EMU_PER_PIXEL = 9525;
-      const horizontalOffsetEMU = Math.round(horizontalOffset * EMU_PER_PIXEL);
-      const verticalOffsetEMU = Math.round(verticalOffset * EMU_PER_PIXEL);
+      const horizontalOffsetEMU = Math.round(finalHorizontalOffset * EMU_PER_PIXEL);
+      const verticalOffsetEMU = Math.round(finalVerticalOffset * EMU_PER_PIXEL);
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
@@ -373,11 +367,12 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Insertar imagen con posicionamiento preciso
+      // Insertar imagen con posicionamiento centrado
+      // col y row en ExcelJS son 0-indexed
       worksheet.addImage(imageId, {
         tl: {
-          col: startCol,
-          row: row - 1,
+          col: col - 1,  // Columna de inicio (0-indexed)
+          row: row - 1,  // Fila de inicio (0-indexed)
           colOff: horizontalOffsetEMU,
           rowOff: verticalOffsetEMU
         },
