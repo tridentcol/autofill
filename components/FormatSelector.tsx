@@ -161,7 +161,14 @@ export default function FormatSelector() {
           sheetName: sheet.name,
           sections: sheet.sections.map((section) => ({
             sectionId: section.id,
-            fields: [],
+            // Inicializar campos con valores por defecto si existen
+            fields: section.fields
+              .filter((field) => field.value !== undefined && field.value !== null && field.value !== '')
+              .map((field) => ({
+                fieldId: field.id,
+                value: field.value,
+                completed: true,  // Marcar como completado para que se exporte
+              })),
           })),
         })),
         metadata: {
@@ -229,7 +236,14 @@ export default function FormatSelector() {
             sheetName: sheet.name,
             sections: sheet.sections.map((section) => ({
               sectionId: section.id,
-              fields: [],
+              // Inicializar campos con valores por defecto si existen
+              fields: section.fields
+                .filter((field) => field.value !== undefined && field.value !== null && field.value !== '')
+                .map((field) => ({
+                  fieldId: field.id,
+                  value: field.value,
+                  completed: true,
+                })),
             })),
           })),
           metadata: {

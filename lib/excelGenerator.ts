@@ -293,26 +293,17 @@ export class ExcelGenerator {
       const img = await this.getImageDimensions(signature.dataUrl);
       const aspectRatio = img.width / img.height;
 
-      // Calcular ancho total del área de columnas
+      // Calcular ancho total del área de columnas (en píxeles)
+      // Excel usa aproximadamente 7 píxeles por unidad de ancho de columna
       let columnWidth = 0;
       for (let i = 0; i < mergedCols; i++) {
         const currentCol = worksheet.getColumn(col + i);
-        const colWidth = (currentCol.width || 8.43) * 7.5;
+        const colWidth = (currentCol.width || 8.43) * 7;
         columnWidth += colWidth;
       }
 
-      // Tamaño de la firma
-      let imgWidth = Math.min(columnWidth * 0.8, 150);
-      let imgHeight = imgWidth / aspectRatio;
-
-      // Limitar altura máxima
-      const maxHeight = 40;
-      if (imgHeight > maxHeight) {
-        imgHeight = maxHeight;
-        imgWidth = imgHeight * aspectRatio;
-      }
-
-      // Calcular el alto total del contenedor
+      // Calcular el alto total del contenedor (en píxeles)
+      // Excel usa aproximadamente 1.33 píxeles por punto de altura de fila
       let totalHeight = 0;
       if (containerHeight) {
         totalHeight = containerHeight;
@@ -324,35 +315,54 @@ export class ExcelGenerator {
         }
       }
 
-      // Calcular offsets para centrar
-      let verticalOffset = Math.max((totalHeight - imgHeight) / 2, 5);
-      let horizontalOffset = (columnWidth - imgWidth) / 2 + extraHorizontalOffset;
-      let startCol = col - 1;
+      // TAMAÑO DE FIRMA - MUCHO MÁS GRANDE
+      // Usar el 85% del ancho disponible y hasta 90px de altura
+      const maxWidth = columnWidth * 0.85;
+      const maxHeight = Math.max(totalHeight * 0.85, 90);  // Al menos 90px de altura
 
-      // Para celdas multi-columna, ajustar columna de inicio
-      if (mergedCols > 1) {
-        let accumulatedWidth = 0;
-        const targetOffset = horizontalOffset;
+      let imgWidth: number;
+      let imgHeight: number;
 
-        for (let i = 0; i < mergedCols; i++) {
-          const currentCol = worksheet.getColumn(col + i);
-          const colWidth = (currentCol.width || 8.43) * 7.5;
-
-          if (accumulatedWidth + colWidth > targetOffset) {
-            startCol = (col - 1) + i;
-            horizontalOffset = targetOffset - accumulatedWidth;
-            break;
-          }
-
-          accumulatedWidth += colWidth;
+      // Calcular dimensiones manteniendo aspecto
+      if (aspectRatio > 1) {
+        // Imagen más ancha que alta
+        imgWidth = Math.min(maxWidth, 300);  // Máximo 300px de ancho
+        imgHeight = imgWidth / aspectRatio;
+        if (imgHeight > maxHeight) {
+          imgHeight = maxHeight;
+          imgWidth = imgHeight * aspectRatio;
+        }
+      } else {
+        // Imagen más alta que ancha
+        imgHeight = Math.min(maxHeight, 90);
+        imgWidth = imgHeight * aspectRatio;
+        if (imgWidth > maxWidth) {
+          imgWidth = maxWidth;
+          imgHeight = imgWidth / aspectRatio;
         }
       }
 
-      // Asegurar que los offsets sean positivos
-      horizontalOffset = Math.max(horizontalOffset, 0);
-      verticalOffset = Math.max(verticalOffset, 0);
+      // Asegurar tamaño mínimo visible
+      imgWidth = Math.max(imgWidth, 80);
+      imgHeight = Math.max(imgHeight, 30);
 
-      // Convertir a EMU
+      // CENTRADO MEJORADO
+      // Calcular offset horizontal para centrar
+      let horizontalOffset = (columnWidth - imgWidth) / 2;
+      horizontalOffset = Math.max(horizontalOffset, 5);
+
+      // Calcular offset vertical para centrar
+      let verticalOffset = (totalHeight - imgHeight) / 2;
+      verticalOffset = Math.max(verticalOffset, 2);
+
+      // Agregar offset adicional si se especifica (para firmas finales)
+      horizontalOffset += extraHorizontalOffset;
+
+      // Determinar columna de inicio (ExcelJS usa índice 0)
+      let startCol = col - 1;
+
+      // Convertir a EMU (English Metric Units) - Excel usa 914400 EMU por pulgada
+      // 1 pixel = 9525 EMU aproximadamente
       const EMU_PER_PIXEL = 9525;
       const horizontalOffsetEMU = Math.round(horizontalOffset * EMU_PER_PIXEL);
       const verticalOffsetEMU = Math.round(verticalOffset * EMU_PER_PIXEL);
@@ -363,7 +373,7 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Insertar imagen
+      // Insertar imagen con posicionamiento preciso
       worksheet.addImage(imageId, {
         tl: {
           col: startCol,
