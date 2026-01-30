@@ -51,11 +51,13 @@ export class ExcelGenerator {
           if (!field.cellRef || field.cellRef === '') continue;
 
           if (field.type === 'signature') {
-            // Insertar firma como TEXTO para evitar corrupción del archivo Excel
+            // Insertar firma como imagen
             const signature = signatures.get(fieldData.value);
             if (signature && field.cellRef) {
               // Verificar si es firma replicada en múltiples filas
               if (field.validation?.applyToAll && field.validation?.applyToRows && field.validation?.cellRef) {
+                // Para firmas replicadas en múltiples filas (PERMISO DE TRABAJO - responsable de controles)
+                // Usar texto para evitar muchas imágenes
                 const colLetter = field.validation.cellRef;
                 for (const row of field.validation.applyToRows) {
                   const cellRef = `${colLetter}${row}`;
@@ -64,7 +66,7 @@ export class ExcelGenerator {
                   cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 }
               } else if (field.validation?.applyToAll && !field.validation?.applyToRows) {
-                // Formato grúa - ubicaciones hardcodeadas
+                // Formato grúa - usar texto en múltiples ubicaciones
                 const firmaLocations = ['G11', 'G17', 'G31', 'G43', 'O11', 'O17', 'O31', 'O43'];
                 for (const cellRef of firmaLocations) {
                   const cell = worksheet.getCell(cellRef);
@@ -72,10 +74,19 @@ export class ExcelGenerator {
                   cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 }
               } else {
-                // Firma individual - solo texto
+                // Firma individual - insertar como imagen
                 const cell = worksheet.getCell(field.cellRef);
-                cell.value = signature.name;
-                cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                const mergedRows = field.validation?.mergedRows || 1;
+                const mergedCols = field.validation?.mergedCols || 1;
+                await this.insertSignature(
+                  workbook,
+                  worksheet,
+                  signature,
+                  Number(cell.row),
+                  Number(cell.col),
+                  mergedRows,
+                  mergedCols
+                );
               }
             }
           } else if (field.type === 'radio') {
