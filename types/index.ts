@@ -74,6 +74,15 @@ export interface FieldValidation {
   mergedRows?: number; // Para firmas en celdas combinadas verticalmente
   mergedCols?: number; // Para firmas en celdas combinadas horizontalmente
   applyToAll?: boolean; // Para replicar la firma en múltiples ubicaciones
+  applyToRows?: number[]; // Filas específicas donde replicar la firma
+  cellRef?: string; // Columna base para replicar (ej: 'Q' para Q9, Q10, etc.)
+  // Campos para descomposición de fecha en celdas separadas
+  dayCellRef?: string; // Celda para el día
+  monthCellRef?: string; // Celda para el mes
+  yearCellRef?: string; // Celda para el año
+  // Campos para concatenación con etiqueta
+  appendToLabel?: boolean; // Si debe concatenar el valor con la etiqueta
+  labelText?: string; // Texto de la etiqueta a mantener
 }
 
 export interface FormData {

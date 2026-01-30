@@ -47,36 +47,53 @@ export class ExcelGenerator {
           const field = fieldsMap.get(fieldData.fieldId);
           if (!field) continue;
 
+          // Saltar campos sin cellRef válido (como turno_select que es solo UI)
+          if (!field.cellRef || field.cellRef === '') continue;
+
           if (field.type === 'signature') {
             // Insertar firma como imagen
             const signature = signatures.get(fieldData.value);
             if (signature) {
               // Si applyToAll es true, replicar en todas las ubicaciones de firma
               if (field.validation?.applyToAll) {
-                // Ubicaciones de firma para formato grúa con alturas reales en píxeles
-                const firmaLocations = [
-                  { cellRef: 'G11', mergedRows: 3, containerHeight: 160 },  // DOCUMENTACION
-                  { cellRef: 'G17', mergedRows: 11, containerHeight: 332 }, // LUCES
-                  { cellRef: 'G31', mergedRows: 7, containerHeight: 211 },  // NEUMATICOS
-                  { cellRef: 'G43', mergedRows: 3, containerHeight: 90 },   // ESPEJOS
-                  { cellRef: 'O11', mergedRows: 3, containerHeight: 160 },  // OPERADOR
-                  { cellRef: 'O17', mergedRows: 9, containerHeight: 272 },  // ACCESORIO Y SEGURIDAD
-                  { cellRef: 'O31', mergedRows: 9, containerHeight: 271 },  // GENERAL
-                  { cellRef: 'O43', mergedRows: 5, containerHeight: 150 },  // VIDRIOS
-                ];
+                // Verificar si hay filas específicas para replicar (PERMISO DE TRABAJO)
+                if (field.validation?.applyToRows && field.validation?.cellRef) {
+                  const colLetter = field.validation.cellRef;
 
-                for (const location of firmaLocations) {
-                  const cell = worksheet.getCell(location.cellRef);
-                  await this.insertSignature(
-                    workbook,
-                    worksheet,
-                    signature,
-                    Number(cell.row),
-                    Number(cell.col),
-                    location.mergedRows,
-                    1,  // Una sola columna para formato grúa
-                    location.containerHeight  // Altura real del contenedor
-                  );
+                  // Para firmas replicadas en múltiples filas, usar texto en lugar de imagen
+                  // para evitar corrupción del archivo Excel
+                  for (const row of field.validation.applyToRows) {
+                    const cellRef = `${colLetter}${row}`;
+                    const cell = worksheet.getCell(cellRef);
+                    cell.value = signature.name;
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                  }
+                } else {
+                  // Ubicaciones de firma para formato grúa con alturas reales en píxeles
+                  const firmaLocations = [
+                    { cellRef: 'G11', mergedRows: 3, containerHeight: 160 },  // DOCUMENTACION
+                    { cellRef: 'G17', mergedRows: 11, containerHeight: 332 }, // LUCES
+                    { cellRef: 'G31', mergedRows: 7, containerHeight: 211 },  // NEUMATICOS
+                    { cellRef: 'G43', mergedRows: 3, containerHeight: 90 },   // ESPEJOS
+                    { cellRef: 'O11', mergedRows: 3, containerHeight: 160 },  // OPERADOR
+                    { cellRef: 'O17', mergedRows: 9, containerHeight: 272 },  // ACCESORIO Y SEGURIDAD
+                    { cellRef: 'O31', mergedRows: 9, containerHeight: 271 },  // GENERAL
+                    { cellRef: 'O43', mergedRows: 5, containerHeight: 150 },  // VIDRIOS
+                  ];
+
+                  for (const location of firmaLocations) {
+                    const cell = worksheet.getCell(location.cellRef);
+                    await this.insertSignature(
+                      workbook,
+                      worksheet,
+                      signature,
+                      Number(cell.row),
+                      Number(cell.col),
+                      location.mergedRows,
+                      1,  // Una sola columna para formato grúa
+                      location.containerHeight  // Altura real del contenedor
+                    );
+                  }
                 }
               } else if (field.cellRef) {
                 // Firma individual
@@ -112,36 +129,64 @@ export class ExcelGenerator {
               }
             }
           } else if (field.type === 'checkbox') {
-            // Checkbox individual
+            // Checkbox individual - usar símbolo de check (✓)
             if (fieldData.value && field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
-              cell.value = 'X';
+              cell.value = '✓';
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'date') {
             // Formatear fecha
             if (field.cellRef) {
-              const cell = worksheet.getCell(field.cellRef);
-              // Mantener el texto original y reemplazar los guiones bajos
-              const currentValue = cell.value?.toString() || '';
-              const cleanedValue = currentValue.replace(/_+/g, '').trim();
-              const dateStr = new Date(fieldData.value).toLocaleDateString('es-ES');
-              cell.value = cleanedValue ? `${cleanedValue} ${dateStr}` : dateStr;
+              // Verificar si hay configuración de descomposición de fecha
+              if (field.validation?.pattern === 'decompose_date' && field.validation?.dayCellRef) {
+                // Descomponer fecha en día, mes, año
+                const date = new Date(fieldData.value);
+                const day = date.getDate();
+                const month = date.getMonth() + 1; // getMonth() es 0-indexed
+                const year = date.getFullYear();
+
+                // Escribir día
+                const dayCell = worksheet.getCell(field.validation.dayCellRef);
+                dayCell.value = day;
+                dayCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                // Escribir mes
+                const monthCell = worksheet.getCell(field.validation.monthCellRef);
+                monthCell.value = month;
+                monthCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                // Escribir año
+                const yearCell = worksheet.getCell(field.validation.yearCellRef);
+                yearCell.value = year;
+                yearCell.alignment = { vertical: 'middle', horizontal: 'center' };
+              } else {
+                // Comportamiento original para fechas normales
+                const cell = worksheet.getCell(field.cellRef);
+                const currentValue = cell.value?.toString() || '';
+                const cleanedValue = currentValue.replace(/_+/g, '').trim();
+                const dateStr = new Date(fieldData.value).toLocaleDateString('es-ES');
+                cell.value = cleanedValue ? `${cleanedValue} ${dateStr}` : dateStr;
+              }
             }
           } else if (field.type === 'time') {
             // Formatear hora
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
-              // Mantener el texto original y reemplazar los guiones bajos
-              const currentValue = cell.value?.toString() || '';
-              const cleanedValue = currentValue.replace(/_+/g, '').trim();
-              cell.value = cleanedValue ? `${cleanedValue} ${fieldData.value}` : fieldData.value;
+              // Solo poner la hora, sin concatenar con etiqueta
+              cell.value = fieldData.value;
+              cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'textarea') {
-            // Para observaciones, reemplazar completamente
+            // Para campos de texto largo
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
-              cell.value = fieldData.value;
+              // Verificar si debe concatenar con la etiqueta existente
+              if (field.validation?.appendToLabel && field.validation?.labelText) {
+                cell.value = `${field.validation.labelText} ${fieldData.value}`;
+              } else {
+                cell.value = fieldData.value;
+              }
               cell.alignment = {
                 vertical: 'top',
                 horizontal: 'left',
@@ -152,16 +197,25 @@ export class ExcelGenerator {
             // Texto o número normal
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
-              // Mantener el texto original (como "REALIZADO POR:") y agregar el valor después
-              const currentValue = cell.value?.toString() || '';
-              const cleanedValue = currentValue.replace(/_+/g, '').trim();
 
-              // Si ya tiene texto (como "REALIZADO POR:"), agregar el valor después
-              if (cleanedValue && !cleanedValue.includes(fieldData.value)) {
-                cell.value = `${cleanedValue} ${fieldData.value}`;
-              } else if (!cleanedValue) {
-                // Si no hay texto, solo poner el valor
-                cell.value = fieldData.value;
+              // Verificar si debe concatenar con la etiqueta existente
+              if (field.validation?.appendToLabel && field.validation?.labelText) {
+                cell.value = `${field.validation.labelText} ${fieldData.value}`;
+              } else {
+                // Comportamiento original
+                const currentValue = cell.value?.toString() || '';
+                const cleanedValue = currentValue.replace(/_+/g, '').trim();
+
+                // Si ya tiene texto (como "REALIZADO POR:"), agregar el valor después
+                if (cleanedValue && !cleanedValue.includes(fieldData.value)) {
+                  cell.value = `${cleanedValue} ${fieldData.value}`;
+                } else if (!cleanedValue) {
+                  // Si no hay texto, solo poner el valor
+                  cell.value = fieldData.value;
+                } else {
+                  // El valor ya está incluido, no hacer nada
+                  cell.value = fieldData.value;
+                }
               }
             }
           }
@@ -327,29 +381,6 @@ export class ExcelGenerator {
       const verticalOffsetEMU = Math.round(verticalOffset * EMU_PER_PIXEL);
       const imgWidthEMU = Math.round(imgWidth * EMU_PER_PIXEL);
       const imgHeightEMU = Math.round(imgHeight * EMU_PER_PIXEL);
-
-      // DEBUG: Log para ver los valores calculados
-      console.log(`DEBUG Signature at row ${row}, col ${col}:`, {
-        containerHeight,
-        totalHeight,
-        imgWidth,
-        imgHeight,
-        horizontalOffset,
-        verticalOffset,
-        horizontalOffsetEMU,
-        verticalOffsetEMU,
-        imgWidthEMU,
-        imgHeightEMU,
-        startCol,
-        columnWidth
-      });
-
-      // DEBUG: Escribir valores en el Excel para debugging
-      if (containerHeight) {
-        const debugCell = worksheet.getCell(row, col + 1);
-        debugCell.value = `H:${Math.round(totalHeight)} V:${Math.round(verticalOffset)} EMU:${verticalOffsetEMU}`;
-        debugCell.font = { size: 8, color: { argb: 'FFFF0000' } };
-      }
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
