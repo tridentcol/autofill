@@ -343,22 +343,39 @@ export class ExcelGenerator {
 
       // CENTRADO - Calcular offsets para centrar la imagen en el contenedor
       // Horizontal: centrar en el ancho total de las columnas combinadas
-      const horizontalCenterOffset = (columnWidthPixels - imgWidth) / 2;
+      const horizontalCenterOffset = (columnWidthPixels - imgWidth) / 2 + extraHorizontalOffset;
 
       // Vertical: centrar en el alto total de las filas
       const verticalCenterOffset = (totalHeightPixels - imgHeight) / 2;
 
-      // Asegurar offsets positivos con margen mínimo
-      let finalHorizontalOffset = Math.max(horizontalCenterOffset, 10);
-      let finalVerticalOffset = Math.max(verticalCenterOffset, 5);
+      // Asegurar offsets positivos
+      const targetHorizontalOffset = Math.max(horizontalCenterOffset, 5);
+      const finalVerticalOffset = Math.max(verticalCenterOffset, 3);
 
-      // Agregar offset adicional si se especifica (para firmas finales hacia la derecha)
-      finalHorizontalOffset += extraHorizontalOffset;
+      // IMPORTANTE: Encontrar en qué columna cae el offset horizontal
+      // y calcular el offset relativo a esa columna
+      let startCol = col - 1;  // 0-indexed
+      let accumulatedWidth = 0;
+      let offsetWithinColumn = targetHorizontalOffset;
+
+      // Iterar por las columnas para encontrar dónde cae el offset
+      for (let i = 0; i < mergedCols; i++) {
+        const currentColObj = worksheet.getColumn(col + i);
+        const colWidthPixels = (currentColObj.width || 8.43) * PIXELS_PER_COLUMN_UNIT;
+
+        if (accumulatedWidth + colWidthPixels > targetHorizontalOffset) {
+          // El offset cae en esta columna
+          startCol = col - 1 + i;
+          offsetWithinColumn = targetHorizontalOffset - accumulatedWidth;
+          break;
+        }
+        accumulatedWidth += colWidthPixels;
+      }
 
       // Convertir píxeles a EMU (English Metric Units)
       // 914400 EMU = 1 pulgada, a 96 DPI: 914400/96 = 9525 EMU por píxel
       const EMU_PER_PIXEL = 9525;
-      const horizontalOffsetEMU = Math.round(finalHorizontalOffset * EMU_PER_PIXEL);
+      const horizontalOffsetEMU = Math.round(offsetWithinColumn * EMU_PER_PIXEL);
       const verticalOffsetEMU = Math.round(finalVerticalOffset * EMU_PER_PIXEL);
 
       // Agregar imagen al workbook
@@ -368,11 +385,10 @@ export class ExcelGenerator {
       });
 
       // Insertar imagen con posicionamiento centrado
-      // col y row en ExcelJS son 0-indexed
       worksheet.addImage(imageId, {
         tl: {
-          col: col - 1,  // Columna de inicio (0-indexed)
-          row: row - 1,  // Fila de inicio (0-indexed)
+          col: startCol,  // Columna donde inicia la imagen (0-indexed)
+          row: row - 1,   // Fila de inicio (0-indexed)
           colOff: horizontalOffsetEMU,
           rowOff: verticalOffsetEMU
         },
