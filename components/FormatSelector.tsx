@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useFormStore } from '@/store/useFormStore';
-import { ExcelParser, loadExcelFromURL } from '@/lib/excelParser';
+import { ExcelParser, loadExcelFromURL, getFirstSheetName } from '@/lib/excelParser';
 import { getFormatConfig } from '@/lib/formatConfigs';
 import type { ExcelFormat } from '@/types';
 
@@ -107,6 +107,8 @@ export default function FormatSelector() {
 
       if (formatConfig) {
         const sections = formatConfig();
+        // Obtener el nombre real de la primera hoja con contenido
+        const sheetName = await getFirstSheetName(fileBuffer);
         parsedFormat = {
           id: formatInfo.id,
           name: formatInfo.name,
@@ -115,7 +117,7 @@ export default function FormatSelector() {
           fileType: formatInfo.filePath.endsWith('.xlsx') ? 'xlsx' : 'xls',
           sheets: [
             {
-              name: 'Hoja1',
+              name: sheetName,
               sections: sections,
               mergedCells: [],
             },

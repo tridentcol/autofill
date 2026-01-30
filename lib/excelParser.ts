@@ -621,3 +621,26 @@ export async function loadExcelFromFile(file: File): Promise<ArrayBuffer> {
     reader.readAsArrayBuffer(file);
   });
 }
+
+/**
+ * Función helper para obtener el nombre de la primera hoja con contenido
+ */
+export async function getFirstSheetName(fileBuffer: ArrayBuffer): Promise<string> {
+  const ExcelJS = await import('exceljs');
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(fileBuffer);
+
+  // Buscar la primera hoja con contenido real (más de 1 fila y columna)
+  let mainSheetName = 'Hoja1';
+  let maxCells = 0;
+
+  workbook.eachSheet((worksheet) => {
+    const cellCount = worksheet.rowCount * worksheet.columnCount;
+    if (cellCount > maxCells) {
+      maxCells = cellCount;
+      mainSheetName = worksheet.name;
+    }
+  });
+
+  return mainSheetName;
+}
