@@ -51,64 +51,31 @@ export class ExcelGenerator {
           if (!field.cellRef || field.cellRef === '') continue;
 
           if (field.type === 'signature') {
-            // Insertar firma como imagen
+            // Insertar firma como TEXTO para evitar corrupción del archivo Excel
             const signature = signatures.get(fieldData.value);
-            if (signature) {
-              // Si applyToAll es true, replicar en todas las ubicaciones de firma
-              if (field.validation?.applyToAll) {
-                // Verificar si hay filas específicas para replicar (PERMISO DE TRABAJO)
-                if (field.validation?.applyToRows && field.validation?.cellRef) {
-                  const colLetter = field.validation.cellRef;
-
-                  // Para firmas replicadas en múltiples filas, usar texto en lugar de imagen
-                  // para evitar corrupción del archivo Excel
-                  for (const row of field.validation.applyToRows) {
-                    const cellRef = `${colLetter}${row}`;
-                    const cell = worksheet.getCell(cellRef);
-                    cell.value = signature.name;
-                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
-                  }
-                } else {
-                  // Ubicaciones de firma para formato grúa con alturas reales en píxeles
-                  const firmaLocations = [
-                    { cellRef: 'G11', mergedRows: 3, containerHeight: 160 },  // DOCUMENTACION
-                    { cellRef: 'G17', mergedRows: 11, containerHeight: 332 }, // LUCES
-                    { cellRef: 'G31', mergedRows: 7, containerHeight: 211 },  // NEUMATICOS
-                    { cellRef: 'G43', mergedRows: 3, containerHeight: 90 },   // ESPEJOS
-                    { cellRef: 'O11', mergedRows: 3, containerHeight: 160 },  // OPERADOR
-                    { cellRef: 'O17', mergedRows: 9, containerHeight: 272 },  // ACCESORIO Y SEGURIDAD
-                    { cellRef: 'O31', mergedRows: 9, containerHeight: 271 },  // GENERAL
-                    { cellRef: 'O43', mergedRows: 5, containerHeight: 150 },  // VIDRIOS
-                  ];
-
-                  for (const location of firmaLocations) {
-                    const cell = worksheet.getCell(location.cellRef);
-                    await this.insertSignature(
-                      workbook,
-                      worksheet,
-                      signature,
-                      Number(cell.row),
-                      Number(cell.col),
-                      location.mergedRows,
-                      1,  // Una sola columna para formato grúa
-                      location.containerHeight  // Altura real del contenedor
-                    );
-                  }
+            if (signature && field.cellRef) {
+              // Verificar si es firma replicada en múltiples filas
+              if (field.validation?.applyToAll && field.validation?.applyToRows && field.validation?.cellRef) {
+                const colLetter = field.validation.cellRef;
+                for (const row of field.validation.applyToRows) {
+                  const cellRef = `${colLetter}${row}`;
+                  const cell = worksheet.getCell(cellRef);
+                  cell.value = signature.name;
+                  cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 }
-              } else if (field.cellRef) {
-                // Firma individual
+              } else if (field.validation?.applyToAll && !field.validation?.applyToRows) {
+                // Formato grúa - ubicaciones hardcodeadas
+                const firmaLocations = ['G11', 'G17', 'G31', 'G43', 'O11', 'O17', 'O31', 'O43'];
+                for (const cellRef of firmaLocations) {
+                  const cell = worksheet.getCell(cellRef);
+                  cell.value = signature.name;
+                  cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                }
+              } else {
+                // Firma individual - solo texto
                 const cell = worksheet.getCell(field.cellRef);
-                const mergedRows = field.validation?.mergedRows || 1;
-                const mergedCols = field.validation?.mergedCols || 1;
-                await this.insertSignature(
-                  workbook,
-                  worksheet,
-                  signature,
-                  Number(cell.row),
-                  Number(cell.col),
-                  mergedRows,
-                  mergedCols
-                );
+                cell.value = signature.name;
+                cell.alignment = { vertical: 'middle', horizontal: 'center' };
               }
             }
           } else if (field.type === 'radio') {
