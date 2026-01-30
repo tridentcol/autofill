@@ -76,7 +76,6 @@ export class ExcelGenerator {
                 const mergedCols = field.validation?.mergedCols || 4;
 
                 // Insertar firma como imagen en cada fila
-                // Offset reducido para firmas de controles
                 for (const row of field.validation.applyToRows) {
                   const cellRef = `${colLetter}${row}`;
                   const cell = worksheet.getCell(cellRef);
@@ -89,7 +88,7 @@ export class ExcelGenerator {
                     1,
                     mergedCols,
                     undefined,
-                    25  // Offset reducido - estaban muy a la derecha
+                    45  // Firmas de controles
                   );
                 }
               } else if (field.validation?.applyToAll && !field.validation?.applyToRows) {
@@ -129,9 +128,9 @@ export class ExcelGenerator {
                 // Offset adicional para centrar mejor las firmas
                 let extraOffset = 0;
                 if (isFirmaFinal) {
-                  extraOffset = 30;  // Firmas finales - reducido, estaban muy a la derecha
+                  extraOffset = 55;  // Firmas finales - más a la derecha
                 } else if (isFirmaTrabajador) {
-                  extraOffset = 100;  // Firmas de trabajadores - aumentado, no se movían
+                  extraOffset = 75;  // Firmas de trabajadores - un poco a la izquierda
                 }
 
                 await this.insertSignature(
