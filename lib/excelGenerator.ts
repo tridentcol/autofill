@@ -76,6 +76,7 @@ export class ExcelGenerator {
                 const mergedCols = field.validation?.mergedCols || 4;
 
                 // Insertar firma como imagen en cada fila
+                // Agregar offset adicional para centrar mejor (60px a la derecha)
                 for (const row of field.validation.applyToRows) {
                   const cellRef = `${colLetter}${row}`;
                   const cell = worksheet.getCell(cellRef);
@@ -86,7 +87,9 @@ export class ExcelGenerator {
                     row,
                     Number(cell.col),
                     1,
-                    mergedCols
+                    mergedCols,
+                    undefined,
+                    60  // Offset adicional a la derecha para centrar
                   );
                 }
               } else if (field.validation?.applyToAll && !field.validation?.applyToRows) {
@@ -119,8 +122,17 @@ export class ExcelGenerator {
                 const mergedRows = field.validation?.mergedRows || 1;
                 const mergedCols = field.validation?.mergedCols || 1;
 
-                // Para firmas finales (N65, N66, N67), ajustar offset a la derecha
+                // Para firmas finales (N65, N66, N67) y de trabajadores, ajustar offset a la derecha
                 const isFirmaFinal = ['N65', 'N66', 'N67'].includes(field.cellRef);
+                const isFirmaTrabajador = field.id?.includes('trabajador') && field.id?.includes('firma');
+
+                // Offset adicional para centrar mejor las firmas
+                let extraOffset = 0;
+                if (isFirmaFinal) {
+                  extraOffset = 80;  // Firmas finales más a la derecha
+                } else if (isFirmaTrabajador) {
+                  extraOffset = 60;  // Firmas de trabajadores
+                }
 
                 await this.insertSignature(
                   workbook,
@@ -131,7 +143,7 @@ export class ExcelGenerator {
                   mergedRows,
                   mergedCols,
                   undefined,
-                  isFirmaFinal ? 50 : 0  // Offset adicional a la derecha para firmas finales
+                  extraOffset
                 );
               }
             }
