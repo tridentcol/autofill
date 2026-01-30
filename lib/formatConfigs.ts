@@ -856,17 +856,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       type: 'basic_info',
       title: 'Paso 5: Período de Validez',
       fields: [
-        {
-          id: 'turno_select',
-          label: 'Seleccionar Turno',
-          type: 'radio',
-          cellRef: '',
-          row: 0,
-          col: 0,
-          required: false,
-          options: ['Mañana', 'Noche', 'Personalizado'],
-          group: 'turno_selector'
-        },
+        // Nota: turno_select es solo un helper de UI, no se exporta al Excel
         {
           id: 'desde_fecha',
           label: 'Fecha Inicio',

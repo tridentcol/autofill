@@ -47,6 +47,9 @@ export class ExcelGenerator {
           const field = fieldsMap.get(fieldData.fieldId);
           if (!field) continue;
 
+          // Saltar campos sin cellRef válido (como turno_select que es solo UI)
+          if (!field.cellRef || field.cellRef === '') continue;
+
           if (field.type === 'signature') {
             // Insertar firma como imagen
             const signature = signatures.get(fieldData.value);
@@ -56,20 +59,14 @@ export class ExcelGenerator {
                 // Verificar si hay filas específicas para replicar (PERMISO DE TRABAJO)
                 if (field.validation?.applyToRows && field.validation?.cellRef) {
                   const colLetter = field.validation.cellRef;
-                  const mergedCols = field.validation?.mergedCols || 4;
 
+                  // Para firmas replicadas en múltiples filas, usar texto en lugar de imagen
+                  // para evitar corrupción del archivo Excel
                   for (const row of field.validation.applyToRows) {
                     const cellRef = `${colLetter}${row}`;
                     const cell = worksheet.getCell(cellRef);
-                    await this.insertSignature(
-                      workbook,
-                      worksheet,
-                      signature,
-                      row,
-                      Number(cell.col),
-                      1,  // Una fila por celda
-                      mergedCols
-                    );
+                    cell.value = signature.name;
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
                   }
                 } else {
                   // Ubicaciones de firma para formato grúa con alturas reales en píxeles
