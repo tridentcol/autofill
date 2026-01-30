@@ -19,7 +19,7 @@ const PREDEFINED_FORMATS = [
     id: 'permiso-trabajo',
     name: 'Permiso de Trabajo',
     description: 'Permiso de trabajo seguro en alturas',
-    filePath: '/formats/PERMISO DE TRABAJO (8).xls',
+    filePath: '/formats/PERMISO DE TRABAJO.xlsx',
     iconType: 'document',
   },
   {
@@ -33,7 +33,7 @@ const PREDEFINED_FORMATS = [
     id: 'ats',
     name: 'Análisis de Trabajo Seguro',
     description: 'Análisis de trabajo seguro (ATS)',
-    filePath: '/formats/ANALISIS DE TRABAJO SEGURO (ATS) actual (15) (9).xls',
+    filePath: '/formats/ANALISIS DE TRABAJO SEGURO (ATS).xlsx',
     iconType: 'warning',
   },
   {

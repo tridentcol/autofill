@@ -5,13 +5,14 @@ import { useDatabaseStore } from '@/store/useDatabaseStore';
 import { useFormStore } from '@/store/useFormStore';
 import type { Worker, Cuadrilla } from '@/types';
 
-type Tab = 'workers' | 'cuadrillas' | 'cargos';
+type Tab = 'workers' | 'cuadrillas' | 'cargos' | 'zonas';
 
 export default function DatabaseAdmin() {
   const {
     workers,
     cuadrillas,
     cargos,
+    zonas,
     isAdmin,
     addWorker,
     updateWorker,
@@ -23,6 +24,9 @@ export default function DatabaseAdmin() {
     addCargo,
     updateCargo,
     deleteCargo,
+    addZona,
+    updateZona,
+    deleteZona,
   } = useDatabaseStore();
 
   const { signatures } = useFormStore();
@@ -53,6 +57,11 @@ export default function DatabaseAdmin() {
   const [isAddingCargo, setIsAddingCargo] = useState(false);
   const [editingCargo, setEditingCargo] = useState<string | null>(null);
   const [cargoForm, setCargoForm] = useState('');
+
+  // Zona form state
+  const [isAddingZona, setIsAddingZona] = useState(false);
+  const [editingZona, setEditingZona] = useState<string | null>(null);
+  const [zonaForm, setZonaForm] = useState('');
 
   const activeWorkers = useMemo(() => workers.filter((w) => w.isActive), [workers]);
   const activeCuadrillas = useMemo(() => cuadrillas.filter((c) => c.isActive), [cuadrillas]);
@@ -170,6 +179,41 @@ export default function DatabaseAdmin() {
     setEditingCargo(null);
   };
 
+  // Zona handlers
+  const handleZonaSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!zonaForm.trim()) return;
+
+    if (editingZona) {
+      updateZona(editingZona, zonaForm);
+    } else {
+      addZona(zonaForm);
+    }
+    resetZonaForm();
+  };
+
+  const handleEditZona = (zona: string) => {
+    setZonaForm(zona);
+    setEditingZona(zona);
+    setIsAddingZona(true);
+  };
+
+  const handleDeleteZona = (zona: string) => {
+    if (zonas.length <= 1) {
+      alert('Debe haber al menos una zona.');
+      return;
+    }
+    if (confirm(`¿Eliminar la zona "${zona}"?`)) {
+      deleteZona(zona);
+    }
+  };
+
+  const resetZonaForm = () => {
+    setZonaForm('');
+    setIsAddingZona(false);
+    setEditingZona(null);
+  };
+
   if (!isAdmin()) {
     return (
       <div className="p-6 text-center">
@@ -190,6 +234,7 @@ export default function DatabaseAdmin() {
             { id: 'workers' as const, label: 'Trabajadores', count: activeWorkers.length },
             { id: 'cuadrillas' as const, label: 'Cuadrillas', count: activeCuadrillas.length },
             { id: 'cargos' as const, label: 'Cargos', count: cargos.length },
+            { id: 'zonas' as const, label: 'Zonas', count: zonas.length },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -522,6 +567,71 @@ export default function DatabaseAdmin() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Zonas Tab */}
+      {activeTab === 'zonas' && (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600">
+              Gestiona las zonas de trabajo disponibles
+            </p>
+            {!isAddingZona && (
+              <button
+                onClick={() => setIsAddingZona(true)}
+                className="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                Agregar Zona
+              </button>
+            )}
+          </div>
+
+          {isAddingZona && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-900 mb-4">
+                {editingZona ? 'Editar Zona' : 'Nueva Zona'}
+              </h3>
+              <form onSubmit={handleZonaSubmit} className="flex gap-3">
+                <input
+                  type="text"
+                  required
+                  value={zonaForm}
+                  onChange={(e) => setZonaForm(e.target.value)}
+                  placeholder="Nombre de la zona"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900"
+                />
+                <button type="submit" className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800">
+                  {editingZona ? 'Actualizar' : 'Guardar'}
+                </button>
+                <button type="button" onClick={resetZonaForm} className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50">
+                  Cancelar
+                </button>
+              </form>
+            </div>
+          )}
+
+          <div className="bg-white border border-gray-200 rounded-lg divide-y divide-gray-200">
+            {zonas.map((zona) => (
+              <div key={zona} className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm font-medium text-gray-900">{zona}</span>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleEditZona(zona)}
+                    className="text-xs text-gray-500 hover:text-gray-700"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDeleteZona(zona)}
+                    className="text-xs text-red-500 hover:text-red-700"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

@@ -12,7 +12,7 @@ interface VehicleInfoSectionProps {
 }
 
 export default function VehicleInfoSection({ sheetIndex, sectionIndex }: VehicleInfoSectionProps) {
-  const { currentUser } = useDatabaseStore();
+  const { currentUser, workers } = useDatabaseStore();
   const { updateFieldValue } = useFormStore();
   const [selectedCamioneta, setSelectedCamioneta] = useState<Camioneta | null>(null);
 
@@ -20,15 +20,20 @@ export default function VehicleInfoSection({ sheetIndex, sectionIndex }: Vehicle
   useEffect(() => {
     if (currentUser) {
       updateFieldValue(sheetIndex, sectionIndex, 'basic_A5', currentUser.nombre);
-      const worker = currentUser as any;
-      if (worker.cargo) {
+
+      // Buscar el cargo del trabajador en la base de datos
+      const worker = workers.find(w => w.nombre === currentUser.nombre && w.isActive);
+      if (worker?.cargo) {
         updateFieldValue(sheetIndex, sectionIndex, 'basic_A6', worker.cargo);
       }
     }
 
-    const currentDate = new Date().toISOString().split('T')[0];
+    // Fecha actual en zona horaria Colombia
+    const now = new Date();
+    const colombiaDate = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+    const currentDate = colombiaDate.toISOString().split('T')[0];
     updateFieldValue(sheetIndex, sectionIndex, 'basic_F6', currentDate);
-  }, [currentUser, sheetIndex, sectionIndex, updateFieldValue]);
+  }, [currentUser, workers, sheetIndex, sectionIndex, updateFieldValue]);
 
   // Handle vehicle selection
   const handleVehicleChange = (camioneta: Camioneta | null) => {

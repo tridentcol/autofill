@@ -3,7 +3,7 @@
  * Automatically commits and pushes data changes to the repository
  */
 
-import { Worker, Cuadrilla, Camioneta, Grua } from '@/types';
+import { Worker, Cuadrilla, Camioneta, Grua, Signature } from '@/types';
 
 interface GitCommitOptions {
   message: string;
@@ -156,6 +156,40 @@ export async function syncCargosToGit(cargos: string[]): Promise<boolean> {
       {
         path: 'public/data/cargos.json',
         content: JSON.stringify(cargos, null, 2),
+      },
+    ],
+  });
+}
+
+/**
+ * Sync signatures metadata to git
+ */
+export async function syncSignaturesToGit(signatures: Signature[]): Promise<boolean> {
+  const timestamp = new Date().toISOString();
+
+  return await commitAndPushChanges({
+    message: `chore: Update signatures data - ${timestamp}`,
+    files: [
+      {
+        path: 'public/data/signatures.json',
+        content: JSON.stringify(signatures, null, 2),
+      },
+    ],
+  });
+}
+
+/**
+ * Sync zonas data to git
+ */
+export async function syncZonasToGit(zonas: string[]): Promise<boolean> {
+  const timestamp = new Date().toISOString();
+
+  return await commitAndPushChanges({
+    message: `chore: Update zonas data - ${timestamp}`,
+    files: [
+      {
+        path: 'public/data/zonas.json',
+        content: JSON.stringify(zonas, null, 2),
       },
     ],
   });

@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useFormStore } from '@/store/useFormStore';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
-import type { Field } from '@/types';
+import type { Field, Signature } from '@/types';
 
 interface FieldRendererProps {
   field: Field;
@@ -13,6 +13,15 @@ interface FieldRendererProps {
   compact?: boolean;
 }
 
+// Interfaz para las firmas derivadas de workers
+interface WorkerSignature {
+  id: string;
+  name: string;
+  dataUrl: string;
+  workerId: string;
+  cargo: string;
+}
+
 export default function FieldRenderer({
   field,
   sheetIndex,
@@ -20,37 +29,72 @@ export default function FieldRenderer({
   hideLabel = false,
   compact = false,
 }: FieldRendererProps) {
-  const { currentFormData, updateFieldValue, signatures } = useFormStore();
-  const { workers } = useDatabaseStore();
+  const { currentFormData, updateFieldValue } = useFormStore();
+  const { workers, zonas } = useDatabaseStore();
   const [value, setValue] = useState<any>(field.value || '');
+
+  // Construir firmas disponibles desde los workers que tienen signatureId
+  const availableSignatures = useMemo((): WorkerSignature[] => {
+    return workers
+      .filter(w => w.isActive && w.signatureId)
+      .map(w => ({
+        id: w.signatureId!,
+        name: w.nombre,
+        dataUrl: w.signatureData || `/signatures/${w.signatureId}.png`,
+        workerId: w.id,
+        cargo: w.cargo,
+      }));
+  }, [workers]);
+
+  // Detectar si es un campo de zona de trabajo
+  const isZonaField = useMemo(() => {
+    const label = field.label.toLowerCase();
+    return (label.includes('lugar') && label.includes('zona')) ||
+           (label.includes('zona') && label.includes('trabajo'));
+  }, [field.label]);
 
   // Filtrar firmas por rol si es necesario
   const filteredSignatures = useMemo(() => {
-    if (field.type !== 'signature' || !field.validation?.pattern) {
-      return signatures;
+    if (field.type !== 'signature') {
+      return availableSignatures;
     }
 
-    const pattern = field.validation.pattern;
+    const pattern = field.validation?.pattern;
+    if (!pattern) {
+      return availableSignatures;
+    }
 
     if (pattern === 'supervisor_only') {
-      // Solo supervisores: Supervisor, Coordinador de zona, Asistente técnico
-      const supervisorRoles = ['Supervisor', 'Coordinador de zona', 'Asistente técnico'];
-      const supervisorWorkerIds = workers
-        .filter(w => w.isActive && supervisorRoles.includes(w.cargo) && w.signatureId)
-        .map(w => w.signatureId);
-
-      return signatures.filter(sig => supervisorWorkerIds.includes(sig.id));
+      // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
+      const supervisorRoles = [
+        'supervisor', 'coordinador', 'asistente técnico', 'asistente tecnico'
+      ];
+      return availableSignatures.filter(sig =>
+        supervisorRoles.some(role => sig.cargo.toLowerCase().includes(role))
+      );
     } else if (pattern === 'conductor_only') {
-      // Solo conductores
-      const conductorWorkerIds = workers
-        .filter(w => w.isActive && w.cargo === 'Conductor' && w.signatureId)
-        .map(w => w.signatureId);
-
-      return signatures.filter(sig => conductorWorkerIds.includes(sig.id));
+      // Solo conductores (excluye conductor ayudante)
+      return availableSignatures.filter(sig =>
+        sig.cargo.toLowerCase().includes('conductor') &&
+        !sig.cargo.toLowerCase().includes('ayudante')
+      );
+    } else if (pattern === 'tecnico_conductor') {
+      // Técnico electricista o Conductor ayudante
+      return availableSignatures.filter(sig =>
+        sig.cargo.toLowerCase().includes('técnico') ||
+        sig.cargo.toLowerCase().includes('tecnico') ||
+        (sig.cargo.toLowerCase().includes('conductor') && sig.cargo.toLowerCase().includes('ayudante'))
+      );
+    } else if (pattern === 'conductor_ayudante') {
+      // Solo Conductor ayudante
+      return availableSignatures.filter(sig =>
+        sig.cargo.toLowerCase().includes('conductor') &&
+        sig.cargo.toLowerCase().includes('ayudante')
+      );
     }
 
-    return signatures;
-  }, [field.type, field.validation?.pattern, signatures, workers]);
+    return availableSignatures;
+  }, [field.type, field.validation?.pattern, availableSignatures]);
 
   // Cargar valor existente del store
   useEffect(() => {
@@ -74,6 +118,25 @@ export default function FieldRenderer({
   };
 
   const renderField = () => {
+    // Campos de zona de trabajo usan select con zonas de la base de datos
+    if (isZonaField && zonas.length > 0) {
+      return (
+        <select
+          value={value}
+          onChange={(e) => handleChange(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          required={field.required}
+        >
+          <option value="">Seleccione una zona</option>
+          {zonas.map((zona) => (
+            <option key={zona} value={zona}>
+              {zona}
+            </option>
+          ))}
+        </select>
+      );
+    }
+
     switch (field.type) {
       case 'text':
       case 'number':
@@ -209,8 +272,10 @@ export default function FieldRenderer({
             {field.validation?.pattern && (
               <div className="bg-blue-50 border border-blue-200 rounded-md p-2 mb-2">
                 <p className="text-xs text-blue-800">
-                  {field.validation.pattern === 'supervisor_only' && '👤 Solo supervisores pueden firmar aquí'}
-                  {field.validation.pattern === 'conductor_only' && '🚗 Solo conductores pueden firmar aquí'}
+                  {field.validation.pattern === 'supervisor_only' && 'Solo supervisores, coordinadores o asistentes técnicos'}
+                  {field.validation.pattern === 'conductor_only' && 'Solo conductores'}
+                  {field.validation.pattern === 'tecnico_conductor' && 'Solo técnicos o conductores ayudantes'}
+                  {field.validation.pattern === 'conductor_ayudante' && 'Solo conductores ayudantes'}
                 </p>
               </div>
             )}
@@ -224,7 +289,7 @@ export default function FieldRenderer({
                 <option value="">Seleccione una firma</option>
                 {filteredSignatures.map((sig) => (
                   <option key={sig.id} value={sig.id}>
-                    {sig.name}
+                    {sig.name} ({sig.cargo})
                   </option>
                 ))}
               </select>
@@ -235,21 +300,28 @@ export default function FieldRenderer({
             {filteredSignatures.length === 0 && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
                 <p className="text-sm text-yellow-800">
-                  ⚠️ No hay firmas disponibles con el rol requerido. Por favor asigna firmas a los trabajadores en la base de datos.
+                  No hay firmas disponibles con el rol requerido. Por favor asigna firmas a los trabajadores con el cargo correspondiente desde el panel de administración.
                 </p>
               </div>
             )}
             {value && (() => {
-              const selectedSig = signatures.find((s) => s.id === value);
+              const selectedSig = filteredSignatures.find((s) => s.id === value) || availableSignatures.find((s) => s.id === value);
               return selectedSig ? (
                 <div className="border border-gray-300 rounded-md p-2 bg-gray-50">
                   <img
                     src={selectedSig.dataUrl}
                     alt={selectedSig.name}
                     className="max-h-24 mx-auto"
+                    onError={(e) => {
+                      // Si falla la URL del servidor, intentar con la URL alternativa
+                      const target = e.target as HTMLImageElement;
+                      if (!target.src.startsWith('data:')) {
+                        target.src = `/signatures/${selectedSig.id}.png`;
+                      }
+                    }}
                   />
                   <p className="text-xs text-center text-gray-600 mt-1">
-                    {selectedSig.name}
+                    {selectedSig.name} - {selectedSig.cargo}
                   </p>
                 </div>
               ) : null;
