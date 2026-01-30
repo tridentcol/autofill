@@ -88,7 +88,7 @@ export class ExcelGenerator {
                     1,
                     mergedCols,
                     undefined,
-                    45  // Firmas de controles
+                    35  // Firmas de controles - un poco a la izquierda
                   );
                 }
               } else if (field.validation?.applyToAll && !field.validation?.applyToRows) {
@@ -128,9 +128,9 @@ export class ExcelGenerator {
                 // Offset adicional para centrar mejor las firmas
                 let extraOffset = 0;
                 if (isFirmaFinal) {
-                  extraOffset = 55;  // Firmas finales - más a la derecha
+                  extraOffset = 110;  // Firmas finales - mucho más a la derecha
                 } else if (isFirmaTrabajador) {
-                  extraOffset = 75;  // Firmas de trabajadores - un poco a la izquierda
+                  extraOffset = 130;  // Firmas de trabajadores - mucho más a la derecha
                 }
 
                 await this.insertSignature(
