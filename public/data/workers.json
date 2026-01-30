@@ -2,22 +2,22 @@
   {
     "id": "worker_1",
     "nombre": "Carlos Guzmán",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "1143359194",
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-25T19:20:12.617Z",
+    "updatedAt": "2026-01-29T20:35:05.855Z",
     "signatureId": "worker_1"
   },
   {
     "id": "worker_10",
     "nombre": "Antonio Cabarcas",
-    "cargo": "Asistente técnico",
+    "cargo": "Asistente técnico de mantenimiento",
     "cedula": "",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T20:34:43.216Z"
   },
   {
     "id": "worker_11",
@@ -26,86 +26,87 @@
     "cedula": "",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T21:40:08.053Z",
+    "signatureId": "worker_11"
   },
   {
     "id": "worker_2",
     "nombre": "Kleiver Polo",
-    "cargo": "Técnico",
+    "cargo": "Técnico electricista",
     "cedula": "9288327",
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   },
   {
     "id": "worker_3",
     "nombre": "Luis Hernández",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "",
     "cuadrillaId": "cuad_2",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   },
   {
     "id": "worker_4",
     "nombre": "Jefferson Genes",
-    "cargo": "Técnico",
+    "cargo": "Técnico electricista",
     "cedula": "1050967799",
     "cuadrillaId": "cuad_2",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T20:34:49.457Z"
   },
   {
     "id": "worker_5",
     "nombre": "Andrés Puello",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "1050963621",
     "cuadrillaId": "cuad_3",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   },
   {
     "id": "worker_6",
     "nombre": "Juan Carlos Romero",
-    "cargo": "Técnico",
+    "cargo": "Técnico electricista",
     "cedula": "73228082",
     "cuadrillaId": "cuad_3",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   },
   {
     "id": "worker_7",
     "nombre": "Leonardo Torres",
-    "cargo": "Supervisor",
+    "cargo": "Supervisor de cuadrilla",
     "cedula": "1124034299",
     "cuadrillaId": "cuad_3",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   },
   {
     "id": "worker_8",
     "nombre": "Joseph Puello",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "9298718",
     "cuadrillaId": "cuad_4",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   },
   {
     "id": "worker_9",
     "nombre": "Remberto Martínez",
-    "cargo": "Técnico",
+    "cargo": "Técnico electricista",
     "cedula": "1047425281",
     "cuadrillaId": "cuad_4",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   }
 ]
