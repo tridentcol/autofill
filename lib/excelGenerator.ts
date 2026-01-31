@@ -352,37 +352,23 @@ export class ExcelGenerator {
       imgWidth = Math.max(imgWidth, 120);
       imgHeight = Math.max(imgHeight, 50);
 
-      // Vertical: centrar en el alto total de las filas
-      const verticalCenterOffset = Math.max((totalHeightPixels - imgHeight) / 2, 3);
-
-      // Convertir píxeles a EMU (English Metric Units)
-      // 914400 EMU = 1 pulgada, a 96 DPI: 914400/96 = 9525 EMU por píxel
-      const EMU_PER_PIXEL = 9525;
-
-      // Usar el extraHorizontalOffset directamente en píxeles, convertido a EMU
-      const horizontalOffsetEMU = Math.round(extraHorizontalOffset * EMU_PER_PIXEL);
-      const verticalOffsetEMU = Math.round(verticalCenterOffset * EMU_PER_PIXEL);
-
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
         buffer: buffer as any,
         extension: 'png',
       });
 
-      // Insertar imagen - posición simple desde la columna inicial
+      // Calcular columnas de inicio y fin para centrar la imagen
+      // extraHorizontalOffset indica cuántas columnas saltar desde el inicio
+      const colsToSkip = Math.floor(extraHorizontalOffset / 30); // ~30px por columna aprox
+      const startColIndex = col - 1 + colsToSkip; // 0-indexed
+      const endColIndex = startColIndex + Math.ceil(imgWidth / 50); // Estimado de columnas que ocupa
+
+      // Usar posicionamiento por rango de celdas (más confiable)
       worksheet.addImage(imageId, {
-        tl: {
-          col: col - 1,  // Columna de inicio (0-indexed)
-          row: row - 1,  // Fila de inicio (0-indexed)
-          colOff: horizontalOffsetEMU,
-          rowOff: verticalOffsetEMU
-        },
-        ext: {
-          width: imgWidth,
-          height: imgHeight
-        },
-        editAs: 'oneCell'
-      } as any);
+        tl: { col: startColIndex, row: row - 1 },
+        ext: { width: imgWidth, height: imgHeight }
+      });
     } catch (error) {
       console.error('Error inserting signature:', error);
       // Si falla, insertar texto alternativo
