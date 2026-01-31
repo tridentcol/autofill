@@ -128,9 +128,9 @@ export class ExcelGenerator {
                 // Offset adicional para centrar mejor las firmas
                 let extraOffset = 0;
                 if (isFirmaFinal) {
-                  extraOffset = 75;  // Firmas finales
+                  extraOffset = 78;  // Firmas finales
                 } else if (isFirmaTrabajador) {
-                  extraOffset = 75;  // Firmas de trabajadores
+                  extraOffset = 78;  // Firmas de trabajadores
                 }
 
                 await this.insertSignature(
