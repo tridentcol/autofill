@@ -353,15 +353,20 @@ export class ExcelGenerator {
       imgHeight = Math.max(imgHeight, 50);
 
       // CENTRADO - Calcular offsets para centrar la imagen en el contenedor
-      // Horizontal: centrar en el ancho total de las columnas combinadas
-      const horizontalCenterOffset = (columnWidthPixels - imgWidth) / 2 + extraHorizontalOffset;
-
       // Vertical: centrar en el alto total de las filas
       const verticalCenterOffset = (totalHeightPixels - imgHeight) / 2;
-
-      // Asegurar offsets positivos
-      const targetHorizontalOffset = Math.max(horizontalCenterOffset, 5);
       const finalVerticalOffset = Math.max(verticalCenterOffset, 3);
+
+      // Horizontal: usar directamente el extraHorizontalOffset como posición desde la izquierda
+      // Si extraHorizontalOffset > 0, usarlo directamente; si no, calcular centro
+      let targetHorizontalOffset: number;
+      if (extraHorizontalOffset > 0) {
+        // Usar el offset directo como posición desde el borde izquierdo del contenedor
+        targetHorizontalOffset = extraHorizontalOffset;
+      } else {
+        // Centrar automáticamente
+        targetHorizontalOffset = Math.max((columnWidthPixels - imgWidth) / 2, 5);
+      }
 
       // IMPORTANTE: Encontrar en qué columna cae el offset horizontal
       // y calcular el offset relativo a esa columna
