@@ -1,11 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 import { useFormStore } from '@/store/useFormStore';
 import CuadrillaSelector from './CuadrillaSelector';
 import WorkerSelector from './WorkerSelector';
 import type { Worker } from '@/types';
+
+// Tipo para firmas de trabajadores
+interface WorkerSignature {
+  id: string;
+  name: string;
+  dataUrl: string;
+  workerId: string;
+  cargo: string;
+}
 
 interface WorkerSectionProps {
   sheetIndex: number;
@@ -13,8 +22,21 @@ interface WorkerSectionProps {
 }
 
 export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectionProps) {
-  const { getWorkerById, getCuadrillaById } = useDatabaseStore();
-  const { updateFieldValue, currentFormData, signatures } = useFormStore();
+  const { getWorkerById, getCuadrillaById, workers } = useDatabaseStore();
+  const { updateFieldValue, currentFormData } = useFormStore();
+
+  // Construir firmas disponibles desde los workers que tienen signatureId (igual que FieldRenderer)
+  const availableSignatures = useMemo((): WorkerSignature[] => {
+    return workers
+      .filter(w => w.isActive && w.signatureId)
+      .map(w => ({
+        id: w.signatureId!,
+        name: w.nombre,
+        dataUrl: w.signatureData || `/signatures/${w.signatureId}.png`,
+        workerId: w.id,
+        cargo: w.cargo,
+      }));
+  }, [workers]);
 
   const [selectedCuadrillaId, setSelectedCuadrillaId] = useState<string>('');
   const [selectedWorkers, setSelectedWorkers] = useState<(Worker | null)[]>([null, null, null, null]);
@@ -60,13 +82,17 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
 
     // Firma - usar la firma asignada en la base de datos si existe
     if (worker.signatureId) {
-      const signature = signatures.find(s => s.id === worker.signatureId);
+      // Buscar en availableSignatures (firmas de workers de la DB)
+      const signature = availableSignatures.find(s => s.id === worker.signatureId);
       if (signature) {
         updateFieldValue(sheetIndex, sectionIndex, `trabajador${index + 1}_firma`, signature.id);
+      } else {
+        // Aún así asignar el signatureId aunque no se encontró la firma
+        updateFieldValue(sheetIndex, sectionIndex, `trabajador${index + 1}_firma`, worker.signatureId);
       }
     } else {
       // Si no tiene firma asignada, buscar una firma con el nombre del trabajador
-      const matchingSignature = signatures.find(s =>
+      const matchingSignature = availableSignatures.find(s =>
         s.name.toLowerCase() === worker.nombre.toLowerCase()
       );
       if (matchingSignature) {
@@ -98,7 +124,9 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
     }
     const section = currentFormData.sheets[sheetIndex].sections[sectionIndex];
     const fieldKey = `trabajador${index + 1}_firma`;
-    return (section?.fields as Record<string, any>)?.[fieldKey] || '';
+    // fields es un array de {fieldId, value, completed}
+    const field = section?.fields?.find((f: any) => f.fieldId === fieldKey);
+    return field?.value || '';
   };
 
   return (
@@ -125,7 +153,19 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
         {[0, 1, 2, 3].map((index) => {
           const worker = selectedWorkers[index];
           const signatureId = getSignatureValue(index);
-          const signature = signatures.find(s => s.id === signatureId);
+          // Buscar en availableSignatures (firmas de workers de la DB)
+          // También verificar si el worker tiene firma directamente
+          let signature = availableSignatures.find(s => s.id === signatureId);
+          // Si no encontramos en availableSignatures pero el worker tiene signatureId y signatureData
+          if (!signature && worker?.signatureId && worker?.signatureData) {
+            signature = {
+              id: worker.signatureId,
+              name: worker.nombre,
+              dataUrl: worker.signatureData,
+              workerId: worker.id,
+              cargo: worker.cargo,
+            };
+          }
 
           return (
             <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
