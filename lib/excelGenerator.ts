@@ -311,18 +311,31 @@ export class ExcelGenerator {
       const PIXELS_PER_COL_UNIT = 7.5;  // Píxeles por unidad de ancho de columna
       const PIXELS_PER_ROW_POINT = 1.33; // Píxeles por punto de altura de fila
 
+      // DEBUG: Mostrar información de columnas
+      console.log(`[Firma ${signature.name}] Celda: col=${col}, row=${row}, mergedCols=${mergedCols}, mergedRows=${mergedRows}`);
+
+      const colWidthsDebug: { col: number; width: number | undefined; pixels: number }[] = [];
+
       // Calcular tamaño del contenedor en píxeles
       let containerWidth = 0;
       for (let i = 0; i < mergedCols; i++) {
         const colObj = worksheet.getColumn(col + i);
-        containerWidth += (colObj.width || 8.43) * PIXELS_PER_COL_UNIT;
+        const width = colObj.width;
+        const pixels = (width || 8.43) * PIXELS_PER_COL_UNIT;
+        colWidthsDebug.push({ col: col + i, width, pixels });
+        containerWidth += pixels;
       }
+
+      console.log(`[Firma ${signature.name}] Columnas:`, colWidthsDebug);
+      console.log(`[Firma ${signature.name}] containerWidth=${containerWidth}px`);
 
       let containerHeight = 0;
       for (let i = 0; i < mergedRows; i++) {
         const rowObj = worksheet.getRow(row + i);
         containerHeight += (rowObj.height || 15) * PIXELS_PER_ROW_POINT;
       }
+
+      console.log(`[Firma ${signature.name}] containerHeight=${containerHeight}px`);
 
       // Calcular tamaño óptimo manteniendo relación de aspecto
       // Usar 85% del contenedor como máximo para dejar margen
@@ -343,6 +356,8 @@ export class ExcelGenerator {
         finalWidth = maxHeight * aspectRatio;
       }
 
+      console.log(`[Firma ${signature.name}] Imagen: finalWidth=${finalWidth}px, finalHeight=${finalHeight}px`);
+
       // Calcular offset en EMUs para centrar
       // 1 pixel = 9525 EMUs (a 96 DPI)
       const EMUS_PER_PIXEL = 9525;
@@ -350,8 +365,12 @@ export class ExcelGenerator {
       const horizontalPaddingPx = (containerWidth - finalWidth) / 2;
       const verticalPaddingPx = (containerHeight - finalHeight) / 2;
 
+      console.log(`[Firma ${signature.name}] Padding: horizontal=${horizontalPaddingPx}px, vertical=${verticalPaddingPx}px`);
+
       const colOffEMU = Math.round(horizontalPaddingPx * EMUS_PER_PIXEL);
       const rowOffEMU = Math.round(verticalPaddingPx * EMUS_PER_PIXEL);
+
+      console.log(`[Firma ${signature.name}] EMU offset: col=${colOffEMU}, row=${rowOffEMU}`);
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
