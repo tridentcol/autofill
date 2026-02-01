@@ -343,16 +343,45 @@ export class ExcelGenerator {
         finalWidth = maxHeight * aspectRatio;
       }
 
-      // Calcular offset para centrar (en fracciones de celda)
+      // Calcular padding para centrar
       const horizontalPadding = (containerWidth - finalWidth) / 2;
       const verticalPadding = (containerHeight - finalHeight) / 2;
 
-      // Convertir padding a fracciones de celda
-      const firstColWidth = (worksheet.getColumn(col).width || 8.43) * PIXELS_PER_COL_UNIT;
-      const firstRowHeight = (worksheet.getRow(row).height || 15) * PIXELS_PER_ROW_POINT;
+      // Calcular posición de inicio (columna + fracción) para centrar horizontalmente
+      let startCol = col - 1; // 0-indexed
+      let remainingPadding = horizontalPadding;
 
-      const colOffset = horizontalPadding / firstColWidth;
-      const rowOffset = verticalPadding / firstRowHeight;
+      // Avanzar columnas completas si el padding es mayor que el ancho de columnas
+      for (let i = 0; i < mergedCols && remainingPadding > 0; i++) {
+        const colWidth = (worksheet.getColumn(col + i).width || 8.43) * PIXELS_PER_COL_UNIT;
+        if (remainingPadding >= colWidth) {
+          remainingPadding -= colWidth;
+          startCol++;
+        } else {
+          break;
+        }
+      }
+
+      // Calcular fracción de la columna actual
+      const currentColWidth = (worksheet.getColumn(startCol + 1).width || 8.43) * PIXELS_PER_COL_UNIT;
+      const colFraction = remainingPadding / currentColWidth;
+
+      // Calcular posición de inicio (fila + fracción) para centrar verticalmente
+      let startRow = row - 1; // 0-indexed
+      let remainingVPadding = verticalPadding;
+
+      for (let i = 0; i < mergedRows && remainingVPadding > 0; i++) {
+        const rowHeight = (worksheet.getRow(row + i).height || 15) * PIXELS_PER_ROW_POINT;
+        if (remainingVPadding >= rowHeight) {
+          remainingVPadding -= rowHeight;
+          startRow++;
+        } else {
+          break;
+        }
+      }
+
+      const currentRowHeight = (worksheet.getRow(startRow + 1).height || 15) * PIXELS_PER_ROW_POINT;
+      const rowFraction = remainingVPadding / currentRowHeight;
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
@@ -361,9 +390,8 @@ export class ExcelGenerator {
       });
 
       // Posicionar con offset fraccionario para centrar
-      // col y row son 0-indexed en ExcelJS para tl
       worksheet.addImage(imageId, {
-        tl: { col: col - 1 + colOffset, row: row - 1 + rowOffset } as any,
+        tl: { col: startCol + colFraction, row: startRow + rowFraction } as any,
         ext: { width: finalWidth, height: finalHeight }
       });
 
