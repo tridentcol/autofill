@@ -358,19 +358,52 @@ export class ExcelGenerator {
 
       console.log(`[Firma ${signature.name}] Imagen: finalWidth=${finalWidth}px, finalHeight=${finalHeight}px`);
 
-      // Calcular offset en EMUs para centrar
-      // 1 pixel = 9525 EMUs (a 96 DPI)
-      const EMUS_PER_PIXEL = 9525;
-
+      // Calcular padding para centrar
       const horizontalPaddingPx = (containerWidth - finalWidth) / 2;
       const verticalPaddingPx = (containerHeight - finalHeight) / 2;
 
       console.log(`[Firma ${signature.name}] Padding: horizontal=${horizontalPaddingPx}px, vertical=${verticalPaddingPx}px`);
 
-      const colOffEMU = Math.round(horizontalPaddingPx * EMUS_PER_PIXEL);
-      const rowOffEMU = Math.round(verticalPaddingPx * EMUS_PER_PIXEL);
+      // Calcular cuántas columnas saltar y el offset restante
+      let colsToSkip = 0;
+      let remainingOffsetPx = horizontalPaddingPx;
 
-      console.log(`[Firma ${signature.name}] EMU offset: col=${colOffEMU}, row=${rowOffEMU}`);
+      for (let i = 0; i < mergedCols; i++) {
+        const colWidthPx = colWidthsDebug[i].pixels;
+        if (remainingOffsetPx >= colWidthPx) {
+          remainingOffsetPx -= colWidthPx;
+          colsToSkip++;
+        } else {
+          break;
+        }
+      }
+
+      // Hacer lo mismo para filas
+      let rowsToSkip = 0;
+      let remainingRowOffsetPx = verticalPaddingPx;
+
+      for (let i = 0; i < mergedRows; i++) {
+        const rowHeightPx = (worksheet.getRow(row + i).height || 15) * PIXELS_PER_ROW_POINT;
+        if (remainingRowOffsetPx >= rowHeightPx) {
+          remainingRowOffsetPx -= rowHeightPx;
+          rowsToSkip++;
+        } else {
+          break;
+        }
+      }
+
+      // Convertir offset restante a EMUs
+      // 1 pixel = 9525 EMUs (a 96 DPI)
+      const EMUS_PER_PIXEL = 9525;
+      const colOffEMU = Math.round(remainingOffsetPx * EMUS_PER_PIXEL);
+      const rowOffEMU = Math.round(remainingRowOffsetPx * EMUS_PER_PIXEL);
+
+      const finalCol = col - 1 + colsToSkip;
+      const finalRow = row - 1 + rowsToSkip;
+
+      console.log(`[Firma ${signature.name}] Saltar: cols=${colsToSkip}, rows=${rowsToSkip}`);
+      console.log(`[Firma ${signature.name}] Offset restante: col=${remainingOffsetPx}px, row=${remainingRowOffsetPx}px`);
+      console.log(`[Firma ${signature.name}] Posición final: col=${finalCol}, row=${finalRow}, colOffEMU=${colOffEMU}, rowOffEMU=${rowOffEMU}`);
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
@@ -378,12 +411,12 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Posicionar con EMUs para centrado preciso
+      // Posicionar con columna/fila correcta + offset EMU restante
       worksheet.addImage(imageId, {
         tl: {
-          nativeCol: col - 1,
+          nativeCol: finalCol,
           nativeColOff: colOffEMU,
-          nativeRow: row - 1,
+          nativeRow: finalRow,
           nativeRowOff: rowOffEMU
         } as any,
         ext: { width: finalWidth, height: finalHeight }
