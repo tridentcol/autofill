@@ -347,41 +347,51 @@ export class ExcelGenerator {
       const horizontalPadding = (containerWidth - finalWidth) / 2;
       const verticalPadding = (containerHeight - finalHeight) / 2;
 
-      // Calcular posición de inicio (columna + fracción) para centrar horizontalmente
-      let startCol = col - 1; // 0-indexed
-      let remainingPadding = horizontalPadding;
+      // Calcular posición de inicio para centrar horizontalmente
+      // Acumular anchos de columnas hasta encontrar el punto de inicio
+      let accumulatedWidth = 0;
+      let startCol = col - 1; // 0-indexed para ExcelJS
+      let colFraction = 0;
 
-      // Avanzar columnas completas si el padding es mayor que el ancho de columnas
-      for (let i = 0; i < mergedCols && remainingPadding > 0; i++) {
-        const colWidth = (worksheet.getColumn(col + i).width || 8.43) * PIXELS_PER_COL_UNIT;
-        if (remainingPadding >= colWidth) {
-          remainingPadding -= colWidth;
-          startCol++;
-        } else {
-          break;
-        }
+      // Primero, construir array con anchos de cada columna
+      const colWidths: number[] = [];
+      for (let i = 0; i < mergedCols; i++) {
+        const w = (worksheet.getColumn(col + i).width || 8.43) * PIXELS_PER_COL_UNIT;
+        colWidths.push(w);
       }
 
-      // Calcular fracción de la columna actual
-      const currentColWidth = (worksheet.getColumn(startCol + 1).width || 8.43) * PIXELS_PER_COL_UNIT;
-      const colFraction = remainingPadding / currentColWidth;
-
-      // Calcular posición de inicio (fila + fracción) para centrar verticalmente
-      let startRow = row - 1; // 0-indexed
-      let remainingVPadding = verticalPadding;
-
-      for (let i = 0; i < mergedRows && remainingVPadding > 0; i++) {
-        const rowHeight = (worksheet.getRow(row + i).height || 15) * PIXELS_PER_ROW_POINT;
-        if (remainingVPadding >= rowHeight) {
-          remainingVPadding -= rowHeight;
-          startRow++;
-        } else {
+      // Encontrar en qué columna cae el inicio de la imagen
+      let targetX = horizontalPadding;
+      for (let i = 0; i < colWidths.length; i++) {
+        if (accumulatedWidth + colWidths[i] > targetX) {
+          // El inicio cae en esta columna
+          startCol = col - 1 + i;
+          colFraction = (targetX - accumulatedWidth) / colWidths[i];
           break;
         }
+        accumulatedWidth += colWidths[i];
       }
 
-      const currentRowHeight = (worksheet.getRow(startRow + 1).height || 15) * PIXELS_PER_ROW_POINT;
-      const rowFraction = remainingVPadding / currentRowHeight;
+      // Calcular posición de inicio para centrar verticalmente
+      let accumulatedHeight = 0;
+      let startRow = row - 1; // 0-indexed para ExcelJS
+      let rowFraction = 0;
+
+      const rowHeights: number[] = [];
+      for (let i = 0; i < mergedRows; i++) {
+        const h = (worksheet.getRow(row + i).height || 15) * PIXELS_PER_ROW_POINT;
+        rowHeights.push(h);
+      }
+
+      let targetY = verticalPadding;
+      for (let i = 0; i < rowHeights.length; i++) {
+        if (accumulatedHeight + rowHeights[i] > targetY) {
+          startRow = row - 1 + i;
+          rowFraction = (targetY - accumulatedHeight) / rowHeights[i];
+          break;
+        }
+        accumulatedHeight += rowHeights[i];
+      }
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
