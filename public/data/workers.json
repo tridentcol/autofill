@@ -7,7 +7,8 @@
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-02-01T19:37:51.329Z"
+    "updatedAt": "2026-02-01T19:38:47.185Z",
+    "signatureId": "worker_1"
   },
   {
     "id": "worker_10",
