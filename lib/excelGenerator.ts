@@ -75,7 +75,7 @@ export class ExcelGenerator {
                 const colLetter = field.validation.cellRef;
                 const mergedCols = field.validation?.mergedCols || 4;
 
-                // Insertar firma como imagen en cada fila
+                // Insertar firma en cada fila - se ajusta automáticamente al rango de celdas
                 for (const row of field.validation.applyToRows) {
                   const cellRef = `${colLetter}${row}`;
                   const cell = worksheet.getCell(cellRef);
@@ -86,13 +86,11 @@ export class ExcelGenerator {
                     row,
                     Number(cell.col),
                     1,
-                    mergedCols,
-                    undefined,
-                    25  // Firmas de controles
+                    mergedCols
                   );
                 }
               } else if (field.validation?.applyToAll && !field.validation?.applyToRows) {
-                // Formato grúa - insertar firma como imagen en múltiples ubicaciones
+                // Formato grúa - insertar firma en múltiples ubicaciones
                 const firmaLocations = [
                   { cellRef: 'G11', mergedCols: 1 },
                   { cellRef: 'G17', mergedCols: 1 },
@@ -116,22 +114,10 @@ export class ExcelGenerator {
                   );
                 }
               } else {
-                // Firma individual - insertar como imagen
+                // Firma individual - se ajusta automáticamente al rango de celdas merged
                 const cell = worksheet.getCell(field.cellRef);
                 const mergedRows = field.validation?.mergedRows || 1;
                 const mergedCols = field.validation?.mergedCols || 1;
-
-                // Para firmas finales (N65, N66, N67) y de trabajadores, ajustar offset a la derecha
-                const isFirmaFinal = ['N65', 'N66', 'N67'].includes(field.cellRef);
-                const isFirmaTrabajador = field.id?.includes('trabajador') && field.id?.includes('firma');
-
-                // Offset adicional para centrar mejor las firmas
-                let extraOffset = 0;
-                if (isFirmaFinal) {
-                  extraOffset = 85;  // Firmas finales
-                } else if (isFirmaTrabajador) {
-                  extraOffset = 85;  // Firmas de trabajadores
-                }
 
                 await this.insertSignature(
                   workbook,
@@ -140,9 +126,7 @@ export class ExcelGenerator {
                   Number(cell.row),
                   Number(cell.col),
                   mergedRows,
-                  mergedCols,
-                  undefined,
-                  extraOffset
+                  mergedCols
                 );
               }
             }
@@ -275,7 +259,8 @@ export class ExcelGenerator {
   }
 
   /**
-   * Inserta una firma como imagen en el Excel
+   * Inserta una firma como imagen en el Excel usando anclaje por celdas
+   * La imagen se ajusta automáticamente al rango de celdas especificado
    */
   private async insertSignature(
     workbook: ExcelJS.Workbook,
@@ -285,14 +270,12 @@ export class ExcelGenerator {
     col: number,
     mergedRows: number = 1,
     mergedCols: number = 1,
-    containerHeight?: number,
-    extraHorizontalOffset: number = 0  // Offset adicional a la derecha
+    _containerHeight?: number,  // Deprecated, se ignora
+    _extraHorizontalOffset: number = 0  // Deprecated, se ignora
   ): Promise<void> {
     try {
       // Convertir base64 a buffer
       const base64Data = signature.dataUrl.replace(/^data:image\/\w+;base64,/, '');
-
-      // Convertir base64 a ArrayBuffer para ExcelJS
       const binaryString = atob(base64Data);
       const bytes = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
@@ -300,75 +283,30 @@ export class ExcelGenerator {
       }
       const buffer = Buffer.from(bytes);
 
-      // Obtener dimensiones de la imagen desde el dataUrl
-      const img = await this.getImageDimensions(signature.dataUrl);
-      const aspectRatio = img.width / img.height;
-
-      // Constantes de conversión más precisas
-      // Excel: 1 unidad de ancho de columna ≈ 7.5 píxeles (puede variar según fuente)
-      // Excel: altura de fila en puntos, 1 punto = 1.33 píxeles (96 DPI)
-      const PIXELS_PER_COLUMN_UNIT = 7.5;
-      const PIXELS_PER_ROW_POINT = 1.33;
-
-      // Calcular ancho total del área de columnas (en píxeles)
-      let columnWidthPixels = 0;
-      for (let i = 0; i < mergedCols; i++) {
-        const currentCol = worksheet.getColumn(col + i);
-        const colWidth = (currentCol.width || 8.43) * PIXELS_PER_COLUMN_UNIT;
-        columnWidthPixels += colWidth;
-      }
-
-      // Calcular el alto total del contenedor (en píxeles)
-      let totalHeightPixels = 0;
-      if (containerHeight) {
-        totalHeightPixels = containerHeight;
-      } else {
-        for (let i = 0; i < mergedRows; i++) {
-          const currentRow = worksheet.getRow(row + i);
-          const rowHeight = currentRow.height || 15;
-          totalHeightPixels += rowHeight * PIXELS_PER_ROW_POINT;
-        }
-      }
-
-      // TAMAÑO DE FIRMA - MUY GRANDE
-      // Usar el 90% del espacio disponible
-      const availableWidth = columnWidthPixels * 0.90;
-      const availableHeight = Math.max(totalHeightPixels * 0.85, 120);  // Al menos 120px de altura
-
-      let imgWidth: number;
-      let imgHeight: number;
-
-      // Calcular dimensiones manteniendo aspecto
-      // Priorizar llenar el espacio disponible
-      imgWidth = Math.min(availableWidth, 400);  // Máximo 400px de ancho
-      imgHeight = imgWidth / aspectRatio;
-
-      if (imgHeight > availableHeight) {
-        imgHeight = availableHeight;
-        imgWidth = imgHeight * aspectRatio;
-      }
-
-      // Asegurar tamaño mínimo visible
-      imgWidth = Math.max(imgWidth, 120);
-      imgHeight = Math.max(imgHeight, 50);
-
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
         buffer: buffer as any,
         extension: 'png',
       });
 
-      // Calcular columnas de inicio y fin para centrar la imagen
-      // extraHorizontalOffset indica cuántas columnas saltar desde el inicio
-      const colsToSkip = Math.floor(extraHorizontalOffset / 30); // ~30px por columna aprox
-      const startColIndex = col - 1 + colsToSkip; // 0-indexed
-      const endColIndex = startColIndex + Math.ceil(imgWidth / 50); // Estimado de columnas que ocupa
+      // Usar anclaje twoCell: la imagen se ajusta al rango de celdas
+      // tl = top-left (esquina superior izquierda)
+      // br = bottom-right (esquina inferior derecha)
+      // Los índices son 0-based para ExcelJS
+      const startRow = row - 1;  // Convertir de 1-indexed a 0-indexed
+      const startCol = col - 1;
+      const endRow = startRow + mergedRows;
+      const endCol = startCol + mergedCols;
 
-      // Usar posicionamiento por rango de celdas (más confiable)
+      // Pequeño margen interno (en fracciones de celda, 0-1)
+      const margin = 0.05;
+
       worksheet.addImage(imageId, {
-        tl: { col: startColIndex, row: row - 1 },
-        ext: { width: imgWidth, height: imgHeight }
+        tl: { col: startCol + margin, row: startRow + margin },
+        br: { col: endCol - margin, row: endRow - margin },
+        editAs: 'oneCell'  // La imagen se mueve con la celda pero mantiene proporción
       });
+
     } catch (error) {
       console.error('Error inserting signature:', error);
       // Si falla, insertar texto alternativo
@@ -378,26 +316,6 @@ export class ExcelGenerator {
     }
   }
 
-  /**
-   * Obtiene las dimensiones de una imagen desde su dataUrl
-   */
-  private getImageDimensions(dataUrl: string): Promise<{ width: number; height: number }> {
-    return new Promise((resolve, reject) => {
-      if (typeof window === 'undefined') {
-        resolve({ width: 400, height: 150 });
-        return;
-      }
-
-      const img = new Image();
-      img.onload = () => {
-        resolve({ width: img.width, height: img.height });
-      };
-      img.onerror = () => {
-        reject(new Error('Failed to load image'));
-      };
-      img.src = dataUrl;
-    });
-  }
 }
 
 /**
