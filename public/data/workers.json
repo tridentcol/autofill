@@ -7,7 +7,7 @@
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-31T02:23:19.638Z",
+    "updatedAt": "2026-01-29T20:35:05.855Z",
     "signatureId": "worker_1"
   },
   {
@@ -26,7 +26,7 @@
     "cedula": "",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-31T02:23:30.427Z",
+    "updatedAt": "2026-01-29T21:40:08.053Z",
     "signatureId": "worker_11"
   },
   {
@@ -37,7 +37,7 @@
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-31T02:23:50.966Z",
+    "updatedAt": "2026-02-01T13:43:31.832Z",
     "signatureId": "worker_2"
   },
   {
