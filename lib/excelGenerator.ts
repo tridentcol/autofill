@@ -2,8 +2,8 @@ import * as ExcelJS from 'exceljs';
 import { Buffer } from 'buffer';
 import type { FormData, Signature } from '@/types';
 
-// Estilo estándar para todo el texto: tamaño 20, color negro
-const STANDARD_FONT: Partial<ExcelJS.Font> = {
+// Estilo para permiso de trabajo: tamaño 20, color negro
+const PERMISO_TRABAJO_FONT: Partial<ExcelJS.Font> = {
   size: 20,
   color: { argb: 'FF000000' },  // Negro puro
   name: 'Arial'
@@ -24,6 +24,9 @@ export class ExcelGenerator {
   ): Promise<Blob> {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(originalFileBuffer);
+
+    // Solo aplicar fuente grande para permiso de trabajo
+    const isPermisoTrabajo = excelFormat?.id === 'permiso-trabajo';
 
     // Crear un mapa de fields por ID para búsqueda rápida
     const fieldsMap = new Map<string, any>();
@@ -140,7 +143,7 @@ export class ExcelGenerator {
                 if (selectedCellRef) {
                   const cell = worksheet.getCell(selectedCellRef);
                   cell.value = 'X';
-                  cell.font = STANDARD_FONT;
+                  if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
                   cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 }
               } catch (e) {
@@ -152,7 +155,7 @@ export class ExcelGenerator {
             if (fieldData.value && field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
               cell.value = '✓';
-              cell.font = STANDARD_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'date') {
@@ -169,19 +172,19 @@ export class ExcelGenerator {
                 // Escribir día
                 const dayCell = worksheet.getCell(field.validation.dayCellRef);
                 dayCell.value = day;
-                dayCell.font = STANDARD_FONT;
+                if (isPermisoTrabajo) dayCell.font = PERMISO_TRABAJO_FONT;
                 dayCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
                 // Escribir mes
                 const monthCell = worksheet.getCell(field.validation.monthCellRef);
                 monthCell.value = month;
-                monthCell.font = STANDARD_FONT;
+                if (isPermisoTrabajo) monthCell.font = PERMISO_TRABAJO_FONT;
                 monthCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
                 // Escribir año
                 const yearCell = worksheet.getCell(field.validation.yearCellRef);
                 yearCell.value = year;
-                yearCell.font = STANDARD_FONT;
+                if (isPermisoTrabajo) yearCell.font = PERMISO_TRABAJO_FONT;
                 yearCell.alignment = { vertical: 'middle', horizontal: 'center' };
               } else {
                 // Comportamiento original para fechas normales
@@ -190,7 +193,7 @@ export class ExcelGenerator {
                 const cleanedValue = currentValue.replace(/_+/g, '').trim();
                 const dateStr = new Date(fieldData.value).toLocaleDateString('es-ES');
                 cell.value = cleanedValue ? `${cleanedValue} ${dateStr}` : dateStr;
-                cell.font = STANDARD_FONT;
+                if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               }
             }
           } else if (field.type === 'time') {
@@ -198,7 +201,7 @@ export class ExcelGenerator {
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
               cell.value = fieldData.value;
-              cell.font = STANDARD_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'textarea') {
@@ -211,7 +214,7 @@ export class ExcelGenerator {
               } else {
                 cell.value = fieldData.value;
               }
-              cell.font = STANDARD_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               cell.alignment = {
                 vertical: 'top',
                 horizontal: 'left',
@@ -244,7 +247,7 @@ export class ExcelGenerator {
                   cell.value = fieldData.value;
                 }
               }
-              cell.font = STANDARD_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
             }
           }
         }
@@ -427,7 +430,6 @@ export class ExcelGenerator {
       // Si falla, insertar texto alternativo
       const cell = worksheet.getCell(row, col);
       cell.value = `[Firma: ${signature.name}]`;
-      cell.font = STANDARD_FONT;
     }
   }
 
