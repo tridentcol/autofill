@@ -259,8 +259,22 @@ export class ExcelGenerator {
   }
 
   /**
-   * Inserta una firma como imagen en el Excel usando anclaje por celdas
-   * La imagen se ajusta automáticamente al rango de celdas especificado
+   * Convierte número de columna a letra (1=A, 2=B, ..., 27=AA, etc.)
+   */
+  private colNumberToLetter(col: number): string {
+    let result = '';
+    let n = col;
+    while (n > 0) {
+      n--;
+      result = String.fromCharCode(65 + (n % 26)) + result;
+      n = Math.floor(n / 26);
+    }
+    return result;
+  }
+
+  /**
+   * Inserta una firma como imagen en el Excel usando anclaje por rango de celdas
+   * La imagen se ajusta automáticamente al rango especificado
    */
   private async insertSignature(
     workbook: ExcelJS.Workbook,
@@ -269,9 +283,7 @@ export class ExcelGenerator {
     row: number,
     col: number,
     mergedRows: number = 1,
-    mergedCols: number = 1,
-    _containerHeight?: number,  // Deprecated, se ignora
-    _extraHorizontalOffset: number = 0  // Deprecated, se ignora
+    mergedCols: number = 1
   ): Promise<void> {
     try {
       // Convertir base64 a buffer
@@ -289,23 +301,14 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Usar anclaje twoCell: la imagen se ajusta al rango de celdas
-      // tl = top-left (esquina superior izquierda)
-      // br = bottom-right (esquina inferior derecha)
-      // Los índices son 0-based para ExcelJS
-      const startRow = row - 1;  // Convertir de 1-indexed a 0-indexed
-      const startCol = col - 1;
-      const endRow = startRow + mergedRows;
-      const endCol = startCol + mergedCols;
+      // Construir rango de celdas como string (ej: "N22:Q22")
+      const startColLetter = this.colNumberToLetter(col);
+      const endColLetter = this.colNumberToLetter(col + mergedCols - 1);
+      const endRow = row + mergedRows - 1;
+      const cellRange = `${startColLetter}${row}:${endColLetter}${endRow}`;
 
-      // Pequeño margen interno (en fracciones de celda, 0-1)
-      const margin = 0.05;
-
-      worksheet.addImage(imageId, {
-        tl: { col: startCol + margin, row: startRow + margin },
-        br: { col: endCol - margin, row: endRow - margin },
-        editAs: 'oneCell'  // La imagen se mueve con la celda pero mantiene proporción
-      });
+      // Usar el formato de string para el rango - ExcelJS lo maneja automáticamente
+      worksheet.addImage(imageId, cellRange);
 
     } catch (error) {
       console.error('Error inserting signature:', error);
