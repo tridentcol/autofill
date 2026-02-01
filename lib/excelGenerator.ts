@@ -2,8 +2,8 @@ import * as ExcelJS from 'exceljs';
 import { Buffer } from 'buffer';
 import type { FormData, Signature } from '@/types';
 
-// Estilo estándar para todo el texto: tamaño 20, color negro
-const STANDARD_FONT: Partial<ExcelJS.Font> = {
+// Estilo para permiso de trabajo: tamaño 20, color negro
+const PERMISO_TRABAJO_FONT: Partial<ExcelJS.Font> = {
   size: 20,
   color: { argb: 'FF000000' },  // Negro puro
   name: 'Arial'
@@ -24,6 +24,9 @@ export class ExcelGenerator {
   ): Promise<Blob> {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(originalFileBuffer);
+
+    // Solo aplicar fuente grande para permiso de trabajo
+    const isPermisoTrabajo = excelFormat?.id === 'permiso-trabajo';
 
     // Crear un mapa de fields por ID para búsqueda rápida
     const fieldsMap = new Map<string, any>();
@@ -75,7 +78,7 @@ export class ExcelGenerator {
                 const colLetter = field.validation.cellRef;
                 const mergedCols = field.validation?.mergedCols || 4;
 
-                // Insertar firma como imagen en cada fila
+                // Insertar firma en cada fila - se ajusta automáticamente al rango de celdas
                 for (const row of field.validation.applyToRows) {
                   const cellRef = `${colLetter}${row}`;
                   const cell = worksheet.getCell(cellRef);
@@ -86,13 +89,11 @@ export class ExcelGenerator {
                     row,
                     Number(cell.col),
                     1,
-                    mergedCols,
-                    undefined,
-                    25  // Firmas de controles
+                    mergedCols
                   );
                 }
               } else if (field.validation?.applyToAll && !field.validation?.applyToRows) {
-                // Formato grúa - insertar firma como imagen en múltiples ubicaciones
+                // Formato grúa - insertar firma en múltiples ubicaciones
                 const firmaLocations = [
                   { cellRef: 'G11', mergedCols: 1 },
                   { cellRef: 'G17', mergedCols: 1 },
@@ -116,22 +117,10 @@ export class ExcelGenerator {
                   );
                 }
               } else {
-                // Firma individual - insertar como imagen
+                // Firma individual - se ajusta automáticamente al rango de celdas merged
                 const cell = worksheet.getCell(field.cellRef);
                 const mergedRows = field.validation?.mergedRows || 1;
                 const mergedCols = field.validation?.mergedCols || 1;
-
-                // Para firmas finales (N65, N66, N67) y de trabajadores, ajustar offset a la derecha
-                const isFirmaFinal = ['N65', 'N66', 'N67'].includes(field.cellRef);
-                const isFirmaTrabajador = field.id?.includes('trabajador') && field.id?.includes('firma');
-
-                // Offset adicional para centrar mejor las firmas
-                let extraOffset = 0;
-                if (isFirmaFinal) {
-                  extraOffset = 85;  // Firmas finales
-                } else if (isFirmaTrabajador) {
-                  extraOffset = 85;  // Firmas de trabajadores
-                }
 
                 await this.insertSignature(
                   workbook,
@@ -140,9 +129,7 @@ export class ExcelGenerator {
                   Number(cell.row),
                   Number(cell.col),
                   mergedRows,
-                  mergedCols,
-                  undefined,
-                  extraOffset
+                  mergedCols
                 );
               }
             }
@@ -156,7 +143,7 @@ export class ExcelGenerator {
                 if (selectedCellRef) {
                   const cell = worksheet.getCell(selectedCellRef);
                   cell.value = 'X';
-                  cell.font = STANDARD_FONT;
+                  if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
                   cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 }
               } catch (e) {
@@ -168,7 +155,7 @@ export class ExcelGenerator {
             if (fieldData.value && field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
               cell.value = '✓';
-              cell.font = STANDARD_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'date') {
@@ -185,19 +172,19 @@ export class ExcelGenerator {
                 // Escribir día
                 const dayCell = worksheet.getCell(field.validation.dayCellRef);
                 dayCell.value = day;
-                dayCell.font = STANDARD_FONT;
+                if (isPermisoTrabajo) dayCell.font = PERMISO_TRABAJO_FONT;
                 dayCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
                 // Escribir mes
                 const monthCell = worksheet.getCell(field.validation.monthCellRef);
                 monthCell.value = month;
-                monthCell.font = STANDARD_FONT;
+                if (isPermisoTrabajo) monthCell.font = PERMISO_TRABAJO_FONT;
                 monthCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
                 // Escribir año
                 const yearCell = worksheet.getCell(field.validation.yearCellRef);
                 yearCell.value = year;
-                yearCell.font = STANDARD_FONT;
+                if (isPermisoTrabajo) yearCell.font = PERMISO_TRABAJO_FONT;
                 yearCell.alignment = { vertical: 'middle', horizontal: 'center' };
               } else {
                 // Comportamiento original para fechas normales
@@ -206,7 +193,7 @@ export class ExcelGenerator {
                 const cleanedValue = currentValue.replace(/_+/g, '').trim();
                 const dateStr = new Date(fieldData.value).toLocaleDateString('es-ES');
                 cell.value = cleanedValue ? `${cleanedValue} ${dateStr}` : dateStr;
-                cell.font = STANDARD_FONT;
+                if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               }
             }
           } else if (field.type === 'time') {
@@ -214,7 +201,7 @@ export class ExcelGenerator {
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
               cell.value = fieldData.value;
-              cell.font = STANDARD_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'textarea') {
@@ -227,7 +214,7 @@ export class ExcelGenerator {
               } else {
                 cell.value = fieldData.value;
               }
-              cell.font = STANDARD_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               cell.alignment = {
                 vertical: 'top',
                 horizontal: 'left',
@@ -260,7 +247,7 @@ export class ExcelGenerator {
                   cell.value = fieldData.value;
                 }
               }
-              cell.font = STANDARD_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
             }
           }
         }
@@ -275,116 +262,13 @@ export class ExcelGenerator {
   }
 
   /**
-   * Inserta una firma como imagen en el Excel
-   */
-  private async insertSignature(
-    workbook: ExcelJS.Workbook,
-    worksheet: ExcelJS.Worksheet,
-    signature: Signature,
-    row: number,
-    col: number,
-    mergedRows: number = 1,
-    mergedCols: number = 1,
-    containerHeight?: number,
-    extraHorizontalOffset: number = 0  // Offset adicional a la derecha
-  ): Promise<void> {
-    try {
-      // Convertir base64 a buffer
-      const base64Data = signature.dataUrl.replace(/^data:image\/\w+;base64,/, '');
-
-      // Convertir base64 a ArrayBuffer para ExcelJS
-      const binaryString = atob(base64Data);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      const buffer = Buffer.from(bytes);
-
-      // Obtener dimensiones de la imagen desde el dataUrl
-      const img = await this.getImageDimensions(signature.dataUrl);
-      const aspectRatio = img.width / img.height;
-
-      // Constantes de conversión más precisas
-      // Excel: 1 unidad de ancho de columna ≈ 7.5 píxeles (puede variar según fuente)
-      // Excel: altura de fila en puntos, 1 punto = 1.33 píxeles (96 DPI)
-      const PIXELS_PER_COLUMN_UNIT = 7.5;
-      const PIXELS_PER_ROW_POINT = 1.33;
-
-      // Calcular ancho total del área de columnas (en píxeles)
-      let columnWidthPixels = 0;
-      for (let i = 0; i < mergedCols; i++) {
-        const currentCol = worksheet.getColumn(col + i);
-        const colWidth = (currentCol.width || 8.43) * PIXELS_PER_COLUMN_UNIT;
-        columnWidthPixels += colWidth;
-      }
-
-      // Calcular el alto total del contenedor (en píxeles)
-      let totalHeightPixels = 0;
-      if (containerHeight) {
-        totalHeightPixels = containerHeight;
-      } else {
-        for (let i = 0; i < mergedRows; i++) {
-          const currentRow = worksheet.getRow(row + i);
-          const rowHeight = currentRow.height || 15;
-          totalHeightPixels += rowHeight * PIXELS_PER_ROW_POINT;
-        }
-      }
-
-      // TAMAÑO DE FIRMA - MUY GRANDE
-      // Usar el 90% del espacio disponible
-      const availableWidth = columnWidthPixels * 0.90;
-      const availableHeight = Math.max(totalHeightPixels * 0.85, 120);  // Al menos 120px de altura
-
-      let imgWidth: number;
-      let imgHeight: number;
-
-      // Calcular dimensiones manteniendo aspecto
-      // Priorizar llenar el espacio disponible
-      imgWidth = Math.min(availableWidth, 400);  // Máximo 400px de ancho
-      imgHeight = imgWidth / aspectRatio;
-
-      if (imgHeight > availableHeight) {
-        imgHeight = availableHeight;
-        imgWidth = imgHeight * aspectRatio;
-      }
-
-      // Asegurar tamaño mínimo visible
-      imgWidth = Math.max(imgWidth, 120);
-      imgHeight = Math.max(imgHeight, 50);
-
-      // Agregar imagen al workbook
-      const imageId = workbook.addImage({
-        buffer: buffer as any,
-        extension: 'png',
-      });
-
-      // Calcular columnas de inicio y fin para centrar la imagen
-      // extraHorizontalOffset indica cuántas columnas saltar desde el inicio
-      const colsToSkip = Math.floor(extraHorizontalOffset / 30); // ~30px por columna aprox
-      const startColIndex = col - 1 + colsToSkip; // 0-indexed
-      const endColIndex = startColIndex + Math.ceil(imgWidth / 50); // Estimado de columnas que ocupa
-
-      // Usar posicionamiento por rango de celdas (más confiable)
-      worksheet.addImage(imageId, {
-        tl: { col: startColIndex, row: row - 1 },
-        ext: { width: imgWidth, height: imgHeight }
-      });
-    } catch (error) {
-      console.error('Error inserting signature:', error);
-      // Si falla, insertar texto alternativo
-      const cell = worksheet.getCell(row, col);
-      cell.value = `[Firma: ${signature.name}]`;
-      cell.font = STANDARD_FONT;
-    }
-  }
-
-  /**
    * Obtiene las dimensiones de una imagen desde su dataUrl
    */
   private getImageDimensions(dataUrl: string): Promise<{ width: number; height: number }> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (typeof window === 'undefined') {
-        resolve({ width: 400, height: 150 });
+        // En servidor, asumir dimensiones estándar de firma
+        resolve({ width: 400, height: 100 });
         return;
       }
 
@@ -393,11 +277,162 @@ export class ExcelGenerator {
         resolve({ width: img.width, height: img.height });
       };
       img.onerror = () => {
-        reject(new Error('Failed to load image'));
+        // Si falla, usar dimensiones por defecto
+        resolve({ width: 400, height: 100 });
       };
       img.src = dataUrl;
     });
   }
+
+  /**
+   * Inserta una firma como imagen en el Excel, centrada y manteniendo relación de aspecto
+   */
+  private async insertSignature(
+    workbook: ExcelJS.Workbook,
+    worksheet: ExcelJS.Worksheet,
+    signature: Signature,
+    row: number,
+    col: number,
+    mergedRows: number = 1,
+    mergedCols: number = 1
+  ): Promise<void> {
+    try {
+      // Convertir base64 a buffer
+      const base64Data = signature.dataUrl.replace(/^data:image\/\w+;base64,/, '');
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const buffer = Buffer.from(bytes);
+
+      // Obtener dimensiones originales de la imagen
+      const imgDimensions = await this.getImageDimensions(signature.dataUrl);
+      const aspectRatio = imgDimensions.width / imgDimensions.height;
+
+      // Constantes de conversión Excel
+      const PIXELS_PER_COL_UNIT = 7.5;  // Píxeles por unidad de ancho de columna
+      const PIXELS_PER_ROW_POINT = 1.33; // Píxeles por punto de altura de fila
+
+      // DEBUG: Mostrar información de columnas
+      console.log(`[Firma ${signature.name}] Celda: col=${col}, row=${row}, mergedCols=${mergedCols}, mergedRows=${mergedRows}`);
+
+      const colWidthsDebug: { col: number; width: number | undefined; pixels: number }[] = [];
+
+      // Calcular tamaño del contenedor en píxeles
+      let containerWidth = 0;
+      for (let i = 0; i < mergedCols; i++) {
+        const colObj = worksheet.getColumn(col + i);
+        const width = colObj.width;
+        const pixels = (width || 8.43) * PIXELS_PER_COL_UNIT;
+        colWidthsDebug.push({ col: col + i, width, pixels });
+        containerWidth += pixels;
+      }
+
+      console.log(`[Firma ${signature.name}] Columnas:`, colWidthsDebug);
+      console.log(`[Firma ${signature.name}] containerWidth=${containerWidth}px`);
+
+      let containerHeight = 0;
+      for (let i = 0; i < mergedRows; i++) {
+        const rowObj = worksheet.getRow(row + i);
+        containerHeight += (rowObj.height || 15) * PIXELS_PER_ROW_POINT;
+      }
+
+      console.log(`[Firma ${signature.name}] containerHeight=${containerHeight}px`);
+
+      // Calcular tamaño óptimo manteniendo relación de aspecto
+      // Usar 85% del contenedor como máximo para dejar margen
+      const maxWidth = containerWidth * 0.85;
+      const maxHeight = containerHeight * 0.85;
+
+      let finalWidth: number;
+      let finalHeight: number;
+
+      // Ajustar al contenedor manteniendo aspecto
+      if (maxWidth / aspectRatio <= maxHeight) {
+        // Limitado por ancho
+        finalWidth = maxWidth;
+        finalHeight = maxWidth / aspectRatio;
+      } else {
+        // Limitado por alto
+        finalHeight = maxHeight;
+        finalWidth = maxHeight * aspectRatio;
+      }
+
+      console.log(`[Firma ${signature.name}] Imagen: finalWidth=${finalWidth}px, finalHeight=${finalHeight}px`);
+
+      // Calcular padding para centrar
+      const horizontalPaddingPx = (containerWidth - finalWidth) / 2;
+      const verticalPaddingPx = (containerHeight - finalHeight) / 2;
+
+      console.log(`[Firma ${signature.name}] Padding: horizontal=${horizontalPaddingPx}px, vertical=${verticalPaddingPx}px`);
+
+      // Calcular cuántas columnas saltar y el offset restante
+      let colsToSkip = 0;
+      let remainingOffsetPx = horizontalPaddingPx;
+
+      for (let i = 0; i < mergedCols; i++) {
+        const colWidthPx = colWidthsDebug[i].pixels;
+        if (remainingOffsetPx >= colWidthPx) {
+          remainingOffsetPx -= colWidthPx;
+          colsToSkip++;
+        } else {
+          break;
+        }
+      }
+
+      // Hacer lo mismo para filas
+      let rowsToSkip = 0;
+      let remainingRowOffsetPx = verticalPaddingPx;
+
+      for (let i = 0; i < mergedRows; i++) {
+        const rowHeightPx = (worksheet.getRow(row + i).height || 15) * PIXELS_PER_ROW_POINT;
+        if (remainingRowOffsetPx >= rowHeightPx) {
+          remainingRowOffsetPx -= rowHeightPx;
+          rowsToSkip++;
+        } else {
+          break;
+        }
+      }
+
+      // Convertir offset restante a EMUs
+      // 1 pixel = 9525 EMUs (a 96 DPI)
+      const EMUS_PER_PIXEL = 9525;
+      const colOffEMU = Math.round(remainingOffsetPx * EMUS_PER_PIXEL);
+      const rowOffEMU = Math.round(remainingRowOffsetPx * EMUS_PER_PIXEL);
+
+      const finalCol = col - 1 + colsToSkip;
+      const finalRow = row - 1 + rowsToSkip;
+
+      console.log(`[Firma ${signature.name}] Saltar: cols=${colsToSkip}, rows=${rowsToSkip}`);
+      console.log(`[Firma ${signature.name}] Offset restante: col=${remainingOffsetPx}px, row=${remainingRowOffsetPx}px`);
+      console.log(`[Firma ${signature.name}] Posición final: col=${finalCol}, row=${finalRow}, colOffEMU=${colOffEMU}, rowOffEMU=${rowOffEMU}`);
+
+      // Agregar imagen al workbook
+      const imageId = workbook.addImage({
+        buffer: buffer as any,
+        extension: 'png',
+      });
+
+      // Posicionar con columna/fila correcta + offset EMU restante
+      worksheet.addImage(imageId, {
+        tl: {
+          nativeCol: finalCol,
+          nativeColOff: colOffEMU,
+          nativeRow: finalRow,
+          nativeRowOff: rowOffEMU
+        } as any,
+        ext: { width: finalWidth, height: finalHeight }
+      });
+
+    } catch (error) {
+      console.error('Error inserting signature:', error);
+      // Si falla, insertar texto alternativo
+      const cell = worksheet.getCell(row, col);
+      cell.value = `[Firma: ${signature.name}]`;
+    }
+  }
+
 }
 
 /**
