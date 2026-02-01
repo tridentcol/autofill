@@ -84,17 +84,41 @@ export default function FormWizard() {
   // Función para convertir URL de imagen a base64
   const loadImageAsBase64 = async (url: string): Promise<string> => {
     try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Failed to fetch image');
+      // Construir URL absoluta si es relativa
+      let absoluteUrl = url;
+      if (url.startsWith('/') && typeof window !== 'undefined') {
+        absoluteUrl = `${window.location.origin}${url}`;
+      }
+
+      console.log(`[Firma] Cargando imagen: ${absoluteUrl}`);
+
+      const response = await fetch(absoluteUrl, {
+        cache: 'no-cache',  // Evitar problemas de caché
+      });
+
+      if (!response.ok) {
+        console.error(`[Firma] Error HTTP ${response.status} para: ${absoluteUrl}`);
+        throw new Error(`Failed to fetch image: HTTP ${response.status}`);
+      }
+
       const blob = await response.blob();
+      console.log(`[Firma] Imagen cargada, tamaño: ${blob.size} bytes`);
+
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
-        reader.onerror = reject;
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          console.log(`[Firma] Convertida a base64, longitud: ${result.length}`);
+          resolve(result);
+        };
+        reader.onerror = (error) => {
+          console.error('[Firma] Error al leer blob:', error);
+          reject(error);
+        };
         reader.readAsDataURL(blob);
       });
     } catch (error) {
-      console.error('Error loading image:', error);
+      console.error('[Firma] Error cargando imagen:', url, error);
       throw error;
     }
   };
@@ -131,23 +155,30 @@ export default function FormWizard() {
       const originalBuffer = base64ToArrayBuffer(originalBufferBase64);
 
       // Cargar firmas que son URLs (no base64) y convertirlas
-      const loadedSignatures: Signature[] = await Promise.all(
-        signatures.map(async (sig) => {
-          if (sig.dataUrl.startsWith('data:')) {
-            // Ya es base64
-            return sig;
-          } else {
-            // Es una URL, cargar y convertir
-            try {
-              const base64 = await loadImageAsBase64(sig.dataUrl);
-              return { ...sig, dataUrl: base64 };
-            } catch (error) {
-              console.error(`Error loading signature for ${sig.name}:`, error);
-              return sig; // Devolver sin cambios si falla
-            }
+      console.log(`[Firmas] Procesando ${signatures.length} firmas...`);
+      const loadedSignatures: Signature[] = [];
+
+      for (const sig of signatures) {
+        if (sig.dataUrl.startsWith('data:')) {
+          // Ya es base64
+          console.log(`[Firma] ${sig.name} ya es base64`);
+          loadedSignatures.push(sig);
+        } else {
+          // Es una URL, cargar y convertir
+          try {
+            const base64 = await loadImageAsBase64(sig.dataUrl);
+            loadedSignatures.push({ ...sig, dataUrl: base64 });
+            console.log(`[Firma] ${sig.name} cargada exitosamente`);
+          } catch (error) {
+            console.error(`[Firma] Error cargando firma para ${sig.name}:`, error);
+            // NO incluir firmas que no se pudieron cargar
+            // Esto evita que se intente insertar una URL como base64
+            console.warn(`[Firma] ${sig.name} será omitida del Excel`);
           }
-        })
-      );
+        }
+      }
+
+      console.log(`[Firmas] ${loadedSignatures.length}/${signatures.length} firmas cargadas exitosamente`);
 
       // Convertir signatures array a Map
       const signaturesMap = new Map(loadedSignatures.map((sig) => [sig.id, sig]));
