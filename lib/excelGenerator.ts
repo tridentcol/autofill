@@ -259,22 +259,30 @@ export class ExcelGenerator {
   }
 
   /**
-   * Convierte número de columna a letra (1=A, 2=B, ..., 27=AA, etc.)
+   * Obtiene las dimensiones de una imagen desde su dataUrl
    */
-  private colNumberToLetter(col: number): string {
-    let result = '';
-    let n = col;
-    while (n > 0) {
-      n--;
-      result = String.fromCharCode(65 + (n % 26)) + result;
-      n = Math.floor(n / 26);
-    }
-    return result;
+  private getImageDimensions(dataUrl: string): Promise<{ width: number; height: number }> {
+    return new Promise((resolve) => {
+      if (typeof window === 'undefined') {
+        // En servidor, asumir dimensiones estándar de firma
+        resolve({ width: 400, height: 100 });
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        resolve({ width: img.width, height: img.height });
+      };
+      img.onerror = () => {
+        // Si falla, usar dimensiones por defecto
+        resolve({ width: 400, height: 100 });
+      };
+      img.src = dataUrl;
+    });
   }
 
   /**
-   * Inserta una firma como imagen en el Excel usando anclaje por rango de celdas
-   * La imagen se ajusta automáticamente al rango especificado
+   * Inserta una firma como imagen en el Excel, centrada y manteniendo relación de aspecto
    */
   private async insertSignature(
     workbook: ExcelJS.Workbook,
@@ -295,20 +303,69 @@ export class ExcelGenerator {
       }
       const buffer = Buffer.from(bytes);
 
+      // Obtener dimensiones originales de la imagen
+      const imgDimensions = await this.getImageDimensions(signature.dataUrl);
+      const aspectRatio = imgDimensions.width / imgDimensions.height;
+
+      // Constantes de conversión Excel
+      const PIXELS_PER_COL_UNIT = 7.5;  // Píxeles por unidad de ancho de columna
+      const PIXELS_PER_ROW_POINT = 1.33; // Píxeles por punto de altura de fila
+
+      // Calcular tamaño del contenedor en píxeles
+      let containerWidth = 0;
+      for (let i = 0; i < mergedCols; i++) {
+        const colObj = worksheet.getColumn(col + i);
+        containerWidth += (colObj.width || 8.43) * PIXELS_PER_COL_UNIT;
+      }
+
+      let containerHeight = 0;
+      for (let i = 0; i < mergedRows; i++) {
+        const rowObj = worksheet.getRow(row + i);
+        containerHeight += (rowObj.height || 15) * PIXELS_PER_ROW_POINT;
+      }
+
+      // Calcular tamaño óptimo manteniendo relación de aspecto
+      // Usar 85% del contenedor como máximo para dejar margen
+      const maxWidth = containerWidth * 0.85;
+      const maxHeight = containerHeight * 0.85;
+
+      let finalWidth: number;
+      let finalHeight: number;
+
+      // Ajustar al contenedor manteniendo aspecto
+      if (maxWidth / aspectRatio <= maxHeight) {
+        // Limitado por ancho
+        finalWidth = maxWidth;
+        finalHeight = maxWidth / aspectRatio;
+      } else {
+        // Limitado por alto
+        finalHeight = maxHeight;
+        finalWidth = maxHeight * aspectRatio;
+      }
+
+      // Calcular offset para centrar (en fracciones de celda)
+      const horizontalPadding = (containerWidth - finalWidth) / 2;
+      const verticalPadding = (containerHeight - finalHeight) / 2;
+
+      // Convertir padding a fracciones de celda
+      const firstColWidth = (worksheet.getColumn(col).width || 8.43) * PIXELS_PER_COL_UNIT;
+      const firstRowHeight = (worksheet.getRow(row).height || 15) * PIXELS_PER_ROW_POINT;
+
+      const colOffset = horizontalPadding / firstColWidth;
+      const rowOffset = verticalPadding / firstRowHeight;
+
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
         buffer: buffer as any,
         extension: 'png',
       });
 
-      // Construir rango de celdas como string (ej: "N22:Q22")
-      const startColLetter = this.colNumberToLetter(col);
-      const endColLetter = this.colNumberToLetter(col + mergedCols - 1);
-      const endRow = row + mergedRows - 1;
-      const cellRange = `${startColLetter}${row}:${endColLetter}${endRow}`;
-
-      // Usar el formato de string para el rango - ExcelJS lo maneja automáticamente
-      worksheet.addImage(imageId, cellRange);
+      // Posicionar con offset fraccionario para centrar
+      // col y row son 0-indexed en ExcelJS para tl
+      worksheet.addImage(imageId, {
+        tl: { col: col - 1 + colOffset, row: row - 1 + rowOffset } as any,
+        ext: { width: finalWidth, height: finalHeight }
+      });
 
     } catch (error) {
       console.error('Error inserting signature:', error);
