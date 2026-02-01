@@ -343,55 +343,23 @@ export class ExcelGenerator {
         finalWidth = maxHeight * aspectRatio;
       }
 
-      // Calcular padding para centrar
-      const horizontalPadding = (containerWidth - finalWidth) / 2;
-      const verticalPadding = (containerHeight - finalHeight) / 2;
+      // Calcular proporciones para centrar (evitando conversiones de píxeles)
+      // Proporción del contenedor que ocupa la imagen
+      const widthRatio = finalWidth / containerWidth;
+      const heightRatio = finalHeight / containerHeight;
 
-      // Calcular posición de inicio para centrar horizontalmente
-      // Acumular anchos de columnas hasta encontrar el punto de inicio
-      let accumulatedWidth = 0;
-      let startCol = col - 1; // 0-indexed para ExcelJS
-      let colFraction = 0;
+      // Padding como proporción del contenedor
+      const horizontalPaddingRatio = (1 - widthRatio) / 2;
+      const verticalPaddingRatio = (1 - heightRatio) / 2;
 
-      // Primero, construir array con anchos de cada columna
-      const colWidths: number[] = [];
-      for (let i = 0; i < mergedCols; i++) {
-        const w = (worksheet.getColumn(col + i).width || 8.43) * PIXELS_PER_COL_UNIT;
-        colWidths.push(w);
-      }
+      // Convertir a posición en columnas/filas
+      // El offset en columnas es: horizontalPaddingRatio * mergedCols
+      const colOffset = horizontalPaddingRatio * mergedCols;
+      const rowOffset = verticalPaddingRatio * mergedRows;
 
-      // Encontrar en qué columna cae el inicio de la imagen
-      let targetX = horizontalPadding;
-      for (let i = 0; i < colWidths.length; i++) {
-        if (accumulatedWidth + colWidths[i] > targetX) {
-          // El inicio cae en esta columna
-          startCol = col - 1 + i;
-          colFraction = (targetX - accumulatedWidth) / colWidths[i];
-          break;
-        }
-        accumulatedWidth += colWidths[i];
-      }
-
-      // Calcular posición de inicio para centrar verticalmente
-      let accumulatedHeight = 0;
-      let startRow = row - 1; // 0-indexed para ExcelJS
-      let rowFraction = 0;
-
-      const rowHeights: number[] = [];
-      for (let i = 0; i < mergedRows; i++) {
-        const h = (worksheet.getRow(row + i).height || 15) * PIXELS_PER_ROW_POINT;
-        rowHeights.push(h);
-      }
-
-      let targetY = verticalPadding;
-      for (let i = 0; i < rowHeights.length; i++) {
-        if (accumulatedHeight + rowHeights[i] > targetY) {
-          startRow = row - 1 + i;
-          rowFraction = (targetY - accumulatedHeight) / rowHeights[i];
-          break;
-        }
-        accumulatedHeight += rowHeights[i];
-      }
+      // Posición final (0-indexed para ExcelJS)
+      const startCol = col - 1 + colOffset;
+      const startRow = row - 1 + rowOffset;
 
       // Agregar imagen al workbook
       const imageId = workbook.addImage({
@@ -399,9 +367,9 @@ export class ExcelGenerator {
         extension: 'png',
       });
 
-      // Posicionar con offset fraccionario para centrar
+      // Posicionar con offset proporcional para centrar
       worksheet.addImage(imageId, {
-        tl: { col: startCol + colFraction, row: startRow + rowFraction } as any,
+        tl: { col: startCol, row: startRow } as any,
         ext: { width: finalWidth, height: finalHeight }
       });
 
