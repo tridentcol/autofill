@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useFormStore } from '@/store/useFormStore';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 import FieldRenderer from './FieldRenderer';
@@ -10,9 +11,16 @@ import GruaInfoSection from './GruaInfoSection';
 import TurnoSelector from './TurnoSelector';
 import HerramientasInfoSection from './HerramientasInfoSection';
 import { ExcelGenerator, downloadExcelFile } from '@/lib/excelGenerator';
+import {
+  getSectionFormDataAtStep,
+  validateStep,
+  validateAllSteps,
+  allSignaturesSelected,
+} from '@/lib/formStepValidation';
 import type { Field, Signature } from '@/types';
 
 export default function FormWizard() {
+  const router = useRouter();
   const {
     selectedFormat,
     currentFormData,
@@ -22,9 +30,12 @@ export default function FormWizard() {
     goToPreviousStep,
     goToStep,
     updateFieldValue,
+    resetForm,
   } = useFormStore();
 
   const { workers } = useDatabaseStore();
+  const stepTabsRef = useRef<HTMLDivElement>(null);
+  const activeStepButtonRef = useRef<HTMLButtonElement>(null);
 
   // Construir firmas desde los workers que tienen signatureId
   const signatures = useMemo((): Signature[] => {
@@ -49,6 +60,15 @@ export default function FormWizard() {
   const isFirstStep = currentStep === 0;
 
   const progressPercentage = ((currentStep + 1) / wizardSteps.length) * 100;
+
+  // Scroll to top and scroll active step tab into view when step changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    requestAnimationFrame(() => {
+      activeStepButtonRef.current?.scrollIntoView?.({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    });
+  }, [currentStep]);
 
   // Aplicar llenado rápido
   const applyQuickFill = (value: string) => {
@@ -82,6 +102,23 @@ export default function FormWizard() {
     });
 
     alert(`Se han marcado ${radioFields.length} items como "${value}"`);
+  };
+
+  // Validar paso actual y avanzar
+  const handleNextStep = () => {
+    if (!selectedFormat || !currentFormData) return;
+    const sectionData = getSectionFormDataAtStep(currentFormData, currentStep);
+    const result = validateStep(
+      selectedFormat.id,
+      currentWizardStep.section,
+      sectionData,
+      currentFormData
+    );
+    if (!result.valid) {
+      alert(result.message);
+      return;
+    }
+    goToNextStep();
   };
 
   // Función para convertir URL de imagen a base64
@@ -222,6 +259,19 @@ export default function FormWizard() {
   const handleUploadToCloud = async () => {
     if (!selectedFormat || !currentFormData) return;
 
+    // Validar que todas las firmas estén seleccionadas
+    if (!allSignaturesSelected(currentFormData, selectedFormat)) {
+      alert('Debe seleccionar todas las firmas requeridas antes de enviar el documento a la nube.');
+      return;
+    }
+
+    // Validar todos los pasos antes de subir
+    const allResult = validateAllSteps(selectedFormat.id, currentFormData, wizardSteps);
+    if (!allResult.valid) {
+      alert(allResult.message);
+      return;
+    }
+
     setUploading(true);
     setUploadSuccess(false);
     setUploadUrl(null);
@@ -255,7 +305,11 @@ export default function FormWizard() {
 
       setUploadSuccess(true);
       setUploadUrl(result.blob.url);
-      alert('¡Archivo guardado en la nube exitosamente!');
+      // Cerrar formulario y volver al inicio automáticamente
+      setTimeout(() => {
+        resetForm();
+        router.push('/');
+      }, 2200);
     } catch (error) {
       console.error('Error uploading to cloud:', error);
       alert(`Error al subir a la nube: ${error instanceof Error ? error.message : 'Error desconocido'}`);
@@ -263,6 +317,11 @@ export default function FormWizard() {
       setUploading(false);
     }
   };
+
+  const canSubmitToCloud = useMemo(() => {
+    if (!currentFormData || !selectedFormat) return false;
+    return allSignaturesSelected(currentFormData, selectedFormat);
+  }, [currentFormData, selectedFormat]);
 
   if (!currentWizardStep || !selectedFormat) {
     return (
@@ -292,12 +351,13 @@ export default function FormWizard() {
         </div>
       </div>
 
-      {/* Step navigation */}
-      <div className="mb-6 overflow-x-auto">
-        <div className="flex gap-2 pb-2">
+      {/* Step navigation - scroll horizontal en móvil para ver paso actual */}
+      <div ref={stepTabsRef} className="mb-6 overflow-x-auto overflow-y-hidden scroll-smooth">
+        <div className="flex gap-2 pb-2 min-w-0">
           {wizardSteps.map((step, index) => (
             <button
               key={step.stepNumber}
+              ref={index === currentStep ? activeStepButtonRef : undefined}
               onClick={() => goToStep(index)}
               className={`flex-shrink-0 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                 index === currentStep
@@ -584,18 +644,9 @@ export default function FormWizard() {
         </button>
 
         <div className="flex flex-col sm:flex-row gap-3 order-1 sm:order-2">
-          {currentWizardStep.isOptional && (
-            <button
-              onClick={goToNextStep}
-              className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-            >
-              Saltar
-            </button>
-          )}
-
           {!isLastStep ? (
             <button
-              onClick={goToNextStep}
+              onClick={handleNextStep}
               className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Siguiente
@@ -615,10 +666,11 @@ export default function FormWizard() {
             </button>
           ) : (
             <>
-              {/* Upload to Cloud button */}
+              {/* Solo Guardar en la nube - sin Descargar Excel */}
               <button
                 onClick={handleUploadToCloud}
-                disabled={uploading || generating}
+                disabled={uploading || !canSubmitToCloud}
+                title={!canSubmitToCloud ? 'Seleccione todas las firmas requeridas para habilitar el envío' : undefined}
                 className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 {uploading ? (
@@ -681,62 +733,12 @@ export default function FormWizard() {
                   </>
                 )}
               </button>
-
-              {/* Download Excel button */}
-              <button
-                onClick={handleGenerateExcel}
-                disabled={generating || uploading}
-                className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-              >
-              {generating ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Generando...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                  Descargar Excel
-                </>
-              )}
-              </button>
             </>
           )}
         </div>
       </div>
 
-      {/* Success message when uploaded */}
+      {/* Success message when uploaded - redirige al inicio en 2s */}
       {uploadSuccess && uploadUrl && (
         <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <div className="flex items-start">
@@ -758,24 +760,8 @@ export default function FormWizard() {
                 Documento guardado en la nube
               </h3>
               <p className="mt-1 text-sm text-green-700">
-                El archivo se guardó correctamente y está disponible en la sección de Documentos.
+                Redirigiendo al inicio…
               </p>
-              <div className="mt-3 flex gap-3">
-                <a
-                  href="/documentos"
-                  className="text-sm font-medium text-green-800 hover:text-green-900 underline"
-                >
-                  Ver todos los documentos
-                </a>
-                <a
-                  href={uploadUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-green-800 hover:text-green-900 underline"
-                >
-                  Abrir documento
-                </a>
-              </div>
             </div>
           </div>
         </div>
