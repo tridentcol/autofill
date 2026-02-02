@@ -10,6 +10,7 @@ interface GitCommitOptions {
   files: {
     path: string;
     content: string;
+    encoding?: 'utf-8' | 'base64'; // Default: 'utf-8', use 'base64' for binary files like PNG
   }[];
 }
 
