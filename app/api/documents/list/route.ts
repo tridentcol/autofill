@@ -51,23 +51,23 @@ export async function GET(request: NextRequest) {
       const [, yearPart, monthPart, dayPart, filenamePart] = parts;
       
       // Extract format name from filename (before timestamp)
-      const filenameMatch = filenamePart.match(/^(.+)-(\d+)\.xlsx$/);
+      const filenameMatch = filenamePart?.match(/^(.+)-(\d+)\.xlsx$/);
       const formatName = filenameMatch 
         ? filenameMatch[1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-        : filenamePart.replace('.xlsx', '');
+        : (filenamePart || 'documento').replace('.xlsx', '');
 
       return {
         url: blob.url,
-        downloadUrl: blob.downloadUrl,
+        downloadUrl: blob.downloadUrl || blob.url,
         pathname: blob.pathname,
-        size: blob.size,
+        size: (blob as any).size || 0, // size may not exist in v2
         uploadedAt: blob.uploadedAt,
         metadata: {
           formatName,
-          year: yearPart,
-          month: monthPart,
-          day: dayPart,
-          filename: filenamePart,
+          year: yearPart || '',
+          month: monthPart || '',
+          day: dayPart || '',
+          filename: filenamePart || '',
         },
       };
     });
