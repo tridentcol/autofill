@@ -38,16 +38,6 @@ export default function HerramientasInfoSection({ sheetIndex, sectionIndex, fiel
 
   return (
     <div className="space-y-4">
-      {/* Notice de auto-completado */}
-      {currentUser && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-          <p className="text-sm text-green-800">
-            Se auto-completaron: <span className="font-medium">Realizado por, Cargo y Fecha</span> con los datos de la sesión actual.
-          </p>
-        </div>
-      )}
-
-      {/* Campos del formulario */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {fields.map((field) => (
           <FieldRenderer

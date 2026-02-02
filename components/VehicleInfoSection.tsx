@@ -54,36 +54,12 @@ export default function VehicleInfoSection({ sheetIndex, sectionIndex }: Vehicle
 
   return (
     <div className="space-y-4 mb-6">
-      {/* Vehicle Selector */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <CamionetaSelector
-          value={selectedCamioneta?.id}
-          onChange={handleVehicleChange}
-          label="Seleccionar Vehículo"
-          placeholder="Buscar por marca, línea, placa o modelo..."
-        />
-
-        {selectedCamioneta && (
-          <div className="mt-3 p-3 bg-white border border-gray-200 rounded-md">
-            <p className="text-xs font-medium text-gray-900 mb-2">Datos auto-completados:</p>
-            <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-              <div><span className="font-medium">Marca:</span> {selectedCamioneta.marca}</div>
-              <div><span className="font-medium">Línea:</span> {selectedCamioneta.linea}</div>
-              <div><span className="font-medium">Placa:</span> {selectedCamioneta.placa}</div>
-              <div><span className="font-medium">Modelo:</span> {selectedCamioneta.modelo}</div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Auto-filled Info Notice */}
-      {currentUser && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-          <p className="text-xs text-gray-600">
-            Se auto-completaron: <span className="font-medium">Realizado por, Cargo y Fecha</span>
-          </p>
-        </div>
-      )}
+      <CamionetaSelector
+        value={selectedCamioneta?.id}
+        onChange={handleVehicleChange}
+        label="Seleccionar Vehículo"
+        placeholder="Buscar por marca, línea, placa o modelo..."
+      />
     </div>
   );
 }
