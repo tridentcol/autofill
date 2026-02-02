@@ -13,12 +13,29 @@ interface ATSRevisoSectionProps {
 }
 
 /**
+ * Obtener fecha actual de Colombia en formato DD/MM/AAAA
+ */
+function getColombiaDate(): string {
+  const now = new Date();
+  const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+  const day = String(colombiaTime.getDate()).padStart(2, '0');
+  const month = String(colombiaTime.getMonth() + 1).padStart(2, '0');
+  const year = colombiaTime.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+/**
  * Sección de Reviso y Aprobó para ATS
- * Autocompleta el cargo del inspector seleccionado
+ * Autocompleta el cargo del inspector seleccionado y la fecha
  */
 export default function ATSRevisoSection({ sheetIndex, sectionIndex, fields }: ATSRevisoSectionProps) {
   const { workers } = useDatabaseStore();
   const { updateFieldValue, currentFormData } = useFormStore();
+
+  // Autocompletar fecha al montar
+  useEffect(() => {
+    updateFieldValue(sheetIndex, sectionIndex, 'inspector_fecha', getColombiaDate());
+  }, [sheetIndex, sectionIndex, updateFieldValue]);
 
   // Obtener la firma seleccionada para autocompletar el cargo
   const selectedSignatureId = useMemo(() => {

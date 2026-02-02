@@ -13,12 +13,23 @@ interface ATSInfoSectionProps {
 }
 
 /**
- * Sección de información básica para ATS
- * Autocompleta: Elaboró (nombre y cargo del usuario actual)
+ * Obtener fecha actual de Colombia en formato DD/MM/AAAA
+ */
+function getColombiaDate(): string {
+  const now = new Date();
+  const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+  const day = String(colombiaTime.getDate()).padStart(2, '0');
+  const month = String(colombiaTime.getMonth() + 1).padStart(2, '0');
+  const year = colombiaTime.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * Sección de Elaborado Por para ATS
+ * Autocompleta: nombre, cargo del usuario actual, y fecha Colombia
  */
 export default function ATSInfoSection({ sheetIndex, sectionIndex, fields }: ATSInfoSectionProps) {
-  const { currentUser } = useDatabaseStore();
-  const { workers } = useDatabaseStore();
+  const { currentUser, workers } = useDatabaseStore();
   const { updateFieldValue } = useFormStore();
 
   useEffect(() => {
@@ -33,7 +44,8 @@ export default function ATSInfoSection({ sheetIndex, sectionIndex, fields }: ATS
       updateFieldValue(sheetIndex, sectionIndex, 'elaboro_cargo', worker.cargo);
     }
 
-    // Autocompletar fecha actual (ya tiene valor por defecto en formatConfigs)
+    // Autocompletar fecha actual de Colombia
+    updateFieldValue(sheetIndex, sectionIndex, 'elaboro_fecha', getColombiaDate());
   }, [currentUser, workers, sheetIndex, sectionIndex, updateFieldValue]);
 
   return (

@@ -13,6 +13,7 @@ import HerramientasInfoSection from './HerramientasInfoSection';
 import HerramientasSelector from './HerramientasSelector';
 import ATSInfoSection from './ATSInfoSection';
 import ATSRevisoSection from './ATSRevisoSection';
+import ATSBasicInfoSection from './ATSBasicInfoSection';
 import { ExcelGenerator, downloadExcelFile } from '@/lib/excelGenerator';
 import {
   getSectionFormDataAtStep,
@@ -629,6 +630,13 @@ export default function FormWizard() {
                   ))}
               </div>
             </>
+          ) : selectedFormat?.id === 'ats' && currentWizardStep.section.id === 'basic_info' ? (
+            // Renderizado especial para información básica ATS (con selector de cuadrilla y zonas)
+            <ATSBasicInfoSection
+              sheetIndex={0}
+              sectionIndex={currentStep}
+              fields={currentWizardStep.section.fields}
+            />
           ) : selectedFormat?.id === 'ats' && currentWizardStep.section.id === 'herramientas' ? (
             // Renderizado especial para herramientas en ATS
             <HerramientasSelector

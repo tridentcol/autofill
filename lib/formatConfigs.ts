@@ -1111,7 +1111,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       fields: [
         {
           id: 'ubicacion_trabajo',
-          label: 'Ubicación del Trabajo',
+          label: 'Lugar/Zona de Trabajo', // Este label activa el selector de zonas en FieldRenderer
           type: 'text',
           cellRef: 'G6',
           row: 6,
@@ -1129,8 +1129,8 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         },
         {
           id: 'equipo_elabora',
-          label: 'Equipo que Elabora ATS',
-          type: 'text',
+          label: 'Equipo que Elabora ATS (Cuadrilla)',
+          type: 'text', // Se renderiza especial con selector de cuadrilla
           cellRef: 'G8',
           row: 8,
           col: 7,
