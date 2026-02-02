@@ -68,10 +68,57 @@ export default function FormWizard() {
     alert(`Se han marcado ${radioFields.length} items como "${value}"`);
   };
 
+  // Función para convertir URL de imagen a base64
+  const loadImageAsBase64 = async (url: string): Promise<string> => {
+    try {
+      // Construir URL absoluta si es relativa
+      let absoluteUrl = url;
+      if (url.startsWith('/') && typeof window !== 'undefined') {
+        absoluteUrl = `${window.location.origin}${url}`;
+      }
+
+      console.log(`[Firma] Cargando imagen: ${absoluteUrl}`);
+
+      const response = await fetch(absoluteUrl, {
+        cache: 'no-cache',  // Evitar problemas de caché
+      });
+
+      if (!response.ok) {
+        console.error(`[Firma] Error HTTP ${response.status} para: ${absoluteUrl}`);
+        throw new Error(`Failed to fetch image: HTTP ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      console.log(`[Firma] Imagen cargada, tamaño: ${blob.size} bytes`);
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          console.log(`[Firma] Convertida a base64, longitud: ${result.length}`);
+          resolve(result);
+        };
+        reader.onerror = (error) => {
+          console.error('[Firma] Error al leer blob:', error);
+          reject(error);
+        };
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('[Firma] Error cargando imagen:', url, error);
+      throw error;
+    }
+  };
+
   // Generar el Blob del Excel (compartido entre download y upload)
   const generateExcelBlob = async (): Promise<Blob> => {
     if (!selectedFormat || !currentFormData) {
       throw new Error('No hay formato o datos seleccionados');
+    }
+
+    // Verificar si el archivo es .xls (no soportado)
+    if (selectedFormat.fileType === 'xls') {
+      throw new Error('El formato .xls no es compatible con la exportación automática. Por favor contacta al administrador para convertir el archivo a .xlsx');
     }
 
     const generator = new ExcelGenerator();
@@ -93,8 +140,33 @@ export default function FormWizard() {
 
     const originalBuffer = base64ToArrayBuffer(originalBufferBase64);
 
+    // Cargar firmas que son URLs (no base64) y convertirlas
+    console.log(`[Firmas] Procesando ${signatures.length} firmas...`);
+    const loadedSignatures = [];
+
+    for (const sig of signatures) {
+      if (sig.dataUrl.startsWith('data:')) {
+        // Ya es base64
+        console.log(`[Firma] ${sig.name} ya es base64`);
+        loadedSignatures.push(sig);
+      } else {
+        // Es una URL, cargar y convertir
+        try {
+          const base64 = await loadImageAsBase64(sig.dataUrl);
+          loadedSignatures.push({ ...sig, dataUrl: base64 });
+          console.log(`[Firma] ${sig.name} cargada exitosamente`);
+        } catch (error) {
+          console.error(`[Firma] Error cargando firma para ${sig.name}:`, error);
+          // NO incluir firmas que no se pudieron cargar
+          console.warn(`[Firma] ${sig.name} será omitida del Excel`);
+        }
+      }
+    }
+
+    console.log(`[Firmas] ${loadedSignatures.length}/${signatures.length} firmas cargadas exitosamente`);
+
     // Convertir signatures array a Map
-    const signaturesMap = new Map(signatures.map((sig) => [sig.id, sig]));
+    const signaturesMap = new Map(loadedSignatures.map((sig) => [sig.id, sig]));
 
     return await generator.generateFilledExcel(
       originalBuffer,
@@ -107,6 +179,12 @@ export default function FormWizard() {
   // Generar y descargar Excel
   const handleGenerateExcel = async () => {
     if (!selectedFormat || !currentFormData) return;
+
+    // Verificar si el archivo es .xls (no soportado)
+    if (selectedFormat.fileType === 'xls') {
+      alert('El formato .xls no es compatible con la exportación automática. Por favor contacta al administrador para convertir el archivo a .xlsx');
+      return;
+    }
 
     setGenerating(true);
     try {
