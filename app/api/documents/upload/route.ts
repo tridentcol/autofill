@@ -59,14 +59,14 @@ export async function POST(request: NextRequest) {
       addRandomSuffix: false, // We already have timestamp in filename
     });
 
-    // Return blob info
+    // Return blob info (PutBlobResult in v2 doesn't include size; use file.size)
     return NextResponse.json({
       success: true,
       blob: {
         url: blob.url,
         downloadUrl: blob.downloadUrl,
         pathname: blob.pathname,
-        size: blob.size,
+        size: file.size,
       },
       metadata: {
         formatName,
