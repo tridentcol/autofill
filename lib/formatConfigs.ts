@@ -1093,8 +1093,193 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
   },
 
   'ats': (worksheetData?: any) => {
-    // TODO: Implementar configuración específica para ATS
-    return [];
+    const sections: Section[] = [];
+
+    // Zona horaria Colombia
+    const now = new Date();
+    const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+    const day = String(colombiaTime.getDate()).padStart(2, '0');
+    const month = String(colombiaTime.getMonth() + 1).padStart(2, '0');
+    const year = colombiaTime.getFullYear();
+    const colombiaDateFormatted = `${day}/${month}/${year}`;
+
+    // 1. INFORMACIÓN BÁSICA DEL TRABAJO (Filas 6-10)
+    sections.push({
+      id: 'basic_info',
+      type: 'basic_info',
+      title: 'Información del Trabajo',
+      fields: [
+        {
+          id: 'ubicacion_trabajo',
+          label: 'Ubicación del Trabajo',
+          type: 'text',
+          cellRef: 'G6',
+          row: 6,
+          col: 7,
+          required: true,
+        },
+        {
+          id: 'descripcion_trabajo',
+          label: 'Descripción del Trabajo',
+          type: 'textarea',
+          cellRef: 'G7',
+          row: 7,
+          col: 7,
+          required: true,
+        },
+        {
+          id: 'equipo_elabora',
+          label: 'Equipo que Elabora ATS',
+          type: 'text',
+          cellRef: 'G8',
+          row: 8,
+          col: 7,
+          required: true,
+        },
+        {
+          id: 'objetivo',
+          label: 'Objetivo',
+          type: 'textarea',
+          cellRef: 'G9',
+          row: 9,
+          col: 7,
+          required: true,
+        },
+      ],
+      startRow: 6,
+      endRow: 9,
+      startCol: 7,
+      endCol: 27,
+    });
+
+    // 2. HERRAMIENTAS / EQUIPOS (Fila 10) - con checkboxes
+    sections.push({
+      id: 'herramientas',
+      type: 'basic_info',
+      title: 'Herramientas / Equipos',
+      fields: [
+        {
+          id: 'herramientas',
+          label: 'Herramientas / Equipos a Utilizar',
+          type: 'textarea',
+          cellRef: 'G10',
+          row: 10,
+          col: 7,
+          required: true,
+        },
+      ],
+      startRow: 10,
+      endRow: 10,
+      startCol: 7,
+      endCol: 27,
+    });
+
+    // 3. ELABORÓ (Filas 57-59) - Autocomplete con usuario actual
+    sections.push({
+      id: 'elaboro_info',
+      type: 'basic_info',
+      title: 'Elaborado Por',
+      fields: [
+        {
+          id: 'elaboro_nombre',
+          label: 'Elaboró',
+          type: 'text',
+          cellRef: 'A57',
+          row: 57,
+          col: 1,
+          required: true,
+          validation: {
+            appendToLabel: true,
+            labelText: 'Elaboró:',
+          },
+        },
+        {
+          id: 'elaboro_cargo',
+          label: 'Cargo',
+          type: 'text',
+          cellRef: 'A58',
+          row: 58,
+          col: 1,
+          required: true,
+          validation: {
+            appendToLabel: true,
+            labelText: 'Cargo:',
+          },
+        },
+        {
+          id: 'elaboro_fecha',
+          label: 'Fecha',
+          type: 'date',
+          cellRef: 'A59',
+          row: 59,
+          col: 1,
+          required: true,
+          value: colombiaDateFormatted,
+          validation: {
+            appendToLabel: true,
+            labelText: 'Fecha:',
+          },
+        },
+      ],
+      startRow: 57,
+      endRow: 59,
+      startCol: 1,
+      endCol: 11,
+    });
+
+    // 4. REVISO Y APROBO (Firma del Inspector) (Filas 57-59, columnas L-AA)
+    sections.push({
+      id: 'reviso_aprobo',
+      type: 'signatures',
+      title: 'Reviso y Aprobó',
+      fields: [
+        {
+          id: 'firma_inspector',
+          label: 'Reviso y Aprobó (Firma)',
+          type: 'signature',
+          cellRef: 'L57',
+          row: 57,
+          col: 12,
+          required: true,
+          validation: {
+            pattern: 'supervisor_only',
+          },
+        },
+        {
+          id: 'inspector_cargo',
+          label: 'Cargo (Inspector)',
+          type: 'text',
+          cellRef: 'L58',
+          row: 58,
+          col: 12,
+          required: true,
+          validation: {
+            appendToLabel: true,
+            labelText: 'Cargo:',
+          },
+        },
+        {
+          id: 'inspector_fecha',
+          label: 'Fecha (Inspector)',
+          type: 'date',
+          cellRef: 'L59',
+          row: 59,
+          col: 12,
+          required: true,
+          value: colombiaDateFormatted,
+          validation: {
+            appendToLabel: true,
+            labelText: 'Fecha:',
+          },
+        },
+      ],
+      startRow: 57,
+      endRow: 59,
+      startCol: 12,
+      endCol: 27,
+    });
+
+    return sections;
   },
 
   'inspeccion-grua': (worksheetData?: any) => {
