@@ -382,36 +382,47 @@ export default function FormWizard() {
                     key={group.radio.id}
                     className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors bg-white"
                   >
-                    <div className="flex flex-col lg:flex-row gap-4 items-start">
-                      {/* Columna izquierda: Nombre y botones */}
-                      <div className="flex-1 min-w-0">
-                        <label className="block text-sm font-medium text-gray-900 mb-3">
-                          {itemCounter}. {group.radio.label}
-                        </label>
-                        <FieldRenderer
-                          field={group.radio}
-                          sheetIndex={0}
-                          sectionIndex={currentStep}
-                          hideLabel={true}
-                        />
-                      </div>
-
-                      {/* Columna derecha: Observaciones (más pequeña) */}
-                      {group.observation && (
-                        <div className="w-full lg:w-72 flex-shrink-0">
-                          <label className="block text-xs font-medium text-gray-600 mb-2">
-                            Observaciones
+                    {group.radio.type === 'checkbox' ? (
+                      // Para checkboxes: mostrar solo el FieldRenderer (el label está dentro)
+                      <FieldRenderer
+                        field={group.radio}
+                        sheetIndex={0}
+                        sectionIndex={currentStep}
+                        hideLabel={false}
+                      />
+                    ) : (
+                      // Para radio y otros: layout con label + campo + observaciones
+                      <div className="flex flex-col lg:flex-row gap-4 items-start">
+                        {/* Columna izquierda: Nombre y botones */}
+                        <div className="flex-1 min-w-0">
+                          <label className="block text-sm font-medium text-gray-900 mb-3">
+                            {itemCounter}. {group.radio.label}
                           </label>
                           <FieldRenderer
-                            field={group.observation}
+                            field={group.radio}
                             sheetIndex={0}
                             sectionIndex={currentStep}
                             hideLabel={true}
-                            compact={true}
                           />
                         </div>
-                      )}
-                    </div>
+
+                        {/* Columna derecha: Observaciones (más pequeña) */}
+                        {group.observation && (
+                          <div className="w-full lg:w-72 flex-shrink-0">
+                            <label className="block text-xs font-medium text-gray-600 mb-2">
+                              Observaciones
+                            </label>
+                            <FieldRenderer
+                              field={group.observation}
+                              sheetIndex={0}
+                              sectionIndex={currentStep}
+                              hideLabel={true}
+                              compact={true}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               });
