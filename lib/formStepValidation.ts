@@ -217,8 +217,8 @@ export function validateStep(
       return { valid: true };
     }
     if (section.id === 'reviso_aprobo') {
-      const firma = getVal('firma_inspector');
-      if (isEmpty(firma)) return { valid: false, message: 'Debe seleccionar la firma del Inspector.' };
+      const inspectorNombre = getVal('inspector_nombre');
+      if (isEmpty(inspectorNombre)) return { valid: false, message: 'Debe seleccionar un inspector.' };
       return { valid: true };
     }
   }

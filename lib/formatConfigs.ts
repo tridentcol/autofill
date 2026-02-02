@@ -1209,7 +1209,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         {
           id: 'elaboro_fecha',
           label: 'Fecha',
-          type: 'date',
+          type: 'text', // Texto para mostrar DD/MM/AAAA directamente
           cellRef: 'A59',
           row: 59,
           col: 1,
@@ -1227,22 +1227,24 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 11,
     });
 
-    // 4. REVISO Y APROBO (Firma del Inspector) (Filas 57-59, columnas L-AA)
+    // 4. REVISO Y APROBO (Nombre del Inspector, no firma) (Filas 57-59, columnas L-AA)
     sections.push({
       id: 'reviso_aprobo',
-      type: 'signatures',
+      type: 'basic_info', // Cambiado de 'signatures' a 'basic_info'
       title: 'Reviso y Aprobó',
       fields: [
         {
-          id: 'firma_inspector',
-          label: 'Reviso y Aprobó (Firma)',
-          type: 'signature',
+          id: 'inspector_nombre',
+          label: 'Reviso y Aprobó (Nombre)',
+          type: 'text', // Selector especial de inspector
           cellRef: 'L57',
           row: 57,
           col: 12,
           required: true,
           validation: {
-            pattern: 'supervisor_only',
+            appendToLabel: true,
+            labelText: 'Reviso y Aprobó:',
+            pattern: 'supervisor_only', // Para filtrar solo supervisores
           },
         },
         {
@@ -1261,7 +1263,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         {
           id: 'inspector_fecha',
           label: 'Fecha (Inspector)',
-          type: 'date',
+          type: 'text', // Texto para mostrar DD/MM/AAAA directamente
           cellRef: 'L59',
           row: 59,
           col: 12,
