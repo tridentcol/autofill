@@ -267,7 +267,11 @@ export class ExcelGenerator {
                 // Poner solo el valor, sin concatenar con NOMBRE o CARGO
                 cell.value = fieldData.value;
               } else if (field.validation?.appendToLabel && field.validation?.labelText) {
-                cell.value = `${field.validation.labelText} ${fieldData.value}`;
+                // Agregar sufijo si existe (ej: " metros")
+                const valueWithSuffix = field.validation?.suffix
+                  ? `${fieldData.value}${field.validation.suffix}`
+                  : fieldData.value;
+                cell.value = `${field.validation.labelText} ${valueWithSuffix}`;
               } else {
                 const cleanedValue = currentValue.replace(/_+/g, '').trim();
                 // Si ya tiene texto, agregar el valor después

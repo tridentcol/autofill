@@ -634,7 +634,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'fecha_diligenciamiento',
       type: 'basic_info',
-      title: 'Paso 1: Fecha de Diligenciamiento',
+      title: 'Fecha de Diligenciamiento',
       fields: [
         {
           id: 'fecha_completa',
@@ -698,7 +698,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'evaluacion_riesgos',
       type: 'table',
-      title: 'Paso 2: Evaluación de Riesgos y Controles',
+      title: 'Evaluación de Riesgos y Controles',
       fields: riesgosFields,
       startRow: 9,
       endRow: 19,
@@ -777,7 +777,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'trabajadores',
       type: 'worker_list',
-      title: 'Paso 3: Trabajadores',
+      title: 'Trabajadores',
       fields: trabajadoresFields,
       startRow: 21,
       endRow: 25,
@@ -791,7 +791,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'actividad_altura',
       type: 'basic_info',
-      title: 'Paso 4: Actividad y Altura',
+      title: 'Actividad y Altura',
       fields: [
         {
           id: 'actividad_ejecutar',
@@ -808,7 +808,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         },
         {
           id: 'altura_aproximada',
-          label: 'Altura Aproximada (metros)',
+          label: 'Altura Aproximada',
           type: 'text',
           cellRef: 'B28',
           row: 28,
@@ -816,7 +816,8 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           required: false,
           validation: {
             appendToLabel: true,
-            labelText: 'ALTURA APROXIMADA A LA CUAL SE VA DESARROLLAR LA ACTIVIDAD SI APLICA:'
+            labelText: 'ALTURA APROXIMADA A LA CUAL SE VA DESARROLLAR LA ACTIVIDAD SI APLICA:',
+            suffix: ' metros'
           }
         },
       ],
@@ -836,7 +837,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'periodo_validez',
       type: 'basic_info',
-      title: 'Paso 5: Período de Validez',
+      title: 'Período de Validez',
       fields: [
         // Nota: turno_select es solo un helper de UI, no se exporta al Excel
         {
@@ -942,7 +943,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'preparacion_area',
       type: 'checklist',
-      title: 'Paso 6: Preparación del Área',
+      title: 'Preparación del Área',
       fields: preparacionFields,
       startRow: 31,
       endRow: 40,
@@ -959,7 +960,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'sistema_acceso',
       type: 'basic_info',
-      title: 'Paso 7: Sistema de Acceso para Trabajo en Alturas',
+      title: 'Sistema de Acceso para Trabajo en Alturas',
       fields: [
         { id: 'acceso_escalera', label: 'Escalera', type: 'checkbox', cellRef: 'D43', row: 43, col: 4, required: false },
         { id: 'acceso_andamio', label: 'Andamio', type: 'checkbox', cellRef: 'F43', row: 43, col: 6, required: false },
@@ -1014,7 +1015,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'epp',
       type: 'checklist',
-      title: 'Paso 8: Elementos de Protección Personal y Sistemas de Protección Contra Caídas',
+      title: 'Elementos de Protección Personal',
       fields: eppFields,
       startRow: 46,
       endRow: 53,
@@ -1028,7 +1029,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'herramientas_observaciones',
       type: 'observations',
-      title: 'Paso 9: Herramientas y Observaciones',
+      title: 'Herramientas y Observaciones',
       fields: [
         { id: 'herramientas', label: 'Herramientas a Utilizar', type: 'textarea', cellRef: 'B55', row: 55, col: 2, required: false },
         { id: 'observaciones', label: 'Observaciones', type: 'textarea', cellRef: 'B59', row: 59, col: 2, required: false },
@@ -1048,7 +1049,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     sections.push({
       id: 'firmas_autorizacion',
       type: 'signatures',
-      title: 'Paso 10: Firmas de Autorización',
+      title: 'Firmas de Autorización',
       fields: [
         {
           id: 'firma_inspector',
