@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useFormStore } from '@/store/useFormStore';
+import { useDatabaseStore } from '@/store/useDatabaseStore';
 import FieldRenderer from './FieldRenderer';
 import WorkerSection from './WorkerSection';
 import VehicleInfoSection from './VehicleInfoSection';
 import GruaInfoSection from './GruaInfoSection';
+import TurnoSelector from './TurnoSelector';
+import HerramientasInfoSection from './HerramientasInfoSection';
 import { ExcelGenerator, downloadExcelFile } from '@/lib/excelGenerator';
-import type { Field } from '@/types';
+import type { Field, Signature } from '@/types';
 
 export default function FormWizard() {
   const {
@@ -18,9 +21,22 @@ export default function FormWizard() {
     goToNextStep,
     goToPreviousStep,
     goToStep,
-    signatures,
     updateFieldValue,
   } = useFormStore();
+
+  const { workers } = useDatabaseStore();
+
+  // Construir firmas desde los workers que tienen signatureId
+  const signatures = useMemo((): Signature[] => {
+    return workers
+      .filter(w => w.isActive && w.signatureId)
+      .map(w => ({
+        id: w.signatureId!,
+        name: w.nombre,
+        dataUrl: w.signatureData || `/signatures/${w.signatureId}.png`,
+        createdAt: new Date(),
+      }));
+  }, [workers]);
 
   const [generating, setGenerating] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -142,7 +158,7 @@ export default function FormWizard() {
 
     // Cargar firmas que son URLs (no base64) y convertirlas
     console.log(`[Firmas] Procesando ${signatures.length} firmas...`);
-    const loadedSignatures = [];
+    const loadedSignatures: Signature[] = [];
 
     for (const sig of signatures) {
       if (sig.dataUrl.startsWith('data:')) {
@@ -158,6 +174,7 @@ export default function FormWizard() {
         } catch (error) {
           console.error(`[Firma] Error cargando firma para ${sig.name}:`, error);
           // NO incluir firmas que no se pudieron cargar
+          // Esto evita que se intente insertar una URL como base64
           console.warn(`[Firma] ${sig.name} será omitida del Excel`);
         }
       }
@@ -302,18 +319,16 @@ export default function FormWizard() {
           <h3 className="text-2xl font-bold text-gray-900 mb-2">
             {currentWizardStep.title}
           </h3>
-          <p className="text-sm text-gray-600">
-            Tipo: <span className="font-medium">{currentWizardStep.section.type}</span>
-            {currentWizardStep.isOptional && (
-              <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                Opcional
-              </span>
-            )}
-          </p>
+          {currentWizardStep.isOptional && (
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+              Opcional
+            </span>
+          )}
         </div>
 
-        {/* Quick fill options for checklists */}
-        {currentWizardStep.section.type === 'checklist' && (
+        {/* Quick fill options for checklists - solo si tiene campos tipo radio (SI/NO/N/A) */}
+        {currentWizardStep.section.type === 'checklist' &&
+         currentWizardStep.section.fields.some(f => f.type === 'radio') && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm font-medium text-blue-900 mb-3">
               Opciones de llenado rápido:
@@ -429,36 +444,47 @@ export default function FormWizard() {
                     key={group.radio.id}
                     className="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors bg-white"
                   >
-                    <div className="flex flex-col lg:flex-row gap-4 items-start">
-                      {/* Columna izquierda: Nombre y botones */}
-                      <div className="flex-1 min-w-0">
-                        <label className="block text-sm font-medium text-gray-900 mb-3">
-                          {itemCounter}. {group.radio.label}
-                        </label>
-                        <FieldRenderer
-                          field={group.radio}
-                          sheetIndex={0}
-                          sectionIndex={currentStep}
-                          hideLabel={true}
-                        />
-                      </div>
-
-                      {/* Columna derecha: Observaciones (más pequeña) */}
-                      {group.observation && (
-                        <div className="w-full lg:w-72 flex-shrink-0">
-                          <label className="block text-xs font-medium text-gray-600 mb-2">
-                            Observaciones
+                    {group.radio.type === 'checkbox' ? (
+                      // Para checkboxes: mostrar solo el FieldRenderer (el label está dentro)
+                      <FieldRenderer
+                        field={group.radio}
+                        sheetIndex={0}
+                        sectionIndex={currentStep}
+                        hideLabel={false}
+                      />
+                    ) : (
+                      // Para radio y otros: layout con label + campo + observaciones
+                      <div className="flex flex-col lg:flex-row gap-4 items-start">
+                        {/* Columna izquierda: Nombre y botones */}
+                        <div className="flex-1 min-w-0">
+                          <label className="block text-sm font-medium text-gray-900 mb-3">
+                            {itemCounter}. {group.radio.label}
                           </label>
                           <FieldRenderer
-                            field={group.observation}
+                            field={group.radio}
                             sheetIndex={0}
                             sectionIndex={currentStep}
                             hideLabel={true}
-                            compact={true}
                           />
                         </div>
-                      )}
-                    </div>
+
+                        {/* Columna derecha: Observaciones (más pequeña) */}
+                        {group.observation && (
+                          <div className="w-full lg:w-72 flex-shrink-0">
+                            <label className="block text-xs font-medium text-gray-600 mb-2">
+                              Observaciones
+                            </label>
+                            <FieldRenderer
+                              field={group.observation}
+                              sheetIndex={0}
+                              sectionIndex={currentStep}
+                              hideLabel={true}
+                              compact={true}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               });
@@ -507,6 +533,19 @@ export default function FormWizard() {
                 ))}
               </div>
             </>
+          ) : selectedFormat?.id === 'permiso-trabajo' && currentWizardStep.section.id === 'periodo_validez' ? (
+            // Renderizado especial para el período de validez con selector de turno
+            <TurnoSelector
+              sheetIndex={0}
+              sectionIndex={currentStep}
+            />
+          ) : selectedFormat?.id === 'inspeccion-herramientas' && currentWizardStep.section.id === 'basic_info' ? (
+            // Renderizado especial para la información básica de inspección de herramientas
+            <HerramientasInfoSection
+              sheetIndex={0}
+              sectionIndex={currentStep}
+              fields={currentWizardStep.section.fields}
+            />
           ) : (
             // Renderizado normal para otras secciones
             currentWizardStep.section.fields.map((field) => (
@@ -522,11 +561,11 @@ export default function FormWizard() {
       </div>
 
       {/* Navigation buttons */}
-      <div className="mt-8 flex justify-between items-center">
+      <div className="mt-8 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
         <button
           onClick={goToPreviousStep}
           disabled={isFirstStep}
-          className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1"
         >
           <svg
             className="w-5 h-5 mr-2"
@@ -544,11 +583,11 @@ export default function FormWizard() {
           Anterior
         </button>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 order-1 sm:order-2">
           {currentWizardStep.isOptional && (
             <button
               onClick={goToNextStep}
-              className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               Saltar
             </button>
@@ -557,7 +596,7 @@ export default function FormWizard() {
           {!isLastStep ? (
             <button
               onClick={goToNextStep}
-              className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Siguiente
               <svg
@@ -580,7 +619,7 @@ export default function FormWizard() {
               <button
                 onClick={handleUploadToCloud}
                 disabled={uploading || generating}
-                className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 {uploading ? (
                   <>
@@ -647,7 +686,7 @@ export default function FormWizard() {
               <button
                 onClick={handleGenerateExcel}
                 disabled={generating || uploading}
-                className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
               >
                 {generating ? (
                   <>
