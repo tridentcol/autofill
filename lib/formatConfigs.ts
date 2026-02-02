@@ -681,7 +681,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     // PASO 2: EVALUACIÓN DE RIESGOS Y CONTROLES (Filas 9-19)
     // 12 peligros: B9:H9 hasta B19:H19 (descripciones)
     // Medidas: I9:P9 hasta I19:P19
-    // Responsable (firma): Q9:T9 hasta Q19:T19
+    // Responsable (firma): Q9:T9 hasta Q19:T19 - Se rellena automáticamente desde paso de firmas
     const riesgosFields: Field[] = [];
 
     // Campo de texto para el riesgo "12. Otro (Describa):" en I19:P19
@@ -693,24 +693,6 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       row: 19,
       col: 9,
       required: false
-    });
-
-    // Una sola firma que se aplica a Q9:T9 hasta Q19:T19
-    riesgosFields.push({
-      id: 'riesgo_responsable',
-      label: 'Responsable de los Controles',
-      type: 'signature',
-      cellRef: 'Q9',
-      row: 9,
-      col: 17,
-      required: true,
-      validation: {
-        applyToAll: true,
-        applyToRows: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
-        cellRef: 'Q',
-        mergedCols: 4,
-        pattern: 'supervisor_only'
-      }
     });
 
     sections.push({
@@ -1058,17 +1040,19 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // PASO 10: FIRMAS FINALES (Filas 65-67)
-    // AUTORIZA EL TRABAJO: N65:T65
-    // ACTIVA EL PLAN DE EMERGENCIA: N66:T66
-    // COORDINADOR DE TSA: N67:T67
+    // Inspector: Firma unificada que aplica a:
+    //   - Q9:T19 (Responsable de controles en evaluación de riesgos)
+    //   - N65:T65 (Autoriza el trabajo)
+    //   - N67:T67 (Coordinador de TSA)
+    // Activa Plan de Emergencia: N66:T66 (solo conductores ayudantes)
     sections.push({
       id: 'firmas_autorizacion',
       type: 'signatures',
       title: 'Paso 10: Firmas de Autorización',
       fields: [
         {
-          id: 'firma_autoriza_trabajo',
-          label: 'Autoriza el Trabajo',
+          id: 'firma_inspector',
+          label: 'Inspector',
           type: 'signature',
           cellRef: 'N65',
           row: 65,
@@ -1076,7 +1060,12 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           required: true,
           validation: {
             mergedCols: 7,
-            pattern: 'supervisor_only'
+            pattern: 'supervisor_only',
+            applyToMultiple: [
+              { cellRef: 'Q', rows: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], mergedCols: 4 },
+              { cellRef: 'N65', mergedCols: 7 },
+              { cellRef: 'N67', mergedCols: 7 }
+            ]
           }
         },
         {
@@ -1090,19 +1079,6 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           validation: {
             mergedCols: 7,
             pattern: 'conductor_ayudante'
-          }
-        },
-        {
-          id: 'firma_coordinador_tsa',
-          label: 'Coordinador de TSA',
-          type: 'signature',
-          cellRef: 'N67',
-          row: 67,
-          col: 14,
-          required: true,
-          validation: {
-            mergedCols: 7,
-            pattern: 'supervisor_only'
           }
         },
       ],

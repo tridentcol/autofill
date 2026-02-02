@@ -132,20 +132,18 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
   return (
     <div className="space-y-6">
       {/* Selector de Cuadrilla */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <CuadrillaSelector
-          value={selectedCuadrillaId}
-          onChange={handleCuadrillaChange}
-        />
-      </div>
+      <CuadrillaSelector
+        value={selectedCuadrillaId}
+        onChange={handleCuadrillaChange}
+      />
 
       {/* Selector de Trabajadores Individuales */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <h4 className="text-lg font-medium text-gray-900">Trabajadores</h4>
           {selectedCuadrillaId && (
-            <span className="text-sm text-blue-600 bg-blue-100 px-3 py-1 rounded-full">
-              Auto-completado desde {getCuadrillaById(selectedCuadrillaId)?.nombre}
+            <span className="text-xs sm:text-sm text-blue-600 bg-blue-100 px-3 py-1 rounded-full self-start sm:self-auto">
+              {getCuadrillaById(selectedCuadrillaId)?.nombre}
             </span>
           )}
         </div>
@@ -153,10 +151,7 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
         {[0, 1, 2, 3].map((index) => {
           const worker = selectedWorkers[index];
           const signatureId = getSignatureValue(index);
-          // Buscar en availableSignatures (firmas de workers de la DB)
-          // También verificar si el worker tiene firma directamente
           let signature = availableSignatures.find(s => s.id === signatureId);
-          // Si no encontramos en availableSignatures pero el worker tiene signatureId y signatureData
           if (!signature && worker?.signatureId && worker?.signatureData) {
             signature = {
               id: worker.signatureId,
@@ -168,27 +163,25 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
           }
 
           return (
-            <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
+              <div className="space-y-4">
                 {/* Selector de Trabajador */}
-                <div className="md:col-span-2">
-                  <WorkerSelector
-                    value={worker?.id}
-                    onChange={(w) => handleWorkerChange(index, w)}
-                    label={`Trabajador ${index + 1}${index === 0 ? ' *' : ''}`}
-                    required={index === 0}
-                    cuadrillaId={selectedCuadrillaId || undefined}
-                  />
-                </div>
+                <WorkerSelector
+                  value={worker?.id}
+                  onChange={(w) => handleWorkerChange(index, w)}
+                  label={`Trabajador ${index + 1}${index === 0 ? ' *' : ''}`}
+                  required={index === 0}
+                  cuadrillaId={selectedCuadrillaId || undefined}
+                />
 
                 {/* Información Auto-completada */}
                 {worker && (
-                  <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Cargo
                       </label>
-                      <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900">
+                      <div className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900">
                         {worker.cargo}
                       </div>
                     </div>
@@ -197,41 +190,36 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Cédula
                       </label>
-                      <div className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900">
+                      <div className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-900">
                         {worker.cedula || 'Sin cédula'}
                       </div>
                     </div>
 
                     {/* Firma */}
-                    <div className="md:col-span-2">
+                    <div className="sm:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Firma
                       </label>
                       {signature ? (
-                        <div className="flex items-center gap-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-md">
                           <img
                             src={signature.dataUrl}
                             alt={signature.name}
-                            className="h-12 bg-white border border-gray-200 rounded px-2"
+                            className="h-10 sm:h-12 max-w-[150px] object-contain bg-white border border-gray-200 rounded px-2"
                           />
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-green-900">
-                              {signature.name}
-                            </p>
-                            <p className="text-xs text-green-700">
-                              Firma asignada automáticamente
-                            </p>
-                          </div>
+                          <p className="text-sm text-gray-700">
+                            {signature.name}
+                          </p>
                         </div>
                       ) : (
-                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                          <p className="text-sm text-yellow-800">
-                            ⚠️ No hay firma asignada. Por favor cree una firma con el nombre "{worker.nombre}" o asigne una firma en la base de datos.
+                        <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
+                          <p className="text-sm text-gray-500">
+                            Sin firma asignada
                           </p>
                         </div>
                       )}
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
@@ -239,16 +227,6 @@ export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectio
         })}
       </div>
 
-      {/* Ayuda */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h5 className="text-sm font-medium text-gray-900 mb-2">💡 Consejos:</h5>
-        <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
-          <li>Usa el selector de cuadrilla para auto-completar todos los trabajadores de un equipo</li>
-          <li>Puedes cambiar trabajadores individuales después de seleccionar una cuadrilla</li>
-          <li>Las firmas se asignan automáticamente si el trabajador tiene una en la base de datos</li>
-          <li>El primer trabajador es obligatorio, los demás son opcionales</li>
-        </ul>
-      </div>
     </div>
   );
 }

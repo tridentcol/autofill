@@ -146,7 +146,7 @@ export default function FormatSelector() {
       const wizardSteps = parsedFormat.sheets.flatMap((sheet, sheetIndex) =>
         sheet.sections.map((section, sectionIndex) => ({
           stepNumber: sheetIndex * 100 + sectionIndex,
-          title: `${sheet.name} - ${section.title}`,
+          title: section.title,
           section,
           isCompleted: false,
           isOptional: section.type === 'observations' || section.type === 'header',
@@ -221,7 +221,7 @@ export default function FormatSelector() {
         const wizardSteps = parsedFormat.sheets.flatMap((sheet, sheetIndex) =>
           sheet.sections.map((section, sectionIndex) => ({
             stepNumber: sheetIndex * 100 + sectionIndex,
-            title: `${sheet.name} - ${section.title}`,
+            title: section.title,
             section,
             isCompleted: false,
             isOptional: section.type === 'observations' || section.type === 'header',

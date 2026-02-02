@@ -46,12 +46,13 @@ export default function FieldRenderer({
       }));
   }, [workers]);
 
-  // Detectar si es un campo de zona de trabajo
+  // Detectar si es un campo de zona de trabajo (solo para campos de texto)
   const isZonaField = useMemo(() => {
+    if (field.type !== 'text') return false;
     const label = field.label.toLowerCase();
     return (label.includes('lugar') && label.includes('zona')) ||
            (label.includes('zona') && label.includes('trabajo'));
-  }, [field.label]);
+  }, [field.label, field.type]);
 
   // Filtrar firmas por rol si es necesario
   const filteredSignatures = useMemo(() => {
@@ -269,59 +270,36 @@ export default function FieldRenderer({
       case 'signature':
         return (
           <div className="space-y-3">
-            {field.validation?.pattern && (
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-2 mb-2">
-                <p className="text-xs text-blue-800">
-                  {field.validation.pattern === 'supervisor_only' && 'Solo supervisores, coordinadores o asistentes técnicos'}
-                  {field.validation.pattern === 'conductor_only' && 'Solo conductores'}
-                  {field.validation.pattern === 'tecnico_conductor' && 'Solo técnicos o conductores ayudantes'}
-                  {field.validation.pattern === 'conductor_ayudante' && 'Solo conductores ayudantes'}
-                </p>
-              </div>
-            )}
-            <div className="flex items-center gap-3">
-              <select
-                value={value}
-                onChange={(e) => handleChange(e.target.value)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                required={field.required}
-              >
-                <option value="">Seleccione una firma</option>
-                {filteredSignatures.map((sig) => (
-                  <option key={sig.id} value={sig.id}>
-                    {sig.name} ({sig.cargo})
-                  </option>
-                ))}
-              </select>
-              <span className="text-sm text-gray-500">
-                {filteredSignatures.length} firma(s) disponible(s)
-              </span>
-            </div>
-            {filteredSignatures.length === 0 && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
-                <p className="text-sm text-yellow-800">
-                  No hay firmas disponibles con el rol requerido. Por favor asigna firmas a los trabajadores con el cargo correspondiente desde el panel de administración.
-                </p>
-              </div>
-            )}
+            <select
+              value={value}
+              onChange={(e) => handleChange(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              required={field.required}
+            >
+              <option value="">Seleccione una firma</option>
+              {filteredSignatures.map((sig) => (
+                <option key={sig.id} value={sig.id}>
+                  {sig.name} ({sig.cargo})
+                </option>
+              ))}
+            </select>
             {value && (() => {
               const selectedSig = filteredSignatures.find((s) => s.id === value) || availableSignatures.find((s) => s.id === value);
               return selectedSig ? (
-                <div className="border border-gray-300 rounded-md p-2 bg-gray-50">
+                <div className="border border-gray-300 rounded-md p-3 bg-gray-50">
                   <img
                     src={selectedSig.dataUrl}
                     alt={selectedSig.name}
-                    className="max-h-24 mx-auto"
+                    className="max-h-20 mx-auto"
                     onError={(e) => {
-                      // Si falla la URL del servidor, intentar con la URL alternativa
                       const target = e.target as HTMLImageElement;
                       if (!target.src.startsWith('data:')) {
                         target.src = `/signatures/${selectedSig.id}.png`;
                       }
                     }}
                   />
-                  <p className="text-xs text-center text-gray-600 mt-1">
-                    {selectedSig.name} - {selectedSig.cargo}
+                  <p className="text-xs text-center text-gray-600 mt-2">
+                    {selectedSig.name}
                   </p>
                 </div>
               ) : null;
@@ -343,25 +321,20 @@ export default function FieldRenderer({
     }
   };
 
+  // Para checkboxes el label ya está incluido dentro del componente
+  const shouldHideLabel = hideLabel || field.type === 'checkbox';
+
   return (
     <div className={compact ? '' : 'space-y-2'}>
-      {!hideLabel && (
+      {!shouldHideLabel && (
         <div className="flex items-center justify-between">
           <label className="block text-sm font-medium text-gray-700">
             {field.label}
             {field.required && <span className="text-red-500 ml-1">*</span>}
           </label>
-          {!compact && <span className="text-xs text-gray-500 font-mono">{field.cellRef}</span>}
         </div>
       )}
       {renderField()}
-      {!compact && field.validation && (
-        <p className="text-xs text-gray-500">
-          {field.validation.minLength && `Mínimo ${field.validation.minLength} caracteres. `}
-          {field.validation.maxLength && `Máximo ${field.validation.maxLength} caracteres. `}
-          {field.validation.pattern && `Patrón: ${field.validation.pattern}`}
-        </p>
-      )}
     </div>
   );
 }

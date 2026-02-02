@@ -73,8 +73,40 @@ export class ExcelGenerator {
             // Insertar firma como imagen
             const signature = signatures.get(fieldData.value);
             if (signature && field.cellRef) {
-              // Verificar si es firma replicada en múltiples filas (responsable de controles)
-              if (field.validation?.applyToAll && field.validation?.applyToRows && field.validation?.cellRef) {
+              // Verificar si es firma que aplica a múltiples ubicaciones (Inspector unificado)
+              if (field.validation?.applyToMultiple && Array.isArray(field.validation.applyToMultiple)) {
+                for (const location of field.validation.applyToMultiple) {
+                  if (location.rows && Array.isArray(location.rows)) {
+                    // Aplicar a múltiples filas en la misma columna
+                    for (const row of location.rows) {
+                      const cellRef = `${location.cellRef}${row}`;
+                      const cell = worksheet.getCell(cellRef);
+                      await this.insertSignature(
+                        workbook,
+                        worksheet,
+                        signature,
+                        row,
+                        Number(cell.col),
+                        1,
+                        location.mergedCols || 4
+                      );
+                    }
+                  } else {
+                    // Aplicar a una celda específica
+                    const cell = worksheet.getCell(location.cellRef);
+                    await this.insertSignature(
+                      workbook,
+                      worksheet,
+                      signature,
+                      Number(cell.row),
+                      Number(cell.col),
+                      1,
+                      location.mergedCols || 7
+                    );
+                  }
+                }
+              } else if (field.validation?.applyToAll && field.validation?.applyToRows && field.validation?.cellRef) {
+                // Firma replicada en múltiples filas (formato legacy)
                 const colLetter = field.validation.cellRef;
                 const mergedCols = field.validation?.mergedCols || 4;
 

@@ -257,14 +257,11 @@ export default function FormWizard() {
           <h3 className="text-2xl font-bold text-gray-900 mb-2">
             {currentWizardStep.title}
           </h3>
-          <p className="text-sm text-gray-600">
-            Tipo: <span className="font-medium">{currentWizardStep.section.type}</span>
-            {currentWizardStep.isOptional && (
-              <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                Opcional
-              </span>
-            )}
-          </p>
+          {currentWizardStep.isOptional && (
+            <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+              Opcional
+            </span>
+          )}
         </div>
 
         {/* Quick fill options for checklists - solo si tiene campos tipo radio (SI/NO/N/A) */}
@@ -491,11 +488,11 @@ export default function FormWizard() {
       </div>
 
       {/* Navigation buttons */}
-      <div className="mt-8 flex justify-between items-center">
+      <div className="mt-8 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
         <button
           onClick={goToPreviousStep}
           disabled={isFirstStep}
-          className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1"
         >
           <svg
             className="w-5 h-5 mr-2"
@@ -513,11 +510,11 @@ export default function FormWizard() {
           Anterior
         </button>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 order-1 sm:order-2">
           {currentWizardStep.isOptional && (
             <button
               onClick={goToNextStep}
-              className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
               Saltar
             </button>
@@ -526,7 +523,7 @@ export default function FormWizard() {
           {!isLastStep ? (
             <button
               onClick={goToNextStep}
-              className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Siguiente
               <svg
@@ -547,7 +544,7 @@ export default function FormWizard() {
             <button
               onClick={handleGenerateExcel}
               disabled={generating}
-              className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              className="inline-flex items-center justify-center px-4 sm:px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
             >
               {generating ? (
                 <>

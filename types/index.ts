@@ -83,6 +83,12 @@ export interface FieldValidation {
   // Campos para concatenación con etiqueta
   appendToLabel?: boolean; // Si debe concatenar el valor con la etiqueta
   labelText?: string; // Texto de la etiqueta a mantener
+  // Para firmas que aplican a múltiples ubicaciones (Inspector unificado)
+  applyToMultiple?: Array<{
+    cellRef: string;
+    rows?: number[];
+    mergedCols?: number;
+  }>;
 }
 
 export interface FormData {
