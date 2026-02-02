@@ -41,14 +41,22 @@ function isEmpty(v: any): boolean {
   return false;
 }
 
+/** Checkbox/option value counts as "filled" (sistema_acceso, epp). */
+function hasCheckOrText(v: any, field: { type: string }): boolean {
+  if (field.type === 'checkbox') return v === true || v === 'true' || v === 'X' || v === 1;
+  return !isEmpty(v);
+}
+
 /**
- * Check if all signature fields in the form have at least one selected.
+ * Check if all required signature fields are selected.
+ * Only considers sections of type 'signatures' (final signature steps), not worker_list.
  */
 export function allSignaturesSelected(formData: FormData, format: ExcelFormat): boolean {
   for (const sheet of format.sheets) {
     for (const section of sheet.sections) {
+      if (section.type !== 'signatures') continue; // solo pasos de firma final, no trabajadores
       const sectionData = getSectionData(formData, section.id);
-      if (!sectionData) continue;
+      if (!sectionData) return false; // sección de firmas debe existir
       for (const field of section.fields) {
         if (field.type === 'signature') {
           const val = getFieldValue(sectionData, field.id);
@@ -109,12 +117,13 @@ export function validateStep(
       return { valid: true };
     }
     if (section.id === 'riesgo_otro_descripcion' || section.id === 'lugar_zona' || section.id === 'lugar_zona_trabajo') return { valid: true }; // step 2 optional
-    if (section.id === 'evaluacion_riesgos') {
-      const hasAny = section.fields.some((f) => !isEmpty(getVal(f.id)));
-      if (!hasAny) return { valid: false, message: 'Debe haber al menos una selección en evaluación de riesgos.' };
+    if (section.id === 'evaluacion_riesgos') return { valid: true }; // opcional
+    if (section.id === 'cuadrilla_select') return { valid: true }; // opcional
+    if (section.id === 'trabajadores') {
+      const atLeastOne = [1, 2, 3, 4].some((i) => !isEmpty(getVal(`trabajador${i}_nombre`)));
+      if (!atLeastOne) return { valid: false, message: 'Debe haber al menos un trabajador seleccionado.' };
       return { valid: true };
     }
-    if (section.id === 'cuadrilla_select' || section.id === 'trabajadores') return { valid: true }; // optional
     if (section.id === 'actividad_altura') {
       for (const field of section.fields) {
         const v = getVal(field.id);
@@ -137,21 +146,13 @@ export function validateStep(
       return { valid: true };
     }
     if (section.id === 'sistema_acceso') {
-      const hasAny = section.fields.some((f) => {
-        const v = getVal(f.id);
-        if (f.type === 'checkbox') return v === true;
-        return !isEmpty(v);
-      });
-      if (!hasAny) return { valid: false, message: 'Debe marcar o ingresar al menos un sistema de acceso.' };
+      const hasAny = section.fields.some((f) => hasCheckOrText(getVal(f.id), f));
+      if (!hasAny) return { valid: false, message: 'Debe marcar uno de los sistemas de acceso o escribir en Otro.' };
       return { valid: true };
     }
     if (section.id === 'epp') {
-      const hasAny = section.fields.some((f) => {
-        const v = getVal(f.id);
-        if (f.type === 'checkbox') return v === true;
-        return !isEmpty(v);
-      });
-      if (!hasAny) return { valid: false, message: 'Debe marcar o ingresar al menos un elemento de EPP.' };
+      const hasAny = section.fields.some((f) => hasCheckOrText(getVal(f.id), f));
+      if (!hasAny) return { valid: false, message: 'Debe marcar al menos un elemento de EPP o especificar en Otro(s).' };
       return { valid: true };
     }
     if (section.id === 'herramientas_observaciones') {

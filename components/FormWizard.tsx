@@ -351,25 +351,31 @@ export default function FormWizard() {
         </div>
       </div>
 
-      {/* Step navigation - scroll horizontal en móvil para ver paso actual */}
+      {/* Step navigation - scroll horizontal en móvil; solo se puede ir a pasos ya visitados */}
       <div ref={stepTabsRef} className="mb-6 overflow-x-auto overflow-y-hidden scroll-smooth">
         <div className="flex gap-2 pb-2 min-w-0">
-          {wizardSteps.map((step, index) => (
-            <button
-              key={step.stepNumber}
-              ref={index === currentStep ? activeStepButtonRef : undefined}
-              onClick={() => goToStep(index)}
-              className={`flex-shrink-0 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                index === currentStep
-                  ? 'bg-primary-600 text-white'
-                  : step.isCompleted
-                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {index + 1}. {step.title}
-            </button>
-          ))}
+          {wizardSteps.map((step, index) => {
+            const canGoToStep = index <= currentStep;
+            return (
+              <button
+                key={step.stepNumber}
+                ref={index === currentStep ? activeStepButtonRef : undefined}
+                onClick={() => canGoToStep && goToStep(index)}
+                disabled={!canGoToStep}
+                className={`flex-shrink-0 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                  index === currentStep
+                    ? 'bg-primary-600 text-white'
+                    : step.isCompleted && canGoToStep
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                    : canGoToStep
+                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                }`}
+              >
+                {index + 1}. {step.title}
+              </button>
+            );
+          })}
         </div>
       </div>
 
