@@ -23,6 +23,9 @@ export default function FormWizard() {
   } = useFormStore();
 
   const [generating, setGenerating] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
+  const [uploadUrl, setUploadUrl] = useState<string | null>(null);
   const [quickFillMode, setQuickFillMode] = useState<'all_yes' | 'all_no' | 'all_na' | null>(null);
 
   const currentWizardStep = wizardSteps[currentStep];
@@ -65,41 +68,49 @@ export default function FormWizard() {
     alert(`Se han marcado ${radioFields.length} items como "${value}"`);
   };
 
-  // Generar archivo Excel rellenado
+  // Generar el Blob del Excel (compartido entre download y upload)
+  const generateExcelBlob = async (): Promise<Blob> => {
+    if (!selectedFormat || !currentFormData) {
+      throw new Error('No hay formato o datos seleccionados');
+    }
+
+    const generator = new ExcelGenerator();
+    const originalBufferBase64 = (selectedFormat as any).originalBuffer;
+
+    if (!originalBufferBase64) {
+      throw new Error('No se encontró el archivo original');
+    }
+
+    // Convertir de base64 de vuelta a ArrayBuffer
+    const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
+      const binaryString = atob(base64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return bytes.buffer;
+    };
+
+    const originalBuffer = base64ToArrayBuffer(originalBufferBase64);
+
+    // Convertir signatures array a Map
+    const signaturesMap = new Map(signatures.map((sig) => [sig.id, sig]));
+
+    return await generator.generateFilledExcel(
+      originalBuffer,
+      currentFormData,
+      signaturesMap,
+      selectedFormat
+    );
+  };
+
+  // Generar y descargar Excel
   const handleGenerateExcel = async () => {
     if (!selectedFormat || !currentFormData) return;
 
     setGenerating(true);
     try {
-      const generator = new ExcelGenerator();
-      const originalBufferBase64 = (selectedFormat as any).originalBuffer;
-
-      if (!originalBufferBase64) {
-        throw new Error('No se encontró el archivo original');
-      }
-
-      // Convertir de base64 de vuelta a ArrayBuffer
-      const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
-        const binaryString = atob(base64);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes.buffer;
-      };
-
-      const originalBuffer = base64ToArrayBuffer(originalBufferBase64);
-
-      // Convertir signatures array a Map
-      const signaturesMap = new Map(signatures.map((sig) => [sig.id, sig]));
-
-      const blob = await generator.generateFilledExcel(
-        originalBuffer,
-        currentFormData,
-        signaturesMap,
-        selectedFormat
-      );
-
+      const blob = await generateExcelBlob();
       const fileName = `${selectedFormat.name}_rellenado_${new Date().toISOString().slice(0, 10)}.xlsx`;
       downloadExcelFile(blob, fileName);
 
@@ -109,6 +120,52 @@ export default function FormWizard() {
       alert(`Error al generar el archivo: ${error instanceof Error ? error.message : 'Error desconocido'}`);
     } finally {
       setGenerating(false);
+    }
+  };
+
+  // Subir a la nube (Vercel Blob)
+  const handleUploadToCloud = async () => {
+    if (!selectedFormat || !currentFormData) return;
+
+    setUploading(true);
+    setUploadSuccess(false);
+    setUploadUrl(null);
+
+    try {
+      // Generate Excel blob
+      const blob = await generateExcelBlob();
+      
+      // Create FormData
+      const formData = new FormData();
+      const fileName = `${selectedFormat.name}_rellenado_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      const file = new File([blob], fileName, { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      });
+      
+      formData.append('file', file);
+      formData.append('formatName', selectedFormat.name);
+      formData.append('formatId', selectedFormat.id);
+
+      // Upload to API
+      const response = await fetch('/api/documents/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al subir el archivo');
+      }
+
+      setUploadSuccess(true);
+      setUploadUrl(result.blob.url);
+      alert('¡Archivo guardado en la nube exitosamente!');
+    } catch (error) {
+      console.error('Error uploading to cloud:', error);
+      alert(`Error al subir a la nube: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -440,57 +497,172 @@ export default function FormWizard() {
               </svg>
             </button>
           ) : (
-            <button
-              onClick={handleGenerateExcel}
-              disabled={generating}
-              className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-            >
-              {generating ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
+            <>
+              {/* Upload to Cloud button */}
+              <button
+                onClick={handleUploadToCloud}
+                disabled={uploading || generating}
+                className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              >
+                {uploading ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Subiendo...
+                  </>
+                ) : uploadSuccess ? (
+                  <>
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
                       stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Generando...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                  Generar Excel
-                </>
-              )}
-            </button>
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Guardado en la nube
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    Guardar en la nube
+                  </>
+                )}
+              </button>
+
+              {/* Download Excel button */}
+              <button
+                onClick={handleGenerateExcel}
+                disabled={generating || uploading}
+                className="inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+              >
+                {generating ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Generando...
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                      />
+                    </svg>
+                    Descargar Excel
+                  </>
+                )}
+              </button>
+            </>
           )}
         </div>
       </div>
+
+      {/* Success message when uploaded */}
+      {uploadSuccess && uploadUrl && (
+        <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-start">
+            <svg
+              className="w-6 h-6 text-green-600 mr-3 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-green-800">
+                Documento guardado en la nube
+              </h3>
+              <p className="mt-1 text-sm text-green-700">
+                El archivo se guardó correctamente y está disponible en la sección de Documentos.
+              </p>
+              <div className="mt-3 flex gap-3">
+                <a
+                  href="/documentos"
+                  className="text-sm font-medium text-green-800 hover:text-green-900 underline"
+                >
+                  Ver todos los documentos
+                </a>
+                <a
+                  href={uploadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-medium text-green-800 hover:text-green-900 underline"
+                >
+                  Abrir documento
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
