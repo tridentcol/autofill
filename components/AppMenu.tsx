@@ -122,24 +122,26 @@ export default function AppMenu() {
 
             {/* Menu Items */}
             <div className="py-1">
-              {/* Documents Link - Available to all */}
-              <a
-                href="/documentos"
-                className="w-full flex items-center gap-3 px-4 py-3 sm:py-2.5 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-              >
-                <svg className="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <div className="text-left min-w-0">
-                  <p className="font-medium">Documentos</p>
-                  <p className="text-xs text-gray-500 truncate">Ver archivos guardados</p>
-                </div>
-              </a>
+              {/* Documents Link - Admin only */}
+              {isAdmin && (
+                <a
+                  href="/documentos"
+                  className="w-full flex items-center gap-3 px-4 py-3 sm:py-2.5 text-sm text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                >
+                  <svg className="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <div className="text-left min-w-0">
+                    <p className="font-medium">Documentos</p>
+                    <p className="text-xs text-gray-500 truncate">Ver y gestionar archivos guardados</p>
+                  </div>
+                </a>
+              )}
 
               {/* Sync Button - Available to all */}
               <button
