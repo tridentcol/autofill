@@ -10,6 +10,10 @@ import VehicleInfoSection from './VehicleInfoSection';
 import GruaInfoSection from './GruaInfoSection';
 import TurnoSelector from './TurnoSelector';
 import HerramientasInfoSection from './HerramientasInfoSection';
+import HerramientasSelector from './HerramientasSelector';
+import ATSInfoSection from './ATSInfoSection';
+import ATSRevisoSection from './ATSRevisoSection';
+import ATSBasicInfoSection from './ATSBasicInfoSection';
 import { ExcelGenerator, downloadExcelFile } from '@/lib/excelGenerator';
 import {
   getSectionFormDataAtStep,
@@ -604,6 +608,54 @@ export default function FormWizard() {
             <TurnoSelector
               sheetIndex={0}
               sectionIndex={currentStep}
+            />
+          ) : selectedFormat?.id === 'permiso-trabajo' && currentWizardStep.section.id === 'herramientas_observaciones' ? (
+            // Renderizado especial para herramientas con checkboxes + observaciones
+            <>
+              <HerramientasSelector
+                sheetIndex={0}
+                sectionIndex={currentStep}
+              />
+              {/* Observaciones después de las herramientas */}
+              <div className="mt-6">
+                {currentWizardStep.section.fields
+                  .filter((field) => field.id === 'observaciones')
+                  .map((field) => (
+                    <FieldRenderer
+                      key={field.id}
+                      field={field}
+                      sheetIndex={0}
+                      sectionIndex={currentStep}
+                    />
+                  ))}
+              </div>
+            </>
+          ) : selectedFormat?.id === 'ats' && currentWizardStep.section.id === 'basic_info' ? (
+            // Renderizado especial para información básica ATS (con selector de cuadrilla y zonas)
+            <ATSBasicInfoSection
+              sheetIndex={0}
+              sectionIndex={currentStep}
+              fields={currentWizardStep.section.fields}
+            />
+          ) : selectedFormat?.id === 'ats' && currentWizardStep.section.id === 'herramientas' ? (
+            // Renderizado especial para herramientas en ATS
+            <HerramientasSelector
+              sheetIndex={0}
+              sectionIndex={currentStep}
+            />
+          ) : selectedFormat?.id === 'ats' && currentWizardStep.section.id === 'elaboro_info' ? (
+            // Renderizado especial para Elaboró (autocomplete)
+            <ATSInfoSection
+              sheetIndex={0}
+              sectionIndex={currentStep}
+              fields={currentWizardStep.section.fields}
+            />
+          ) : selectedFormat?.id === 'ats' && currentWizardStep.section.id === 'reviso_aprobo' ? (
+            // Renderizado especial para Reviso y Aprobó (autocomplete cargo inspector)
+            <ATSRevisoSection
+              sheetIndex={0}
+              sectionIndex={currentStep}
+              fields={currentWizardStep.section.fields}
             />
           ) : selectedFormat?.id === 'inspeccion-herramientas' && currentWizardStep.section.id === 'basic_info' ? (
             // Renderizado especial para la información básica de inspección de herramientas

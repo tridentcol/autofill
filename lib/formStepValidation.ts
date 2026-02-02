@@ -195,6 +195,34 @@ export function validateStep(
     if (section.id === 'observations') return { valid: true };
   }
 
+  // --- ATS (Análisis de Trabajo Seguro) ---
+  if (formatId === 'ats') {
+    if (section.id === 'basic_info') {
+      for (const field of section.fields) {
+        const v = getVal(field.id);
+        if (isEmpty(v)) return { valid: false, message: `Complete el campo "${field.label}".` };
+      }
+      return { valid: true };
+    }
+    if (section.id === 'herramientas') {
+      const herramientas = getVal('herramientas');
+      if (isEmpty(herramientas)) return { valid: false, message: 'Debe seleccionar al menos una herramienta.' };
+      return { valid: true };
+    }
+    if (section.id === 'elaboro_info') {
+      for (const field of section.fields) {
+        const v = getVal(field.id);
+        if (isEmpty(v)) return { valid: false, message: `Complete el campo "${field.label}".` };
+      }
+      return { valid: true };
+    }
+    if (section.id === 'reviso_aprobo') {
+      const inspectorNombre = getVal('inspector_nombre');
+      if (isEmpty(inspectorNombre)) return { valid: false, message: 'Debe seleccionar un inspector.' };
+      return { valid: true };
+    }
+  }
+
   // --- Inspección Grúa/Manlift ---
   if (formatId === 'inspeccion-grua') {
     if (section.id === 'basic_info') {

@@ -33,7 +33,7 @@ const PREDEFINED_FORMATS = [
     id: 'ats',
     name: 'Análisis de Trabajo Seguro',
     description: 'Análisis de trabajo seguro (ATS)',
-    filePath: '/formats/ANALISIS DE TRABAJO SEGURO (ATS).xlsx',
+    filePath: '/formats/ANALISIS DE TRABAJO SEGURO (ATS) actual (15) (9).xlsx',
     iconType: 'warning',
   },
   {
