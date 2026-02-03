@@ -202,6 +202,7 @@ export interface Worker {
   nombre: string;
   cargo: WorkerCargo;
   cedula: string;
+  password?: string; // Contraseña para autenticación
   cuadrillaId?: string; // ID de la cuadrilla a la que pertenece
   signatureId?: string; // ID de la firma asignada
   signatureData?: string; // Base64 de la firma para mostrar localmente mientras se sincroniza
@@ -209,6 +210,19 @@ export interface Worker {
   updatedAt: Date;
   isActive: boolean; // Para desactivar sin eliminar
 }
+
+// Permisos de acceso a formularios por cargo
+export const FORM_ACCESS_BY_CARGO: Record<string, string[]> = {
+  'Conductor ayudante': ['inspeccion-vehiculo', 'inspeccion-grua'],
+  'Técnico electricista': ['permiso-trabajo', 'inspeccion-herramientas', 'ats'],
+};
+
+// Cargos que tienen acceso completo a todos los formularios
+export const FULL_ACCESS_CARGOS = [
+  'Supervisor de cuadrilla',
+  'Coordinador de zona',
+  'Asistente técnico de mantenimiento',
+];
 
 export interface Cuadrilla {
   id: string;
@@ -247,6 +261,8 @@ export interface User {
   nombre: string;
   email?: string;
   role: UserRole;
+  cargo?: string; // Cargo del trabajador para control de acceso
+  cuadrillaId?: string; // Cuadrilla del trabajador para auto-completar
   createdAt: Date;
   lastLogin?: Date;
 }
