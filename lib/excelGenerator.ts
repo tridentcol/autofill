@@ -9,18 +9,36 @@ const PERMISO_TRABAJO_FONT: Partial<ExcelJS.Font> = {
   name: 'Arial'
 };
 
+// Fuente tamaño 11 solo para textos que reemplazan firmas (ej: Grúa/Manlift)
+const FONT_SIZE_11: Partial<ExcelJS.Font> = {
+  size: 11,
+  color: { argb: 'FF000000' },
+  name: 'Arial'
+};
+
+// Fuente tamaño 12 para campos de cabecera del ATS (ubicación, descripción, equipo, objetivo, herramientas)
+const ATS_HEADER_FONT: Partial<ExcelJS.Font> = {
+  size: 12,
+  color: { argb: 'FF000000' },
+  name: 'Arial'
+};
+
+const ATS_HEADER_FIELD_IDS = ['ubicacion_trabajo', 'descripcion_trabajo', 'equipo_elabora', 'objetivo', 'herramientas'];
+
 /**
  * Genera un archivo Excel rellenado con los datos del formulario
  */
 export class ExcelGenerator {
   /**
    * Genera el archivo Excel rellenado
+   * @param currentUserSignatureId - Para inspeccion-herramientas: firma del usuario de sesión (se inserta automáticamente)
    */
   async generateFilledExcel(
     originalFileBuffer: ArrayBuffer,
     formData: FormData,
     signatures: Map<string, Signature>,
-    excelFormat: any
+    excelFormat: any,
+    currentUserSignatureId?: string
   ): Promise<Blob> {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(originalFileBuffer);
@@ -247,6 +265,7 @@ export class ExcelGenerator {
                 cell.value = fieldData.value;
               }
               if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+              else if (excelFormat?.id === 'ats' && ATS_HEADER_FIELD_IDS.includes(field.id)) cell.font = ATS_HEADER_FONT;
               cell.alignment = {
                 vertical: 'top',
                 horizontal: 'left',
@@ -284,7 +303,41 @@ export class ExcelGenerator {
                 }
               }
               if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+              else if (excelFormat?.id === 'ats' && ATS_HEADER_FIELD_IDS.includes(field.id)) cell.font = ATS_HEADER_FONT;
             }
+          }
+        }
+      }
+
+      // Inspección de herramientas: insertar firma del usuario de sesión automáticamente (A39:L40)
+      if (excelFormat?.id === 'inspeccion-herramientas' && currentUserSignatureId) {
+        const currentUserSig = signatures.get(currentUserSignatureId);
+        if (currentUserSig) {
+          const cell = worksheet.getCell('A39');
+          await this.insertSignature(workbook, worksheet, currentUserSig, 39, 1, 2, 12);
+        }
+      }
+
+      // Inspección Grúa/Manlift: escribir nombre REALIZADO POR en las celdas de firma (texto, centrado, size 11)
+      if (excelFormat?.id === 'inspeccion-grua') {
+        let realizadoPorValue: string | null = null;
+        for (const sheet of formData.sheets) {
+          for (const sec of sheet.sections) {
+            const f = sec.fields.find((x) => x.fieldId === 'basic_A6');
+            if (f?.value) {
+              realizadoPorValue = String(f.value).trim();
+              break;
+            }
+          }
+          if (realizadoPorValue) break;
+        }
+        if (realizadoPorValue) {
+          const gruaTextoLocations = ['G11', 'G17', 'G31', 'G43', 'O11', 'O17', 'O31', 'O43'];
+          for (const cellRef of gruaTextoLocations) {
+            const cell = worksheet.getCell(cellRef);
+            cell.value = realizadoPorValue;
+            cell.font = FONT_SIZE_11;
+            cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
           }
         }
       }
