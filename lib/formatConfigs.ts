@@ -138,35 +138,9 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 12,
     });
 
-    // 3. FIRMA
-    // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
-    sections.push({
-      id: 'signatures',
-      type: 'signatures',
-      title: 'Firma',
-      fields: [
-        {
-          id: 'sig_A39',
-          label: 'Firma del Inspector',
-          type: 'signature',
-          cellRef: 'A39',
-          row: 39,
-          col: 1,
-          required: true,
-          validation: {
-            mergedRows: 2,   // Filas 39-40 (firma puede sobresalir naturalmente sobre la línea)
-            mergedCols: 12,  // A39:L40 tiene 12 columnas (A-L), ancho total: 1116px
-            pattern: 'supervisor_only'
-          },
-        },
-      ],
-      startRow: 39,
-      endRow: 40,
-      startCol: 1,
-      endCol: 12,
-    });
+    // Paso 3 de firma eliminado: la firma se pone automáticamente según la sesión iniciada
 
-    // 4. OBSERVACIONES GENERALES
+    // 3. OBSERVACIONES GENERALES
     sections.push({
       id: 'observations',
       type: 'observations',

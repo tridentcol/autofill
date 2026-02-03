@@ -187,11 +187,7 @@ export function validateStep(
       }
       return { valid: true };
     }
-    if (section.id === 'signatures') {
-      const sig = getVal('sig_A39');
-      if (isEmpty(sig)) return { valid: false, message: 'Debe seleccionar una firma.' };
-      return { valid: true };
-    }
+    // inspeccion-herramientas: sin paso de firma; se inserta automáticamente según sesión
     if (section.id === 'observations') return { valid: true };
   }
 

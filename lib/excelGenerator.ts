@@ -22,12 +22,14 @@ const FONT_SIZE_11: Partial<ExcelJS.Font> = {
 export class ExcelGenerator {
   /**
    * Genera el archivo Excel rellenado
+   * @param currentUserSignatureId - Para inspeccion-herramientas: firma del usuario de sesión (se inserta automáticamente)
    */
   async generateFilledExcel(
     originalFileBuffer: ArrayBuffer,
     formData: FormData,
     signatures: Map<string, Signature>,
-    excelFormat: any
+    excelFormat: any,
+    currentUserSignatureId?: string
   ): Promise<Blob> {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(originalFileBuffer);
@@ -293,6 +295,15 @@ export class ExcelGenerator {
               if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
             }
           }
+        }
+      }
+
+      // Inspección de herramientas: insertar firma del usuario de sesión automáticamente (A39:L40)
+      if (excelFormat?.id === 'inspeccion-herramientas' && currentUserSignatureId) {
+        const currentUserSig = signatures.get(currentUserSignatureId);
+        if (currentUserSig) {
+          const cell = worksheet.getCell('A39');
+          await this.insertSignature(workbook, worksheet, currentUserSig, 39, 1, 2, 12);
         }
       }
 
