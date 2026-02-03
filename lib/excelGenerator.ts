@@ -9,6 +9,13 @@ const PERMISO_TRABAJO_FONT: Partial<ExcelJS.Font> = {
   name: 'Arial'
 };
 
+// Fuente por defecto para el resto de formatos: tamaño 11
+const DEFAULT_FONT: Partial<ExcelJS.Font> = {
+  size: 11,
+  color: { argb: 'FF000000' },
+  name: 'Arial'
+};
+
 /**
  * Genera un archivo Excel rellenado con los datos del formulario
  */
@@ -175,7 +182,7 @@ export class ExcelGenerator {
                 if (selectedCellRef) {
                   const cell = worksheet.getCell(selectedCellRef);
                   cell.value = 'X';
-                  if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+                  cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
                   cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 }
               } catch (e) {
@@ -187,7 +194,7 @@ export class ExcelGenerator {
             if (fieldData.value && field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
               cell.value = '✓';
-              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+              cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'date') {
@@ -204,19 +211,19 @@ export class ExcelGenerator {
                 // Escribir día
                 const dayCell = worksheet.getCell(field.validation.dayCellRef);
                 dayCell.value = day;
-                if (isPermisoTrabajo) dayCell.font = PERMISO_TRABAJO_FONT;
+                dayCell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
                 dayCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
                 // Escribir mes
                 const monthCell = worksheet.getCell(field.validation.monthCellRef);
                 monthCell.value = month;
-                if (isPermisoTrabajo) monthCell.font = PERMISO_TRABAJO_FONT;
+                monthCell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
                 monthCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
                 // Escribir año
                 const yearCell = worksheet.getCell(field.validation.yearCellRef);
                 yearCell.value = year;
-                if (isPermisoTrabajo) yearCell.font = PERMISO_TRABAJO_FONT;
+                yearCell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
                 yearCell.alignment = { vertical: 'middle', horizontal: 'center' };
               } else {
                 // Comportamiento original para fechas normales
@@ -225,7 +232,7 @@ export class ExcelGenerator {
                 const cleanedValue = currentValue.replace(/_+/g, '').trim();
                 const dateStr = new Date(fieldData.value).toLocaleDateString('es-ES');
                 cell.value = cleanedValue ? `${cleanedValue} ${dateStr}` : dateStr;
-                if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+                cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
               }
             }
           } else if (field.type === 'time') {
@@ -233,7 +240,7 @@ export class ExcelGenerator {
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
               cell.value = fieldData.value;
-              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+              cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'textarea') {
@@ -246,7 +253,7 @@ export class ExcelGenerator {
               } else {
                 cell.value = fieldData.value;
               }
-              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+              cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
               cell.alignment = {
                 vertical: 'top',
                 horizontal: 'left',
@@ -283,13 +290,13 @@ export class ExcelGenerator {
                   cell.value = fieldData.value;
                 }
               }
-              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+              cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
             }
           }
         }
       }
 
-      // Inspección Grúa/Manlift: escribir nombre REALIZADO POR en las celdas de firma (texto, centrado)
+      // Inspección Grúa/Manlift: escribir nombre REALIZADO POR en las celdas de firma (texto, centrado, size 11)
       if (excelFormat?.id === 'inspeccion-grua') {
         let realizadoPorValue: string | null = null;
         for (const sheet of formData.sheets) {
@@ -307,6 +314,7 @@ export class ExcelGenerator {
           for (const cellRef of gruaTextoLocations) {
             const cell = worksheet.getCell(cellRef);
             cell.value = realizadoPorValue;
+            cell.font = DEFAULT_FONT;
             cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
           }
         }
