@@ -16,6 +16,15 @@ const FONT_SIZE_11: Partial<ExcelJS.Font> = {
   name: 'Arial'
 };
 
+// Fuente tamaño 12 para campos de cabecera del ATS (ubicación, descripción, equipo, objetivo, herramientas)
+const ATS_HEADER_FONT: Partial<ExcelJS.Font> = {
+  size: 12,
+  color: { argb: 'FF000000' },
+  name: 'Arial'
+};
+
+const ATS_HEADER_FIELD_IDS = ['ubicacion_trabajo', 'descripcion_trabajo', 'equipo_elabora', 'objetivo', 'herramientas'];
+
 /**
  * Genera un archivo Excel rellenado con los datos del formulario
  */
@@ -256,6 +265,7 @@ export class ExcelGenerator {
                 cell.value = fieldData.value;
               }
               if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+              else if (excelFormat?.id === 'ats' && ATS_HEADER_FIELD_IDS.includes(field.id)) cell.font = ATS_HEADER_FONT;
               cell.alignment = {
                 vertical: 'top',
                 horizontal: 'left',
@@ -293,6 +303,7 @@ export class ExcelGenerator {
                 }
               }
               if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
+              else if (excelFormat?.id === 'ats' && ATS_HEADER_FIELD_IDS.includes(field.id)) cell.font = ATS_HEADER_FONT;
             }
           }
         }
