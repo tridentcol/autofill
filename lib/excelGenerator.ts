@@ -9,8 +9,8 @@ const PERMISO_TRABAJO_FONT: Partial<ExcelJS.Font> = {
   name: 'Arial'
 };
 
-// Fuente por defecto para el resto de formatos: tamaño 11
-const DEFAULT_FONT: Partial<ExcelJS.Font> = {
+// Fuente tamaño 11 solo para textos que reemplazan firmas (ej: Grúa/Manlift)
+const FONT_SIZE_11: Partial<ExcelJS.Font> = {
   size: 11,
   color: { argb: 'FF000000' },
   name: 'Arial'
@@ -182,7 +182,7 @@ export class ExcelGenerator {
                 if (selectedCellRef) {
                   const cell = worksheet.getCell(selectedCellRef);
                   cell.value = 'X';
-                  cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
+                  if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
                   cell.alignment = { vertical: 'middle', horizontal: 'center' };
                 }
               } catch (e) {
@@ -194,7 +194,7 @@ export class ExcelGenerator {
             if (fieldData.value && field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
               cell.value = '✓';
-              cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'date') {
@@ -211,19 +211,19 @@ export class ExcelGenerator {
                 // Escribir día
                 const dayCell = worksheet.getCell(field.validation.dayCellRef);
                 dayCell.value = day;
-                dayCell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
+                if (isPermisoTrabajo) dayCell.font = PERMISO_TRABAJO_FONT;
                 dayCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
                 // Escribir mes
                 const monthCell = worksheet.getCell(field.validation.monthCellRef);
                 monthCell.value = month;
-                monthCell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
+                if (isPermisoTrabajo) monthCell.font = PERMISO_TRABAJO_FONT;
                 monthCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
                 // Escribir año
                 const yearCell = worksheet.getCell(field.validation.yearCellRef);
                 yearCell.value = year;
-                yearCell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
+                if (isPermisoTrabajo) yearCell.font = PERMISO_TRABAJO_FONT;
                 yearCell.alignment = { vertical: 'middle', horizontal: 'center' };
               } else {
                 // Comportamiento original para fechas normales
@@ -232,7 +232,7 @@ export class ExcelGenerator {
                 const cleanedValue = currentValue.replace(/_+/g, '').trim();
                 const dateStr = new Date(fieldData.value).toLocaleDateString('es-ES');
                 cell.value = cleanedValue ? `${cleanedValue} ${dateStr}` : dateStr;
-                cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
+                if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               }
             }
           } else if (field.type === 'time') {
@@ -240,7 +240,7 @@ export class ExcelGenerator {
             if (field.cellRef) {
               const cell = worksheet.getCell(field.cellRef);
               cell.value = fieldData.value;
-              cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               cell.alignment = { vertical: 'middle', horizontal: 'center' };
             }
           } else if (field.type === 'textarea') {
@@ -253,7 +253,7 @@ export class ExcelGenerator {
               } else {
                 cell.value = fieldData.value;
               }
-              cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
               cell.alignment = {
                 vertical: 'top',
                 horizontal: 'left',
@@ -290,7 +290,7 @@ export class ExcelGenerator {
                   cell.value = fieldData.value;
                 }
               }
-              cell.font = isPermisoTrabajo ? PERMISO_TRABAJO_FONT : DEFAULT_FONT;
+              if (isPermisoTrabajo) cell.font = PERMISO_TRABAJO_FONT;
             }
           }
         }
@@ -314,7 +314,7 @@ export class ExcelGenerator {
           for (const cellRef of gruaTextoLocations) {
             const cell = worksheet.getCell(cellRef);
             cell.value = realizadoPorValue;
-            cell.font = DEFAULT_FONT;
+            cell.font = FONT_SIZE_11;
             cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
           }
         }
