@@ -241,11 +241,7 @@ export function validateStep(
       }
       return { valid: true };
     }
-    if (section.id === 'signatures') {
-      const sig = getVal('sig_G11');
-      if (isEmpty(sig)) return { valid: false, message: 'Debe seleccionar una firma.' };
-      return { valid: true };
-    }
+    // inspeccion-grua: sin paso de firma; el nombre REALIZADO POR se autocompleta
   }
 
   // Default: allow

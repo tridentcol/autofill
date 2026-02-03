@@ -1772,33 +1772,8 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 16,
     });
 
-    // 4. FIRMA ÚNICA (Se aplicará a todas las firmas)
-    // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
-    sections.push({
-      id: 'signatures',
-      type: 'signatures',
-      title: 'Firma del Inspector',
-      fields: [
-        {
-          id: 'sig_G11',
-          label: 'Firma (se aplicará a todos los espacios)',
-          type: 'signature',
-          cellRef: 'G11',
-          row: 11,
-          col: 7,
-          required: true,
-          validation: {
-            mergedRows: 3,
-            applyToAll: true, // Nueva propiedad para indicar que se replica
-            pattern: 'supervisor_only'
-          },
-        },
-      ],
-      startRow: 48,
-      endRow: 48,
-      startCol: 1,
-      endCol: 16,
-    });
+    // Paso 4 eliminado: no se usa firma. El nombre "REALIZADO POR" del paso 1
+    // se escribe automáticamente en las celdas G11, G17, G31, G43, O11, O17, O31, O43.
 
     return sections;
   },

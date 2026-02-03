@@ -288,6 +288,29 @@ export class ExcelGenerator {
           }
         }
       }
+
+      // Inspección Grúa/Manlift: escribir nombre REALIZADO POR en las celdas de firma (texto, centrado)
+      if (excelFormat?.id === 'inspeccion-grua') {
+        let realizadoPorValue: string | null = null;
+        for (const sheet of formData.sheets) {
+          for (const sec of sheet.sections) {
+            const f = sec.fields.find((x) => x.fieldId === 'basic_A6');
+            if (f?.value) {
+              realizadoPorValue = String(f.value).trim();
+              break;
+            }
+          }
+          if (realizadoPorValue) break;
+        }
+        if (realizadoPorValue) {
+          const gruaTextoLocations = ['G11', 'G17', 'G31', 'G43', 'O11', 'O17', 'O31', 'O43'];
+          for (const cellRef of gruaTextoLocations) {
+            const cell = worksheet.getCell(cellRef);
+            cell.value = realizadoPorValue;
+            cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+          }
+        }
+      }
     }
 
     // Generar el buffer del archivo
