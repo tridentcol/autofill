@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import JSZip from 'jszip';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 
 interface Document {
@@ -42,6 +43,7 @@ export default function DocumentosPage() {
   const [error, setError] = useState<string | null>(null);
   const [blobNotConfigured, setBlobNotConfigured] = useState(false);
   const [deletingPathname, setDeletingPathname] = useState<string | null>(null);
+  const [downloadingZip, setDownloadingZip] = useState(false);
 
   // Restrict to admin only
   useEffect(() => {
@@ -143,6 +145,65 @@ export default function DocumentosPage() {
       minute: '2-digit',
     });
   };
+
+  const handleDownloadMonthAsZip = async () => {
+    if (!selectedYear || !selectedMonth) {
+      alert('Seleccione año y mes para descargar.');
+      return;
+    }
+
+    setDownloadingZip(true);
+    try {
+      const params = new URLSearchParams({ year: selectedYear, month: selectedMonth });
+      const response = await fetch(`/api/documents/list?${params.toString()}&limit=500`);
+      const data: DocumentsResponse = await response.json();
+
+      if (!response.ok) throw new Error(data.message || 'Error al cargar documentos');
+
+      const docs = data.documents;
+      if (docs.length === 0) {
+        alert('No hay documentos para el mes seleccionado.');
+        setDownloadingZip(false);
+        return;
+      }
+
+      const zip = new JSZip();
+      const monthLabel = months.find((m) => m.value === selectedMonth)?.label || selectedMonth;
+
+      for (const doc of docs) {
+        const day = doc.metadata.day || '00';
+        const folderPath = `Dia-${day}/`;
+        const filename = doc.metadata.filename || `documento-${doc.pathname.split('/').pop()}`;
+
+        try {
+          const blobUrl = doc.downloadUrl || doc.url;
+          const proxyUrl = `/api/documents/download?url=${encodeURIComponent(blobUrl)}`;
+          const fileResponse = await fetch(proxyUrl);
+          if (!fileResponse.ok) throw new Error(`Error al obtener ${filename}`);
+          const blob = await fileResponse.blob();
+          zip.file(`${folderPath}${filename}`, blob);
+        } catch (err) {
+          console.warn(`No se pudo incluir ${filename}:`, err);
+        }
+      }
+
+      const content = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 9 } });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `documentos-${monthLabel.toLowerCase()}-${selectedYear}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error al generar el archivo ZIP');
+    } finally {
+      setDownloadingZip(false);
+    }
+  };
+
+  const canDownloadZip = selectedYear && selectedMonth;
 
   // Admin only: show nothing or redirect while checking
   if (!currentUser || !isAdmin()) {
@@ -329,16 +390,49 @@ export default function DocumentosPage() {
               </select>
             </div>
 
-            <div className="flex items-end">
+            <div className="flex items-end gap-2">
               <button
                 onClick={() => {
                   setSelectedMonth('');
                   setSelectedDay('');
                   setSelectedYear(String(currentYear));
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
               >
                 Limpiar filtros
+              </button>
+              <button
+                onClick={handleDownloadMonthAsZip}
+                disabled={!canDownloadZip || downloadingZip}
+                title={!canDownloadZip ? 'Seleccione año y mes para descargar' : undefined}
+                className="flex-1 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center"
+              >
+                {downloadingZip ? (
+                  <>
+                    <svg
+                      className="animate-spin w-5 h-5 mr-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Generando ZIP...
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Descargar mes como ZIP
+                  </>
+                )}
               </button>
             </div>
           </div>
