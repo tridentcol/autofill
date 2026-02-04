@@ -4,11 +4,11 @@
     "nombre": "Carlos Guzmán",
     "cargo": "Conductor ayudante",
     "cedula": "1143359194",
-    "password": "1234",
+    "password": "carlosguz",
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-02-01T19:38:47.185Z",
+    "updatedAt": "2026-02-03T23:15:04.631Z",
     "signatureId": "worker_1"
   },
   {
