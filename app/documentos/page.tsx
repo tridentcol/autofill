@@ -16,7 +16,7 @@ const DOCUMENT_TYPES = [
   { id: 'inspeccion-grua', name: 'Inspección de Grúa' },
 ];
 
-type DownloadPeriod = 'day' | 'week' | 'month';
+type DownloadPeriod = 'day' | 'week' | 'month' | 'custom';
 
 interface Document {
   url: string;
@@ -59,6 +59,11 @@ export default function DocumentosPage() {
   const [selectedDocuments, setSelectedDocuments] = useState<Set<string>>(new Set());
   const [showDownloadMenu, setShowDownloadMenu] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // Estado para rango personalizado
+  const [showCustomRangeModal, setShowCustomRangeModal] = useState(false);
+  const [customStartDate, setCustomStartDate] = useState('');
+  const [customEndDate, setCustomEndDate] = useState('');
 
   // Restrict to admin only
   useEffect(() => {
@@ -183,8 +188,13 @@ export default function DocumentosPage() {
   };
 
   // Obtener documentos para un período específico
-  const getDocumentsForPeriod = (period: DownloadPeriod, date: Date) => {
-    if (period === 'day') {
+  const getDocumentsForPeriod = (period: DownloadPeriod, date: Date, customStart?: Date, customEnd?: Date) => {
+    if (period === 'custom' && customStart && customEnd) {
+      return documents.filter(doc => {
+        const docDate = new Date(`${doc.metadata.year}-${doc.metadata.month}-${doc.metadata.day}`);
+        return docDate >= customStart && docDate <= customEnd;
+      });
+    } else if (period === 'day') {
       return documents.filter(doc =>
         doc.metadata.year === String(date.getFullYear()) &&
         doc.metadata.month === String(date.getMonth() + 1).padStart(2, '0') &&
@@ -285,14 +295,45 @@ export default function DocumentosPage() {
     });
   };
 
+  // Manejar selección del período de descarga
+  const handleDownloadPeriod = (period: DownloadPeriod) => {
+    if (period === 'custom') {
+      // Abrir modal para seleccionar rango personalizado
+      setShowDownloadMenu(false);
+      setShowCustomRangeModal(true);
+    } else {
+      // Descargar directamente
+      downloadAsZip(period);
+    }
+  };
+
+  // Descargar documentos como ZIP con rango personalizado
+  const downloadCustomRange = async () => {
+    if (!customStartDate || !customEndDate) {
+      alert('Debes seleccionar ambas fechas');
+      return;
+    }
+
+    const startDate = new Date(customStartDate);
+    const endDate = new Date(customEndDate);
+
+    if (startDate > endDate) {
+      alert('La fecha de inicio no puede ser posterior a la fecha de fin');
+      return;
+    }
+
+    setShowCustomRangeModal(false);
+    await downloadAsZip('custom', startDate, endDate);
+  };
+
   // Descargar documentos como ZIP
-  const downloadAsZip = async (period: DownloadPeriod) => {
+  const downloadAsZip = async (period: DownloadPeriod, customStart?: Date, customEnd?: Date) => {
     setDownloadingZip(true);
     setShowDownloadMenu(false);
 
     try {
       const targetDate = new Date(`${selectedYear}-${selectedMonth}-${selectedDay || '01'}`);
-      const docsToDownload = getDocumentsForPeriod(period, targetDate);
+      const docsToDownload = getDocumentsForPeriod(period, targetDate, customStart, customEnd);
 
       if (docsToDownload.length === 0) {
         alert('No hay documentos para descargar en el período seleccionado');
@@ -337,13 +378,22 @@ export default function DocumentosPage() {
       const a = document.createElement('a');
       a.href = url;
 
-      const periodNames = {
-        day: `dia-${selectedDay}`,
-        week: `semana`,
-        month: months.find(m => m.value === selectedMonth)?.label.toLowerCase() || selectedMonth
-      };
+      let filename: string;
+      if (period === 'custom' && customStart && customEnd) {
+        const startStr = `${customStart.getDate().toString().padStart(2, '0')}-${(customStart.getMonth() + 1).toString().padStart(2, '0')}-${customStart.getFullYear()}`;
+        const endStr = `${customEnd.getDate().toString().padStart(2, '0')}-${(customEnd.getMonth() + 1).toString().padStart(2, '0')}-${customEnd.getFullYear()}`;
+        filename = `documentos-${startStr}_a_${endStr}.zip`;
+      } else {
+        const periodNames = {
+          day: `dia-${selectedDay}`,
+          week: `semana`,
+          month: months.find(m => m.value === selectedMonth)?.label.toLowerCase() || selectedMonth,
+          custom: 'personalizado'
+        };
+        filename = `documentos-${periodNames[period]}-${selectedYear}.zip`;
+      }
 
-      a.download = `documentos-${periodNames[period]}-${selectedYear}.zip`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -672,24 +722,30 @@ export default function DocumentosPage() {
                 </button>
 
                 {showDownloadMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                  <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                     <button
-                      onClick={() => downloadAsZip('day')}
+                      onClick={() => handleDownloadPeriod('day')}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg"
                     >
                       Descargar Día
                     </button>
                     <button
-                      onClick={() => downloadAsZip('week')}
+                      onClick={() => handleDownloadPeriod('week')}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       Descargar Semana
                     </button>
                     <button
-                      onClick={() => downloadAsZip('month')}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg"
+                      onClick={() => handleDownloadPeriod('month')}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       Descargar Mes
+                    </button>
+                    <button
+                      onClick={() => handleDownloadPeriod('custom')}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-b-lg border-t border-gray-100"
+                    >
+                      Rango Personalizado...
                     </button>
                   </div>
                 )}
@@ -969,6 +1025,65 @@ export default function DocumentosPage() {
             </div>
           )}
         </div>
+
+        {/* Modal de Rango Personalizado */}
+        {showCustomRangeModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Seleccionar Rango de Fechas
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
+                    Fecha de Inicio
+                  </label>
+                  <input
+                    type="date"
+                    id="startDate"
+                    value={customStartDate}
+                    onChange={(e) => setCustomStartDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
+                    Fecha de Fin
+                  </label>
+                  <input
+                    type="date"
+                    id="endDate"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3 justify-end">
+                <button
+                  onClick={() => {
+                    setShowCustomRangeModal(false);
+                    setCustomStartDate('');
+                    setCustomEndDate('');
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={downloadCustomRange}
+                  disabled={!customStartDate || !customEndDate || downloadingZip}
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {downloadingZip ? 'Descargando...' : 'Descargar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
