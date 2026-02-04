@@ -18,5 +18,15 @@
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
     "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "marca": "JAC",
+    "linea": "Lol",
+    "placa": "GUA130",
+    "modelo": "2025",
+    "isActive": true,
+    "id": "cam_1770248221812_l47aafogj",
+    "createdAt": "2026-02-04T23:37:01.812Z",
+    "updatedAt": "2026-02-04T23:37:01.812Z"
   }
 ]
