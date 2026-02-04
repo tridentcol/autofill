@@ -7,10 +7,9 @@ import DatabaseAdmin from './DatabaseAdmin';
 import SignatureManager from './SignatureManager';
 import WorkerSignatureManager from './WorkerSignatureManager';
 import VehicleManagement from './VehicleManagement';
-import DocumentsManager from './DocumentsManager';
 import AdminPasswordChange from './AdminPasswordChange';
 
-type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'documents' | 'settings';
+type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'settings';
 
 export default function AdminDashboard() {
   const { workers, cuadrillas, camionetas, gruas, isAdmin, currentUser, syncFromServer } = useDatabaseStore();
@@ -86,7 +85,6 @@ export default function AdminDashboard() {
     { id: 'camionetas' as const, name: 'Camionetas' },
     { id: 'gruas' as const, name: 'Grúas' },
     { id: 'signatures' as const, name: 'Firmas' },
-    { id: 'documents' as const, name: 'Documentos' },
     { id: 'settings' as const, name: 'Configuración' },
   ];
 
@@ -250,10 +248,6 @@ export default function AdminDashboard() {
                   <SignatureManager />
                 </div>
               </div>
-            )}
-
-            {activeTab === 'documents' && (
-              <DocumentsManager />
             )}
 
             {activeTab === 'settings' && (
