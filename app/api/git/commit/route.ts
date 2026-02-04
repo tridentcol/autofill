@@ -5,6 +5,7 @@ interface GitCommitRequest {
   files: {
     path: string;
     content: string;
+    encoding?: 'utf-8' | 'base64'; // Default: 'utf-8', use 'base64' for binary files
   }[];
 }
 
@@ -63,12 +64,16 @@ export async function POST(request: NextRequest) {
     // 3. Create blobs for each file
     const blobs = await Promise.all(
       files.map(async (file) => {
+        // Use the specified encoding, default to 'utf-8' for text files
+        // Binary files (like PNG images) should use 'base64' encoding
+        const encoding = file.encoding || 'utf-8';
+
         const blobResponse = await fetch(`${baseUrl}/git/blobs`, {
           method: 'POST',
           headers,
           body: JSON.stringify({
             content: file.content,
-            encoding: 'utf-8',
+            encoding: encoding,
           }),
         });
 

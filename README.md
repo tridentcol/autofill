@@ -11,6 +11,8 @@ Sistema web inteligente para rellenar formularios Excel de manera rápida y efic
 - ✅ **Formatos Precargados**: 5 formatos predefinidos listos para usar
 - ✅ **Carga de Formatos Personalizados**: Sube tus propios archivos Excel
 - ✅ **Generación de Excel**: Descarga el archivo rellenado preservando el formato original
+- ✅ **Almacenamiento en la Nube**: Guarda documentos automáticamente en Vercel Blob
+- ✅ **Gestión de Documentos**: Navega, filtra y accede a archivos por fecha
 
 ## 📁 Formatos Incluidos
 
@@ -28,6 +30,7 @@ Sistema web inteligente para rellenar formularios Excel de manera rápida y efic
 - **ExcelJS** - Manipulación de archivos Excel
 - **Zustand** - Gestión de estado
 - **React Signature Canvas** - Firmas digitales
+- **Vercel Blob** - Almacenamiento en la nube
 
 ## 📦 Instalación y Ejecución
 
@@ -62,7 +65,15 @@ vercel
 4. Deploy automático en cada push
 
 ### Configuración
-- ✅ No requiere variables de entorno
+
+**Variables de Entorno (Opcionales):**
+
+Para habilitar el almacenamiento en la nube:
+- `BLOB_READ_WRITE_TOKEN` - Token de Vercel Blob (requerido para guardar documentos en la nube)
+
+Ver [docs/CLOUD_STORAGE.md](docs/CLOUD_STORAGE.md) para más detalles.
+
+**Build Settings:**
 - ✅ Framework: Next.js (auto-detectado)
 - ✅ Build Command: `npm run build`
 - ✅ Output Directory: `.next`
@@ -102,7 +113,10 @@ vercel
 1. **Seleccionar Formato**: Elige un formato predefinido o sube tu propio archivo Excel
 2. **Gestionar Firmas** (opcional): Crea y guarda firmas para reutilizar
 3. **Rellenar Paso a Paso**: Navega por el wizard completando cada sección
-4. **Generar Excel**: Descarga el archivo rellenado con todos tus datos
+4. **Guardar Documento**: 
+   - **Guardar en la nube**: El archivo queda disponible online sin descargas
+   - **Descargar Excel**: Guarda el archivo en tu dispositivo
+5. **Acceder a Documentos**: Ve a Documentos desde el menú para ver todos tus archivos guardados
 
 ## ✨ Características Destacadas
 

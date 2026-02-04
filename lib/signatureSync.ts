@@ -49,6 +49,7 @@ export async function uploadSignature(options: UploadSignatureOptions): Promise<
         {
           path: `public/signatures/${signatureId}.png`,
           content: base64Data,
+          encoding: 'base64', // PNG files must use base64 encoding for Git API
         },
       ],
     });

@@ -74,6 +74,22 @@ export interface FieldValidation {
   mergedRows?: number; // Para firmas en celdas combinadas verticalmente
   mergedCols?: number; // Para firmas en celdas combinadas horizontalmente
   applyToAll?: boolean; // Para replicar la firma en múltiples ubicaciones
+  applyToRows?: number[]; // Filas específicas donde replicar la firma
+  cellRef?: string; // Columna base para replicar (ej: 'Q' para Q9, Q10, etc.)
+  // Campos para descomposición de fecha en celdas separadas
+  dayCellRef?: string; // Celda para el día
+  monthCellRef?: string; // Celda para el mes
+  yearCellRef?: string; // Celda para el año
+  // Campos para concatenación con etiqueta
+  appendToLabel?: boolean; // Si debe concatenar el valor con la etiqueta
+  labelText?: string; // Texto de la etiqueta a mantener
+  suffix?: string; // Sufijo a agregar al valor (ej: ' metros')
+  // Para firmas que aplican a múltiples ubicaciones (Inspector unificado)
+  applyToMultiple?: Array<{
+    cellRef: string;
+    rows?: number[];
+    mergedCols?: number;
+  }>;
 }
 
 export interface FormData {
@@ -178,7 +194,7 @@ export interface ParserConfig {
 export type UserRole = 'admin' | 'user';
 
 // Cargos por defecto - pueden ser extendidos dinámicamente
-export const DEFAULT_CARGOS = ['Conductor', 'Técnico', 'Supervisor', 'Coordinador de zona', 'Asistente técnico'] as const;
+export const DEFAULT_CARGOS = ['Conductor ayudante', 'Técnico electricista', 'Supervisor de cuadrilla', 'Coordinador de zona', 'Asistente técnico de mantenimiento'] as const;
 export type WorkerCargo = string;
 
 export interface Worker {
@@ -186,6 +202,7 @@ export interface Worker {
   nombre: string;
   cargo: WorkerCargo;
   cedula: string;
+  password?: string; // Contraseña para autenticación
   cuadrillaId?: string; // ID de la cuadrilla a la que pertenece
   signatureId?: string; // ID de la firma asignada
   signatureData?: string; // Base64 de la firma para mostrar localmente mientras se sincroniza
@@ -193,6 +210,19 @@ export interface Worker {
   updatedAt: Date;
   isActive: boolean; // Para desactivar sin eliminar
 }
+
+// Permisos de acceso a formularios por cargo
+export const FORM_ACCESS_BY_CARGO: Record<string, string[]> = {
+  'Conductor ayudante': ['inspeccion-vehiculo', 'inspeccion-grua'],
+  'Técnico electricista': ['permiso-trabajo', 'inspeccion-herramientas', 'ats'],
+};
+
+// Cargos que tienen acceso completo a todos los formularios
+export const FULL_ACCESS_CARGOS = [
+  'Supervisor de cuadrilla',
+  'Coordinador de zona',
+  'Asistente técnico de mantenimiento',
+];
 
 export interface Cuadrilla {
   id: string;
@@ -231,6 +261,8 @@ export interface User {
   nombre: string;
   email?: string;
   role: UserRole;
+  cargo?: string; // Cargo del trabajador para control de acceso
+  cuadrillaId?: string; // Cuadrilla del trabajador para auto-completar
   createdAt: Date;
   lastLogin?: Date;
 }
@@ -243,6 +275,7 @@ export interface DatabaseState {
   camionetas: Camioneta[];
   gruas: Grua[];
   cargos: string[];
+  zonas: string[];
   currentUser: User | null;
 
   // Workers CRUD
@@ -277,6 +310,11 @@ export interface DatabaseState {
   addCargo: (cargo: string) => Promise<void>;
   updateCargo: (oldCargo: string, newCargo: string) => Promise<void>;
   deleteCargo: (cargo: string) => Promise<void>;
+
+  // Zonas CRUD
+  addZona: (zona: string) => Promise<void>;
+  updateZona: (oldZona: string, newZona: string) => Promise<void>;
+  deleteZona: (zona: string) => Promise<void>;
 
   // User management
   setCurrentUser: (user: User | null) => void;
