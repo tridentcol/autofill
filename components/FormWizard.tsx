@@ -37,7 +37,7 @@ export default function FormWizard() {
     resetForm,
   } = useFormStore();
 
-  const { workers } = useDatabaseStore();
+  const { workers, currentUser } = useDatabaseStore();
   const stepTabsRef = useRef<HTMLDivElement>(null);
   const activeStepButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -226,11 +226,18 @@ export default function FormWizard() {
     // Convertir signatures array a Map
     const signaturesMap = new Map(loadedSignatures.map((sig) => [sig.id, sig]));
 
+    // Inspección de herramientas: pasar firma del usuario de sesión para insertar automáticamente
+    const currentUserSignatureId =
+      selectedFormat?.id === 'inspeccion-herramientas' && currentUser
+        ? workers.find((w) => w.id === currentUser.id)?.signatureId ?? undefined
+        : undefined;
+
     return await generator.generateFilledExcel(
       originalBuffer,
       currentFormData,
       signaturesMap,
-      selectedFormat
+      selectedFormat,
+      currentUserSignatureId
     );
   };
 
