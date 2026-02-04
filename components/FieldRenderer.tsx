@@ -29,9 +29,15 @@ export default function FieldRenderer({
   hideLabel = false,
   compact = false,
 }: FieldRendererProps) {
-  const { currentFormData, updateFieldValue } = useFormStore();
-  const { workers, zonas } = useDatabaseStore();
+  const { currentFormData, updateFieldValue, selectedFormat } = useFormStore();
+  const { workers, zonas, currentUser, getCuadrillaById } = useDatabaseStore();
   const [value, setValue] = useState<any>(field.value || '');
+  const [hasAutoFilled, setHasAutoFilled] = useState(false);
+
+  // Verificar si es Técnico electricista para auto-rellenar campos
+  const isTecnico = currentUser?.cargo === 'Técnico electricista';
+  const isPermisoTrabajo = selectedFormat?.id === 'permiso-trabajo';
+  const isATS = selectedFormat?.id === 'ats';
 
   // Construir firmas disponibles desde los workers que tienen signatureId
   const availableSignatures = useMemo((): WorkerSignature[] => {
@@ -54,6 +60,28 @@ export default function FieldRenderer({
            (label.includes('zona') && label.includes('trabajo'));
   }, [field.label, field.type]);
 
+  // Detectar si es el campo "Equipo que Elabora ATS" para auto-rellenar cuadrilla
+  const isEquipoElaboraField = field.id === 'equipo_elabora';
+
+  // Detectar si es el campo "Activa el Plan de Emergencia" para auto-rellenar
+  const isPlanEmergenciaField = field.id === 'firma_plan_emergencia';
+
+  // Obtener el conductor ayudante de la cuadrilla del usuario actual
+  const conductorAyudante = useMemo(() => {
+    if (!currentUser?.cuadrillaId) return null;
+    return workers.find(
+      w => w.cuadrillaId === currentUser.cuadrillaId &&
+           w.isActive &&
+           w.cargo === 'Conductor ayudante'
+    );
+  }, [workers, currentUser?.cuadrillaId]);
+
+  // Obtener la firma del conductor ayudante
+  const conductorAyudanteSignature = useMemo((): WorkerSignature | null => {
+    if (!conductorAyudante?.signatureId) return null;
+    return availableSignatures.find(s => s.id === conductorAyudante.signatureId) || null;
+  }, [conductorAyudante, availableSignatures]);
+
   // Filtrar firmas por rol si es necesario
   const filteredSignatures = useMemo(() => {
     if (field.type !== 'signature') {
@@ -66,7 +94,6 @@ export default function FieldRenderer({
     }
 
     if (pattern === 'supervisor_only') {
-      // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
       const supervisorRoles = [
         'supervisor', 'coordinador', 'asistente técnico', 'asistente tecnico'
       ];
@@ -74,20 +101,17 @@ export default function FieldRenderer({
         supervisorRoles.some(role => sig.cargo.toLowerCase().includes(role))
       );
     } else if (pattern === 'conductor_only') {
-      // Solo conductores (excluye conductor ayudante)
       return availableSignatures.filter(sig =>
         sig.cargo.toLowerCase().includes('conductor') &&
         !sig.cargo.toLowerCase().includes('ayudante')
       );
     } else if (pattern === 'tecnico_conductor') {
-      // Técnico electricista o Conductor ayudante
       return availableSignatures.filter(sig =>
         sig.cargo.toLowerCase().includes('técnico') ||
         sig.cargo.toLowerCase().includes('tecnico') ||
         (sig.cargo.toLowerCase().includes('conductor') && sig.cargo.toLowerCase().includes('ayudante'))
       );
     } else if (pattern === 'conductor_ayudante') {
-      // Solo Conductor ayudante
       return availableSignatures.filter(sig =>
         sig.cargo.toLowerCase().includes('conductor') &&
         sig.cargo.toLowerCase().includes('ayudante')
@@ -96,6 +120,28 @@ export default function FieldRenderer({
 
     return availableSignatures;
   }, [field.type, field.validation?.pattern, availableSignatures]);
+
+  // Auto-rellenar campos especiales para Técnico electricista
+  useEffect(() => {
+    if (hasAutoFilled) return;
+
+    // Auto-rellenar "Equipo que Elabora ATS" con la cuadrilla del técnico
+    if (isATS && isTecnico && isEquipoElaboraField && currentUser?.cuadrillaId) {
+      const cuadrilla = getCuadrillaById(currentUser.cuadrillaId);
+      if (cuadrilla) {
+        setValue(cuadrilla.nombre);
+        updateFieldValue(sheetIndex, sectionIndex, field.id, cuadrilla.nombre);
+        setHasAutoFilled(true);
+      }
+    }
+
+    // Auto-rellenar "Activa el Plan de Emergencia" con el Conductor ayudante de la cuadrilla
+    if (isPermisoTrabajo && isTecnico && isPlanEmergenciaField && conductorAyudanteSignature) {
+      setValue(conductorAyudanteSignature.id);
+      updateFieldValue(sheetIndex, sectionIndex, field.id, conductorAyudanteSignature.id);
+      setHasAutoFilled(true);
+    }
+  }, [isATS, isPermisoTrabajo, isTecnico, isEquipoElaboraField, isPlanEmergenciaField, currentUser?.cuadrillaId, conductorAyudanteSignature, hasAutoFilled]);
 
   // Cargar valor existente del store
   useEffect(() => {
@@ -118,6 +164,15 @@ export default function FieldRenderer({
     updateFieldValue(sheetIndex, sectionIndex, field.id, newValue);
   };
 
+  // Determinar si el campo debe ser de solo lectura
+  const isReadOnly = useMemo(() => {
+    // "Equipo que Elabora ATS" es de solo lectura para técnicos
+    if (isATS && isTecnico && isEquipoElaboraField) return true;
+    // "Activa el Plan de Emergencia" es de solo lectura para técnicos
+    if (isPermisoTrabajo && isTecnico && isPlanEmergenciaField) return true;
+    return false;
+  }, [isATS, isPermisoTrabajo, isTecnico, isEquipoElaboraField, isPlanEmergenciaField]);
+
   const renderField = () => {
     // Campos de zona de trabajo usan select con zonas de la base de datos
     if (isZonaField && zonas.length > 0) {
@@ -135,6 +190,54 @@ export default function FieldRenderer({
             </option>
           ))}
         </select>
+      );
+    }
+
+    // Campo "Equipo que Elabora ATS" - solo lectura para técnicos
+    if (isEquipoElaboraField && isReadOnly) {
+      return (
+        <div className="space-y-2">
+          <div className="px-4 py-2.5 bg-gray-100 border border-gray-300 rounded-md text-sm text-gray-900">
+            {value || 'Sin cuadrilla asignada'}
+          </div>
+          <p className="text-xs text-gray-500">
+            Este campo se auto-completa con tu cuadrilla asignada
+          </p>
+        </div>
+      );
+    }
+
+    // Campo "Activa el Plan de Emergencia" - solo lectura para técnicos
+    if (isPlanEmergenciaField && isReadOnly) {
+      const signature = conductorAyudanteSignature || filteredSignatures.find(s => s.id === value);
+      return (
+        <div className="space-y-2">
+          {signature ? (
+            <div className="border border-gray-300 rounded-md p-3 bg-gray-50">
+              <img
+                src={signature.dataUrl}
+                alt={signature.name}
+                className="max-h-20 mx-auto"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (!target.src.startsWith('data:')) {
+                    target.src = `/signatures/${signature.id}.png`;
+                  }
+                }}
+              />
+              <p className="text-xs text-center text-gray-600 mt-2">
+                {signature.name} ({signature.cargo})
+              </p>
+            </div>
+          ) : (
+            <div className="px-4 py-2.5 bg-yellow-50 border border-yellow-200 rounded-md text-sm text-yellow-700">
+              No hay Conductor ayudante con firma en tu cuadrilla
+            </div>
+          )}
+          <p className="text-xs text-gray-500">
+            Este campo se auto-completa con el Conductor ayudante de tu cuadrilla
+          </p>
+        </div>
       );
     }
 
@@ -189,7 +292,6 @@ export default function FieldRenderer({
         );
 
       case 'checkbox':
-        // Checkbox simple: solo marcar/desmarcar (para Pasos 7 y 8)
         return (
           <label className="flex items-center gap-3 cursor-pointer group">
             <div className="relative">
@@ -207,7 +309,6 @@ export default function FieldRenderer({
         );
 
       case 'radio':
-        // Radio buttons SI/NO/N/A (para Paso 6)
         return (
           <div className="flex gap-3">
             {(field.options || ['SI', 'NO', 'N/A']).map((option) => (

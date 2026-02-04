@@ -41,9 +41,15 @@ export default function DatabaseAdmin() {
     nombre: '',
     cargo: cargos[0] || 'Técnico',
     cedula: '',
+    password: '',
     cuadrillaId: '',
     signatureId: '',
   });
+
+  // Password management state
+  const [changingPasswordFor, setChangingPasswordFor] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [showPasswords, setShowPasswords] = useState(false);
 
   // Cuadrilla form state
   const [isAddingCuadrilla, setIsAddingCuadrilla] = useState(false);
@@ -83,9 +89,20 @@ export default function DatabaseAdmin() {
     if (!workerForm.nombre.trim()) return;
 
     if (editingWorkerId) {
-      updateWorker(editingWorkerId, workerForm);
+      // Al editar, solo actualizar contraseña si se proporcionó una nueva
+      const updateData = { ...workerForm };
+      if (!updateData.password || !updateData.password.trim()) {
+        delete (updateData as any).password;
+      }
+      updateWorker(editingWorkerId, updateData);
     } else {
-      addWorker({ ...workerForm, isActive: true });
+      // Al crear, usar la contraseña proporcionada o '1234' por defecto
+      const newWorkerData = {
+        ...workerForm,
+        password: workerForm.password.trim() || '1234',
+        isActive: true,
+      };
+      addWorker(newWorkerData);
     }
     resetWorkerForm();
   };
@@ -95,6 +112,7 @@ export default function DatabaseAdmin() {
       nombre: worker.nombre,
       cargo: worker.cargo,
       cedula: worker.cedula,
+      password: worker.password || '',
       cuadrillaId: worker.cuadrillaId || '',
       signatureId: worker.signatureId || '',
     });
@@ -103,9 +121,29 @@ export default function DatabaseAdmin() {
   };
 
   const resetWorkerForm = () => {
-    setWorkerForm({ nombre: '', cargo: cargos[0] || 'Técnico', cedula: '', cuadrillaId: '', signatureId: '' });
+    setWorkerForm({ nombre: '', cargo: cargos[0] || 'Técnico', cedula: '', password: '1234', cuadrillaId: '', signatureId: '' });
     setIsAddingWorker(false);
     setEditingWorkerId(null);
+  };
+
+  // Password handlers
+  const handleChangePassword = (workerId: string) => {
+    setChangingPasswordFor(workerId);
+    setNewPassword('');
+  };
+
+  const handleSavePassword = () => {
+    if (changingPasswordFor && newPassword.trim()) {
+      updateWorker(changingPasswordFor, { password: newPassword.trim() });
+      setChangingPasswordFor(null);
+      setNewPassword('');
+    }
+  };
+
+  const handleResetPassword = (workerId: string) => {
+    if (confirm('¿Restablecer la contraseña a "1234"?')) {
+      updateWorker(workerId, { password: '1234' });
+    }
   };
 
   // Cuadrilla handlers
@@ -315,6 +353,17 @@ export default function DatabaseAdmin() {
                     />
                   </div>
                   <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Contraseña</label>
+                    <input
+                      type="text"
+                      value={workerForm.password}
+                      onChange={(e) => setWorkerForm({ ...workerForm, password: e.target.value })}
+                      placeholder={editingWorkerId ? '(sin cambios)' : '1234'}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Dejar vacío para mantener la actual</p>
+                  </div>
+                  <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Cuadrilla</label>
                     <select
                       value={workerForm.cuadrillaId}
@@ -340,6 +389,19 @@ export default function DatabaseAdmin() {
             </div>
           )}
 
+          {/* Password toggle */}
+          <div className="flex items-center gap-2 mb-2">
+            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showPasswords}
+                onChange={(e) => setShowPasswords(e.target.checked)}
+                className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+              />
+              Mostrar contraseñas
+            </label>
+          </div>
+
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -349,13 +411,14 @@ export default function DatabaseAdmin() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cargo</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Cédula</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Cuadrilla</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Contraseña</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredWorkers.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                      <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
                         {searchQuery ? 'Sin resultados' : 'No hay trabajadores'}
                       </td>
                     </tr>
@@ -367,6 +430,50 @@ export default function DatabaseAdmin() {
                         <td className="px-4 py-3 text-sm text-gray-500 hidden sm:table-cell">{worker.cedula || '-'}</td>
                         <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
                           {cuadrillas.find(c => c.id === worker.cuadrillaId)?.nombre || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500 hidden lg:table-cell">
+                          {changingPasswordFor === worker.id ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="Nueva contraseña"
+                                className="w-24 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-gray-900"
+                                autoFocus
+                              />
+                              <button
+                                onClick={handleSavePassword}
+                                className="text-xs text-green-600 hover:text-green-800"
+                              >
+                                Guardar
+                              </button>
+                              <button
+                                onClick={() => setChangingPasswordFor(null)}
+                                className="text-xs text-gray-500 hover:text-gray-700"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className={showPasswords ? '' : 'font-mono'}>
+                                {showPasswords ? (worker.password || '1234') : '••••'}
+                              </span>
+                              <button
+                                onClick={() => handleChangePassword(worker.id)}
+                                className="text-xs text-blue-600 hover:text-blue-800"
+                              >
+                                Cambiar
+                              </button>
+                              <button
+                                onClick={() => handleResetPassword(worker.id)}
+                                className="text-xs text-orange-600 hover:text-orange-800"
+                              >
+                                Reset
+                              </button>
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-right text-sm">
                           <button onClick={() => handleEditWorker(worker)} className="text-gray-600 hover:text-gray-900 mr-3">
