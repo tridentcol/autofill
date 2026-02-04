@@ -7,6 +7,7 @@ import DatabaseAdmin from './DatabaseAdmin';
 import SignatureManager from './SignatureManager';
 import WorkerSignatureManager from './WorkerSignatureManager';
 import VehicleManagement from './VehicleManagement';
+import AdminPasswordChange from './AdminPasswordChange';
 
 type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'settings';
 
@@ -256,15 +257,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Admin Password */}
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Contraseña de Administrador</h4>
-                  <p className="text-sm text-gray-600 mb-3">
-                    Contraseña actual: <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">admin123</code>
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Para cambiarla, modifica el valor en el archivo <code className="bg-gray-100 px-1 py-0.5 rounded">UserLogin.tsx</code>
-                  </p>
-                </div>
+                <AdminPasswordChange />
 
                 {/* Sync from Server */}
                 <div className="border border-gray-200 rounded-lg p-4">
