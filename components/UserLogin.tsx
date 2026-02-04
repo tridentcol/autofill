@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
-import { getAdminPassword } from './AdminPasswordChange';
 import type { Worker } from '@/types';
+
+const ADMIN_PASSWORD = 'admin123';
 
 export default function UserLogin() {
   const { workers, currentUser, setCurrentUser, syncFromServer } = useDatabaseStore();
@@ -98,7 +99,7 @@ export default function UserLogin() {
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password !== getAdminPassword()) {
+    if (password !== ADMIN_PASSWORD) {
       setPasswordError('Contraseña incorrecta');
       return;
     }
