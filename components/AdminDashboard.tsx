@@ -7,10 +7,8 @@ import DatabaseAdmin from './DatabaseAdmin';
 import SignatureManager from './SignatureManager';
 import WorkerSignatureManager from './WorkerSignatureManager';
 import VehicleManagement from './VehicleManagement';
-import DocumentsManager from './DocumentsManager';
-import AdminPasswordChange from './AdminPasswordChange';
 
-type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'documents' | 'settings';
+type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'settings';
 
 export default function AdminDashboard() {
   const { workers, cuadrillas, camionetas, gruas, isAdmin, currentUser, syncFromServer } = useDatabaseStore();
@@ -86,7 +84,6 @@ export default function AdminDashboard() {
     { id: 'camionetas' as const, name: 'Camionetas' },
     { id: 'gruas' as const, name: 'Grúas' },
     { id: 'signatures' as const, name: 'Firmas' },
-    { id: 'documents' as const, name: 'Documentos' },
     { id: 'settings' as const, name: 'Configuración' },
   ];
 
@@ -252,10 +249,6 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {activeTab === 'documents' && (
-              <DocumentsManager />
-            )}
-
             {activeTab === 'settings' && (
               <div className="space-y-6">
                 <div>
@@ -263,7 +256,15 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Admin Password */}
-                <AdminPasswordChange />
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h4 className="text-sm font-medium text-gray-900 mb-2">Contraseña de Administrador</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Contraseña actual: <code className="bg-gray-100 px-2 py-0.5 rounded text-xs">admin123</code>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Para cambiarla, modifica el valor en el archivo <code className="bg-gray-100 px-1 py-0.5 rounded">UserLogin.tsx</code>
+                  </p>
+                </div>
 
                 {/* Sync from Server */}
                 <div className="border border-gray-200 rounded-lg p-4">
