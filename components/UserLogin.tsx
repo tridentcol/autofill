@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
-import { getAdminPassword } from './AdminPasswordChange';
 import type { Worker } from '@/types';
 
 export default function UserLogin() {
-  const { workers, currentUser, setCurrentUser, syncFromServer } = useDatabaseStore();
+  const { workers, currentUser, setCurrentUser, syncFromServer, getAdminPassword } = useDatabaseStore();
   const [isAdminMode, setIsAdminMode] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');

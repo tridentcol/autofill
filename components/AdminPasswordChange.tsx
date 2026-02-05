@@ -1,21 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-
-// El valor por defecto permanece en este archivo como fallback
-const DEFAULT_ADMIN_PASSWORD = 'admin123';
-
-export function getAdminPassword(): string {
-  if (typeof window === 'undefined') return DEFAULT_ADMIN_PASSWORD;
-  return localStorage.getItem('admin_password') || DEFAULT_ADMIN_PASSWORD;
-}
-
-export function setAdminPassword(newPassword: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('admin_password', newPassword);
-}
+import { useDatabaseStore } from '@/store/useDatabaseStore';
 
 export default function AdminPasswordChange() {
+  const { getAdminPassword, updateAdminPassword } = useDatabaseStore();
   const [isChanging, setIsChanging] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -23,7 +12,7 @@ export default function AdminPasswordChange() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess(false);
@@ -46,8 +35,8 @@ export default function AdminPasswordChange() {
       return;
     }
 
-    // Guardar nueva contraseña
-    setAdminPassword(newPassword);
+    // Guardar nueva contraseña (se sincroniza automáticamente)
+    await updateAdminPassword(newPassword);
     setSuccess(true);
     setCurrentPassword('');
     setNewPassword('');

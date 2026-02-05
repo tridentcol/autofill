@@ -26,6 +26,7 @@ export const useDatabaseStore = create<DatabaseState>()(
       gruas: [],
       cargos: [...DEFAULT_CARGOS],
       zonas: [...DEFAULT_ZONAS],
+      adminSettings: null,
       currentUser: null,
 
       // ==================== WORKERS CRUD ====================
@@ -493,6 +494,43 @@ export const useDatabaseStore = create<DatabaseState>()(
         }
       },
 
+      // ==================== ADMIN SETTINGS ====================
+
+      updateAdminPassword: async (newPassword: string) => {
+        const adminSettingsData = {
+          id: 'admin-settings',
+          password: newPassword,
+          updatedAt: new Date(),
+        };
+
+        // Update in IndexedDB
+        await db.adminSettings.put(adminSettingsData);
+
+        // Update in Zustand state
+        set({ adminSettings: adminSettingsData });
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          try {
+            const response = await fetch('/api/data/admin-settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(adminSettingsData),
+            });
+            if (!response.ok) {
+              console.error('Failed to sync admin settings to server');
+            }
+          } catch (error) {
+            console.error('Error syncing admin settings:', error);
+          }
+        }
+      },
+
+      getAdminPassword: () => {
+        const adminSettings = get().adminSettings;
+        return adminSettings?.password || 'admin123'; // Default password
+      },
+
       // ==================== USER MANAGEMENT ====================
 
       setCurrentUser: (user) => {
@@ -511,11 +549,12 @@ export const useDatabaseStore = create<DatabaseState>()(
 
       loadFromDB: async () => {
         try {
-          const [workers, cuadrillas, camionetas, gruas] = await Promise.all([
+          const [workers, cuadrillas, camionetas, gruas, adminSettings] = await Promise.all([
             db.workers.toArray(),
             db.cuadrillas.toArray(),
             db.camionetas.toArray(),
             db.gruas.toArray(),
+            db.adminSettings.toArray(),
           ]);
 
           set({
@@ -523,6 +562,7 @@ export const useDatabaseStore = create<DatabaseState>()(
             cuadrillas,
             camionetas,
             gruas,
+            adminSettings: adminSettings[0] || null,
           });
 
           console.log('✅ Datos cargados desde IndexedDB');
@@ -530,6 +570,7 @@ export const useDatabaseStore = create<DatabaseState>()(
           console.log(`   - ${cuadrillas.length} cuadrillas`);
           console.log(`   - ${camionetas.length} camionetas`);
           console.log(`   - ${gruas.length} grúas`);
+          console.log(`   - Admin settings: ${adminSettings[0] ? 'configured' : 'default'}`);
         } catch (error) {
           console.error('❌ Error al cargar datos desde IndexedDB:', error);
         }
@@ -601,6 +642,9 @@ export const useDatabaseStore = create<DatabaseState>()(
           if (serverData.gruas.length > 0) {
             await db.gruas.bulkAdd(serverData.gruas);
           }
+          if (serverData.adminSettings) {
+            await db.adminSettings.put(serverData.adminSettings);
+          }
 
           // Update Zustand state (including cargos and zonas from server)
           set({
@@ -610,6 +654,7 @@ export const useDatabaseStore = create<DatabaseState>()(
             gruas: serverData.gruas,
             cargos: serverData.cargos.length > 0 ? serverData.cargos : get().cargos,
             zonas: serverData.zonas.length > 0 ? serverData.zonas : get().zonas,
+            adminSettings: serverData.adminSettings || null,
           });
 
           console.log('✅ Sincronización completada');

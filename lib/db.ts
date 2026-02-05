@@ -1,5 +1,5 @@
 import Dexie, { Table } from 'dexie';
-import type { Worker, Cuadrilla, Signature } from '@/types';
+import type { Worker, Cuadrilla, Signature, AdminSettings } from '@/types';
 import { loadAllDefaultData } from './dataLoader';
 
 // Tipos adicionales para las nuevas tablas
@@ -36,17 +36,28 @@ export class AutofillDatabase extends Dexie {
   camionetas!: Table<Camioneta, string>;
   gruas!: Table<Grua, string>;
   signatures!: Table<DBSignature, string>;
+  adminSettings!: Table<AdminSettings, string>;
 
   constructor() {
     super('AutofillDatabase');
 
-    // Definir el esquema de la base de datos
+    // Definir el esquema de la base de datos (v2 adds adminSettings)
     this.version(1).stores({
       workers: 'id, nombre, cargo, cedula, cuadrillaId, isActive',
       cuadrillas: 'id, nombre, isActive',
       camionetas: 'id, placa, marca, modelo, isActive',
       gruas: 'id, placa, marca, modelo, isActive',
       signatures: 'id, name, userId, createdAt',
+    });
+
+    // Version 2: Add adminSettings table
+    this.version(2).stores({
+      workers: 'id, nombre, cargo, cedula, cuadrillaId, isActive',
+      cuadrillas: 'id, nombre, isActive',
+      camionetas: 'id, placa, marca, modelo, isActive',
+      gruas: 'id, placa, marca, modelo, isActive',
+      signatures: 'id, name, userId, createdAt',
+      adminSettings: 'id, updatedAt',
     });
   }
 
@@ -99,6 +110,7 @@ export class AutofillDatabase extends Dexie {
       this.camionetas.clear(),
       this.gruas.clear(),
       this.signatures.clear(),
+      this.adminSettings.clear(),
     ]);
     console.log('Base de datos limpiada');
   }

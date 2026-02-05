@@ -1,4 +1,4 @@
-import type { Worker, Cuadrilla, Camioneta, Grua, Signature } from '@/types';
+import type { Worker, Cuadrilla, Camioneta, Grua, Signature, AdminSettings } from '@/types';
 
 /**
  * Service to load default data from JSON files in the repository
@@ -113,11 +113,30 @@ export async function loadZonasFromJSON(): Promise<string[]> {
   }
 }
 
+export async function loadAdminSettingsFromJSON(): Promise<AdminSettings | null> {
+  try {
+    const response = await fetch('/data/admin-settings.json');
+    if (!response.ok) {
+      console.log('No admin settings found, using default');
+      return null;
+    }
+    const data = await response.json();
+
+    return {
+      ...data,
+      updatedAt: new Date(data.updatedAt),
+    };
+  } catch (error) {
+    console.error('Error loading admin settings from JSON:', error);
+    return null;
+  }
+}
+
 /**
  * Load all default data from JSON files
  */
 export async function loadAllDefaultData() {
-  const [workers, cuadrillas, camionetas, gruas, cargos, signatures, zonas] = await Promise.all([
+  const [workers, cuadrillas, camionetas, gruas, cargos, signatures, zonas, adminSettings] = await Promise.all([
     loadWorkersFromJSON(),
     loadCuadrillasFromJSON(),
     loadCamionetasFromJSON(),
@@ -125,6 +144,7 @@ export async function loadAllDefaultData() {
     loadCargosFromJSON(),
     loadSignaturesFromJSON(),
     loadZonasFromJSON(),
+    loadAdminSettingsFromJSON(),
   ]);
 
   return {
@@ -135,5 +155,6 @@ export async function loadAllDefaultData() {
     cargos,
     signatures,
     zonas,
+    adminSettings,
   };
 }
