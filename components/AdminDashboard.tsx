@@ -7,6 +7,7 @@ import DatabaseAdmin from './DatabaseAdmin';
 import SignatureManager from './SignatureManager';
 import WorkerSignatureManager from './WorkerSignatureManager';
 import VehicleManagement from './VehicleManagement';
+import AdminPasswordChange from './AdminPasswordChange';
 
 type DashboardTab = 'overview' | 'workers' | 'cuadrillas' | 'camionetas' | 'gruas' | 'signatures' | 'settings';
 

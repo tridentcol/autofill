@@ -2,110 +2,127 @@
   {
     "id": "worker_1",
     "nombre": "Carlos Guzmán",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "1143359194",
+    "password": "carlosguz",
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2026-01-25T19:20:12.617Z",
+    "updatedAt": "2026-02-03T23:15:04.631Z",
     "signatureId": "worker_1"
   },
   {
     "id": "worker_10",
     "nombre": "Antonio Cabarcas",
-    "cargo": "Asistente técnico",
+    "cargo": "Asistente técnico de mantenimiento",
     "cedula": "",
+    "password": "1234",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-02-01T19:38:59.741Z",
+    "signatureId": "worker_10"
   },
   {
     "id": "worker_11",
     "nombre": "Deivi Zabaleta",
     "cargo": "Coordinador de zona",
     "cedula": "",
+    "password": "1234",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-02-01T19:39:07.874Z",
+    "signatureId": "worker_11"
   },
   {
     "id": "worker_2",
     "nombre": "Kleiver Polo",
-    "cargo": "Técnico",
+    "cargo": "Técnico electricista",
     "cedula": "9288327",
+    "password": "1234",
     "cuadrillaId": "cuad_1",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-02-01T19:39:17.415Z",
+    "signatureId": "worker_2"
   },
   {
     "id": "worker_3",
     "nombre": "Luis Hernández",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "",
+    "password": "1234",
     "cuadrillaId": "cuad_2",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   },
   {
     "id": "worker_4",
     "nombre": "Jefferson Genes",
-    "cargo": "Técnico",
+    "cargo": "Técnico electricista",
     "cedula": "1050967799",
+    "password": "1234",
     "cuadrillaId": "cuad_2",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T20:34:49.457Z"
   },
   {
     "id": "worker_5",
     "nombre": "Andrés Puello",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "1050963621",
+    "password": "1234",
     "cuadrillaId": "cuad_3",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-02-02T21:39:07.710Z",
+    "signatureId": "worker_5"
   },
   {
     "id": "worker_6",
     "nombre": "Juan Carlos Romero",
-    "cargo": "Técnico",
+    "cargo": "Técnico electricista",
     "cedula": "73228082",
+    "password": "1234",
     "cuadrillaId": "cuad_3",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-02-02T21:38:46.345Z",
+    "signatureId": "worker_6"
   },
   {
     "id": "worker_7",
     "nombre": "Leonardo Torres",
-    "cargo": "Supervisor",
+    "cargo": "Supervisor de cuadrilla",
     "cedula": "1124034299",
+    "password": "1234",
     "cuadrillaId": "cuad_3",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-02-02T21:39:16.858Z",
+    "signatureId": "worker_7"
   },
   {
     "id": "worker_8",
     "nombre": "Joseph Puello",
-    "cargo": "Conductor",
+    "cargo": "Conductor ayudante",
     "cedula": "9298718",
+    "password": "1234",
     "cuadrillaId": "cuad_4",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   },
   {
     "id": "worker_9",
     "nombre": "Remberto Martínez",
-    "cargo": "Técnico",
+    "cargo": "Técnico electricista",
     "cedula": "1047425281",
+    "password": "1234",
     "cuadrillaId": "cuad_4",
     "isActive": true,
     "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
+    "updatedAt": "2026-01-29T00:00:00.000Z"
   }
 ]

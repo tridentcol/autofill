@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useFormStore } from '@/store/useFormStore';
-import { ExcelParser, loadExcelFromURL } from '@/lib/excelParser';
+import { useDatabaseStore } from '@/store/useDatabaseStore';
+import { ExcelParser, loadExcelFromURL, getFirstSheetName } from '@/lib/excelParser';
 import { getFormatConfig } from '@/lib/formatConfigs';
 import type { ExcelFormat } from '@/types';
+import { FORM_ACCESS_BY_CARGO, FULL_ACCESS_CARGOS } from '@/types';
 
 // Formatos predefinidos con iconos SVG
 const PREDEFINED_FORMATS = [
@@ -19,7 +21,7 @@ const PREDEFINED_FORMATS = [
     id: 'permiso-trabajo',
     name: 'Permiso de Trabajo',
     description: 'Permiso de trabajo seguro en alturas',
-    filePath: '/formats/PERMISO DE TRABAJO (8).xls',
+    filePath: '/formats/PERMISO DE TRABAJO.xlsx',
     iconType: 'document',
   },
   {
@@ -33,7 +35,7 @@ const PREDEFINED_FORMATS = [
     id: 'ats',
     name: 'Análisis de Trabajo Seguro',
     description: 'Análisis de trabajo seguro (ATS)',
-    filePath: '/formats/ANALISIS DE TRABAJO SEGURO (ATS) actual (15) (9).xls',
+    filePath: '/formats/ANALISIS DE TRABAJO SEGURO (ATS) actual (15) (9).xlsx',
     iconType: 'warning',
   },
   {
@@ -91,9 +93,35 @@ const FormatIcon = ({ type, className = "w-6 h-6" }: { type: string; className?:
 
 export default function FormatSelector() {
   const { setSelectedFormat, setCurrentFormData, setWizardSteps } = useFormStore();
+  const { currentUser } = useDatabaseStore();
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'formats' | 'upload'>('formats');
+
+  // Filtrar formatos según el cargo del usuario
+  const availableFormats = useMemo(() => {
+    // Admin tiene acceso a todo
+    if (currentUser?.role === 'admin') {
+      return PREDEFINED_FORMATS;
+    }
+
+    const userCargo = currentUser?.cargo;
+
+    // Si no tiene cargo definido o es un cargo con acceso completo
+    if (!userCargo || FULL_ACCESS_CARGOS.includes(userCargo)) {
+      return PREDEFINED_FORMATS;
+    }
+
+    // Verificar si el cargo tiene restricciones específicas
+    const allowedFormIds = FORM_ACCESS_BY_CARGO[userCargo];
+
+    if (allowedFormIds) {
+      return PREDEFINED_FORMATS.filter(format => allowedFormIds.includes(format.id));
+    }
+
+    // Por defecto, dar acceso a todo si el cargo no está en la lista
+    return PREDEFINED_FORMATS;
+  }, [currentUser]);
 
   const handleSelectFormat = async (formatInfo: typeof PREDEFINED_FORMATS[0]) => {
     setLoading(formatInfo.id);
@@ -107,6 +135,8 @@ export default function FormatSelector() {
 
       if (formatConfig) {
         const sections = formatConfig();
+        // Obtener el nombre real de la primera hoja con contenido
+        const sheetName = await getFirstSheetName(fileBuffer);
         parsedFormat = {
           id: formatInfo.id,
           name: formatInfo.name,
@@ -115,7 +145,7 @@ export default function FormatSelector() {
           fileType: formatInfo.filePath.endsWith('.xlsx') ? 'xlsx' : 'xls',
           sheets: [
             {
-              name: 'Hoja1',
+              name: sheetName,
               sections: sections,
               mergedCells: [],
             },
@@ -144,7 +174,7 @@ export default function FormatSelector() {
       const wizardSteps = parsedFormat.sheets.flatMap((sheet, sheetIndex) =>
         sheet.sections.map((section, sectionIndex) => ({
           stepNumber: sheetIndex * 100 + sectionIndex,
-          title: `${sheet.name} - ${section.title}`,
+          title: section.title,
           section,
           isCompleted: false,
           isOptional: section.type === 'observations' || section.type === 'header',
@@ -159,7 +189,14 @@ export default function FormatSelector() {
           sheetName: sheet.name,
           sections: sheet.sections.map((section) => ({
             sectionId: section.id,
-            fields: [],
+            // Inicializar campos con valores por defecto si existen
+            fields: section.fields
+              .filter((field) => field.value !== undefined && field.value !== null && field.value !== '')
+              .map((field) => ({
+                fieldId: field.id,
+                value: field.value,
+                completed: true,  // Marcar como completado para que se exporte
+              })),
           })),
         })),
         metadata: {
@@ -212,7 +249,7 @@ export default function FormatSelector() {
         const wizardSteps = parsedFormat.sheets.flatMap((sheet, sheetIndex) =>
           sheet.sections.map((section, sectionIndex) => ({
             stepNumber: sheetIndex * 100 + sectionIndex,
-            title: `${sheet.name} - ${section.title}`,
+            title: section.title,
             section,
             isCompleted: false,
             isOptional: section.type === 'observations' || section.type === 'header',
@@ -227,7 +264,14 @@ export default function FormatSelector() {
             sheetName: sheet.name,
             sections: sheet.sections.map((section) => ({
               sectionId: section.id,
-              fields: [],
+              // Inicializar campos con valores por defecto si existen
+              fields: section.fields
+                .filter((field) => field.value !== undefined && field.value !== null && field.value !== '')
+                .map((field) => ({
+                  fieldId: field.id,
+                  value: field.value,
+                  completed: true,
+                })),
             })),
           })),
           metadata: {
@@ -306,8 +350,26 @@ export default function FormatSelector() {
         {/* Tab Content */}
         <div className="p-4 sm:p-6">
           {activeTab === 'formats' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {PREDEFINED_FORMATS.map((format) => (
+            <div className="space-y-4">
+              {/* Mostrar mensaje si hay restricciones */}
+              {availableFormats.length < PREDEFINED_FORMATS.length && currentUser?.cargo && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex gap-3">
+                    <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                      <p className="text-sm font-medium text-blue-800">Acceso según tu cargo</p>
+                      <p className="text-xs text-blue-600 mt-0.5">
+                        Como {currentUser.cargo}, tienes acceso a los formularios mostrados abajo.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {availableFormats.map((format) => (
                 <button
                   key={format.id}
                   onClick={() => handleSelectFormat(format)}
@@ -339,6 +401,7 @@ export default function FormatSelector() {
                   </div>
                 </button>
               ))}
+              </div>
             </div>
           ) : (
             <div className="max-w-lg mx-auto">
@@ -388,7 +451,7 @@ export default function FormatSelector() {
             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
             <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
           </svg>
-          <span>{PREDEFINED_FORMATS.length} formatos disponibles</span>
+          <span>{availableFormats.length} formatos disponibles</span>
         </div>
       </div>
     </div>

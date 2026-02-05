@@ -16,6 +16,11 @@ export default function UserLogin() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [hasSynced, setHasSynced] = useState(false);
 
+  // Estado para el modal de contraseña de trabajador
+  const [selectedWorker, setSelectedWorker] = useState<Worker | null>(null);
+  const [workerPassword, setWorkerPassword] = useState('');
+  const [workerPasswordError, setWorkerPasswordError] = useState('');
+
   // Wait for store to hydrate from localStorage before showing modal
   useEffect(() => {
     setIsHydrated(true);
@@ -50,17 +55,45 @@ export default function UserLogin() {
     setIsSyncing(false);
   };
 
-  const handleWorkerLogin = (worker: Worker) => {
+  const handleWorkerSelect = (worker: Worker) => {
+    setSelectedWorker(worker);
+    setWorkerPassword('');
+    setWorkerPasswordError('');
+  };
+
+  const handleWorkerLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedWorker) return;
+
+    // Verificar contraseña
+    const workerPasswordFromDB = selectedWorker.password || '1234'; // Default password
+
+    if (workerPassword !== workerPasswordFromDB) {
+      setWorkerPasswordError('Contraseña incorrecta');
+      return;
+    }
+
     const user = {
-      id: worker.id,
-      nombre: worker.nombre,
-      email: worker.cedula ? `${worker.cedula}@empresa.com` : undefined,
+      id: selectedWorker.id,
+      nombre: selectedWorker.nombre,
+      email: selectedWorker.cedula ? `${selectedWorker.cedula}@empresa.com` : undefined,
       role: 'user' as const,
+      cargo: selectedWorker.cargo,
+      cuadrillaId: selectedWorker.cuadrillaId,
       createdAt: new Date(),
       lastLogin: new Date(),
     };
 
     setCurrentUser(user);
+    setSelectedWorker(null);
+    setWorkerPassword('');
+  };
+
+  const handleCancelWorkerLogin = () => {
+    setSelectedWorker(null);
+    setWorkerPassword('');
+    setWorkerPasswordError('');
   };
 
   const handleAdminLogin = (e: React.FormEvent) => {
@@ -90,6 +123,78 @@ export default function UserLogin() {
 
   // Don't render if user is logged in - AppMenu handles user display
   if (currentUser) return null;
+
+  // Modal de contraseña para trabajador seleccionado
+  if (selectedWorker) {
+    return (
+      <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+          <div className="p-6 sm:p-8">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                <span className="text-2xl font-semibold text-gray-700">
+                  {selectedWorker.nombre.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-1">{selectedWorker.nombre}</h2>
+              <p className="text-sm text-gray-500">{selectedWorker.cargo}</p>
+            </div>
+
+            <form onSubmit={handleWorkerLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Contraseña
+                </label>
+                <input
+                  type="password"
+                  value={workerPassword}
+                  onChange={(e) => {
+                    setWorkerPassword(e.target.value);
+                    setWorkerPasswordError('');
+                  }}
+                  placeholder="Ingrese su contraseña"
+                  className={`w-full px-4 py-2.5 text-sm border rounded-md focus:ring-2 focus:ring-gray-900 focus:border-transparent ${
+                    workerPasswordError ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  required
+                  autoFocus
+                />
+                {workerPasswordError && (
+                  <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {workerPasswordError}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleCancelWorkerLogin}
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+                >
+                  Ingresar
+                </button>
+              </div>
+            </form>
+
+            <p className="text-xs text-center text-gray-400 mt-4">
+              Si olvidaste tu contraseña, contacta al administrador
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -173,7 +278,7 @@ export default function UserLogin() {
                   filteredWorkers.map((worker) => (
                     <button
                       key={worker.id}
-                      onClick={() => handleWorkerLogin(worker)}
+                      onClick={() => handleWorkerSelect(worker)}
                       className="w-full p-3 border border-gray-200 rounded-md hover:border-gray-400 hover:bg-gray-50 transition-all text-left"
                     >
                       <div className="flex items-center gap-3">
@@ -185,7 +290,7 @@ export default function UserLogin() {
                           <p className="text-xs text-gray-500 truncate">{worker.cargo}</p>
                         </div>
                         <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
                       </div>
                     </button>
@@ -243,10 +348,6 @@ export default function UserLogin() {
               >
                 Acceder
               </button>
-
-              <p className="text-xs text-center text-gray-500">
-                Contraseña por defecto: <code className="bg-gray-100 px-2 py-0.5 rounded">admin123</code>
-              </p>
             </form>
           )}
 

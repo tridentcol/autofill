@@ -5,13 +5,14 @@ import { useDatabaseStore } from '@/store/useDatabaseStore';
 import { useFormStore } from '@/store/useFormStore';
 import type { Worker, Cuadrilla } from '@/types';
 
-type Tab = 'workers' | 'cuadrillas' | 'cargos';
+type Tab = 'workers' | 'cuadrillas' | 'cargos' | 'zonas';
 
 export default function DatabaseAdmin() {
   const {
     workers,
     cuadrillas,
     cargos,
+    zonas,
     isAdmin,
     addWorker,
     updateWorker,
@@ -23,6 +24,9 @@ export default function DatabaseAdmin() {
     addCargo,
     updateCargo,
     deleteCargo,
+    addZona,
+    updateZona,
+    deleteZona,
   } = useDatabaseStore();
 
   const { signatures } = useFormStore();
@@ -37,9 +41,15 @@ export default function DatabaseAdmin() {
     nombre: '',
     cargo: cargos[0] || 'Técnico',
     cedula: '',
+    password: '',
     cuadrillaId: '',
     signatureId: '',
   });
+
+  // Password management state
+  const [changingPasswordFor, setChangingPasswordFor] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [showPasswords, setShowPasswords] = useState(false);
 
   // Cuadrilla form state
   const [isAddingCuadrilla, setIsAddingCuadrilla] = useState(false);
@@ -53,6 +63,11 @@ export default function DatabaseAdmin() {
   const [isAddingCargo, setIsAddingCargo] = useState(false);
   const [editingCargo, setEditingCargo] = useState<string | null>(null);
   const [cargoForm, setCargoForm] = useState('');
+
+  // Zona form state
+  const [isAddingZona, setIsAddingZona] = useState(false);
+  const [editingZona, setEditingZona] = useState<string | null>(null);
+  const [zonaForm, setZonaForm] = useState('');
 
   const activeWorkers = useMemo(() => workers.filter((w) => w.isActive), [workers]);
   const activeCuadrillas = useMemo(() => cuadrillas.filter((c) => c.isActive), [cuadrillas]);
@@ -74,9 +89,20 @@ export default function DatabaseAdmin() {
     if (!workerForm.nombre.trim()) return;
 
     if (editingWorkerId) {
-      updateWorker(editingWorkerId, workerForm);
+      // Al editar, solo actualizar contraseña si se proporcionó una nueva
+      const updateData = { ...workerForm };
+      if (!updateData.password || !updateData.password.trim()) {
+        delete (updateData as any).password;
+      }
+      updateWorker(editingWorkerId, updateData);
     } else {
-      addWorker({ ...workerForm, isActive: true });
+      // Al crear, usar la contraseña proporcionada o '1234' por defecto
+      const newWorkerData = {
+        ...workerForm,
+        password: workerForm.password.trim() || '1234',
+        isActive: true,
+      };
+      addWorker(newWorkerData);
     }
     resetWorkerForm();
   };
@@ -86,6 +112,7 @@ export default function DatabaseAdmin() {
       nombre: worker.nombre,
       cargo: worker.cargo,
       cedula: worker.cedula,
+      password: worker.password || '',
       cuadrillaId: worker.cuadrillaId || '',
       signatureId: worker.signatureId || '',
     });
@@ -94,9 +121,29 @@ export default function DatabaseAdmin() {
   };
 
   const resetWorkerForm = () => {
-    setWorkerForm({ nombre: '', cargo: cargos[0] || 'Técnico', cedula: '', cuadrillaId: '', signatureId: '' });
+    setWorkerForm({ nombre: '', cargo: cargos[0] || 'Técnico', cedula: '', password: '1234', cuadrillaId: '', signatureId: '' });
     setIsAddingWorker(false);
     setEditingWorkerId(null);
+  };
+
+  // Password handlers
+  const handleChangePassword = (workerId: string) => {
+    setChangingPasswordFor(workerId);
+    setNewPassword('');
+  };
+
+  const handleSavePassword = () => {
+    if (changingPasswordFor && newPassword.trim()) {
+      updateWorker(changingPasswordFor, { password: newPassword.trim() });
+      setChangingPasswordFor(null);
+      setNewPassword('');
+    }
+  };
+
+  const handleResetPassword = (workerId: string) => {
+    if (confirm('¿Restablecer la contraseña a "1234"?')) {
+      updateWorker(workerId, { password: '1234' });
+    }
   };
 
   // Cuadrilla handlers
@@ -170,6 +217,41 @@ export default function DatabaseAdmin() {
     setEditingCargo(null);
   };
 
+  // Zona handlers
+  const handleZonaSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!zonaForm.trim()) return;
+
+    if (editingZona) {
+      updateZona(editingZona, zonaForm);
+    } else {
+      addZona(zonaForm);
+    }
+    resetZonaForm();
+  };
+
+  const handleEditZona = (zona: string) => {
+    setZonaForm(zona);
+    setEditingZona(zona);
+    setIsAddingZona(true);
+  };
+
+  const handleDeleteZona = (zona: string) => {
+    if (zonas.length <= 1) {
+      alert('Debe haber al menos una zona.');
+      return;
+    }
+    if (confirm(`¿Eliminar la zona "${zona}"?`)) {
+      deleteZona(zona);
+    }
+  };
+
+  const resetZonaForm = () => {
+    setZonaForm('');
+    setIsAddingZona(false);
+    setEditingZona(null);
+  };
+
   if (!isAdmin()) {
     return (
       <div className="p-6 text-center">
@@ -190,6 +272,7 @@ export default function DatabaseAdmin() {
             { id: 'workers' as const, label: 'Trabajadores', count: activeWorkers.length },
             { id: 'cuadrillas' as const, label: 'Cuadrillas', count: activeCuadrillas.length },
             { id: 'cargos' as const, label: 'Cargos', count: cargos.length },
+            { id: 'zonas' as const, label: 'Zonas', count: zonas.length },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -270,6 +353,17 @@ export default function DatabaseAdmin() {
                     />
                   </div>
                   <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">Contraseña</label>
+                    <input
+                      type="text"
+                      value={workerForm.password}
+                      onChange={(e) => setWorkerForm({ ...workerForm, password: e.target.value })}
+                      placeholder={editingWorkerId ? '(sin cambios)' : '1234'}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Dejar vacío para mantener la actual</p>
+                  </div>
+                  <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">Cuadrilla</label>
                     <select
                       value={workerForm.cuadrillaId}
@@ -295,6 +389,19 @@ export default function DatabaseAdmin() {
             </div>
           )}
 
+          {/* Password toggle */}
+          <div className="flex items-center gap-2 mb-2">
+            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showPasswords}
+                onChange={(e) => setShowPasswords(e.target.checked)}
+                className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+              />
+              Mostrar contraseñas
+            </label>
+          </div>
+
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -304,13 +411,14 @@ export default function DatabaseAdmin() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cargo</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Cédula</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Cuadrilla</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Contraseña</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredWorkers.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                      <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500">
                         {searchQuery ? 'Sin resultados' : 'No hay trabajadores'}
                       </td>
                     </tr>
@@ -322,6 +430,50 @@ export default function DatabaseAdmin() {
                         <td className="px-4 py-3 text-sm text-gray-500 hidden sm:table-cell">{worker.cedula || '-'}</td>
                         <td className="px-4 py-3 text-sm text-gray-500 hidden md:table-cell">
                           {cuadrillas.find(c => c.id === worker.cuadrillaId)?.nombre || '-'}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-500 hidden lg:table-cell">
+                          {changingPasswordFor === worker.id ? (
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                placeholder="Nueva contraseña"
+                                className="w-24 px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-gray-900"
+                                autoFocus
+                              />
+                              <button
+                                onClick={handleSavePassword}
+                                className="text-xs text-green-600 hover:text-green-800"
+                              >
+                                Guardar
+                              </button>
+                              <button
+                                onClick={() => setChangingPasswordFor(null)}
+                                className="text-xs text-gray-500 hover:text-gray-700"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <span className={showPasswords ? '' : 'font-mono'}>
+                                {showPasswords ? (worker.password || '1234') : '••••'}
+                              </span>
+                              <button
+                                onClick={() => handleChangePassword(worker.id)}
+                                className="text-xs text-blue-600 hover:text-blue-800"
+                              >
+                                Cambiar
+                              </button>
+                              <button
+                                onClick={() => handleResetPassword(worker.id)}
+                                className="text-xs text-orange-600 hover:text-orange-800"
+                              >
+                                Reset
+                              </button>
+                            </div>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-right text-sm">
                           <button onClick={() => handleEditWorker(worker)} className="text-gray-600 hover:text-gray-900 mr-3">
@@ -522,6 +674,71 @@ export default function DatabaseAdmin() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Zonas Tab */}
+      {activeTab === 'zonas' && (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600">
+              Gestiona las zonas de trabajo disponibles
+            </p>
+            {!isAddingZona && (
+              <button
+                onClick={() => setIsAddingZona(true)}
+                className="px-4 py-2 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                Agregar Zona
+              </button>
+            )}
+          </div>
+
+          {isAddingZona && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-900 mb-4">
+                {editingZona ? 'Editar Zona' : 'Nueva Zona'}
+              </h3>
+              <form onSubmit={handleZonaSubmit} className="flex gap-3">
+                <input
+                  type="text"
+                  required
+                  value={zonaForm}
+                  onChange={(e) => setZonaForm(e.target.value)}
+                  placeholder="Nombre de la zona"
+                  className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900"
+                />
+                <button type="submit" className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md hover:bg-gray-800">
+                  {editingZona ? 'Actualizar' : 'Guardar'}
+                </button>
+                <button type="button" onClick={resetZonaForm} className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50">
+                  Cancelar
+                </button>
+              </form>
+            </div>
+          )}
+
+          <div className="bg-white border border-gray-200 rounded-lg divide-y divide-gray-200">
+            {zonas.map((zona) => (
+              <div key={zona} className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm font-medium text-gray-900">{zona}</span>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => handleEditZona(zona)}
+                    className="text-xs text-gray-500 hover:text-gray-700"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDeleteZona(zona)}
+                    className="text-xs text-red-500 hover:text-red-700"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
