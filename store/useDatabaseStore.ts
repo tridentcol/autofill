@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { db } from '@/lib/db';
-import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer, syncCargosToServer, syncZonasToServer } from '@/lib/dataSync';
+import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer, syncCargosToServer, syncZonasToServer, syncAdminSettingsToServer } from '@/lib/dataSync';
 import { loadAllDefaultData } from '@/lib/dataLoader';
 import type { DatabaseState, Worker, Cuadrilla, User, Camioneta, Grua } from '@/types';
 import { DEFAULT_CARGOS } from '@/types';
@@ -511,18 +511,7 @@ export const useDatabaseStore = create<DatabaseState>()(
 
         // Sync to server if admin
         if (get().isAdmin()) {
-          try {
-            const response = await fetch('/api/data/admin-settings', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(adminSettingsData),
-            });
-            if (!response.ok) {
-              console.error('Failed to sync admin settings to server');
-            }
-          } catch (error) {
-            console.error('Error syncing admin settings:', error);
-          }
+          await syncAdminSettingsToServer(adminSettingsData);
         }
       },
 

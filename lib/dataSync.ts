@@ -1,4 +1,4 @@
-import type { Worker, Cuadrilla, Camioneta, Grua, Signature } from '@/types';
+import type { Worker, Cuadrilla, Camioneta, Grua, Signature, AdminSettings } from '@/types';
 import {
   syncWorkersToGit,
   syncCuadrillasToGit,
@@ -7,6 +7,7 @@ import {
   syncCargosToGit,
   syncSignaturesToGit,
   syncZonasToGit,
+  syncAdminSettingsToGit,
   syncAllDataToGit,
 } from './gitSync';
 
@@ -214,6 +215,34 @@ export async function syncZonasToServer(zonas: string[]): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('❌ Error syncing zonas:', error);
+    return false;
+  }
+}
+
+export async function syncAdminSettingsToServer(adminSettings: AdminSettings): Promise<boolean> {
+  try {
+    // 1. Write to local JSON file (works in development)
+    const response = await fetch('/api/data/admin-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(adminSettings),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to sync admin settings');
+    }
+
+    console.log('✅ Admin settings synced to local files');
+
+    // 2. Commit to git (works in production)
+    const gitSuccess = await syncAdminSettingsToGit(adminSettings);
+    if (!gitSuccess) {
+      console.warn('⚠️ Git sync failed, but local files were updated');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('❌ Error syncing admin settings:', error);
     return false;
   }
 }
