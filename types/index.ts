@@ -256,6 +256,12 @@ export interface Grua {
   isActive: boolean;
 }
 
+export interface AdminSettings {
+  id: string;
+  password: string;
+  updatedAt: Date;
+}
+
 export interface User {
   id: string;
   nombre: string;
@@ -276,6 +282,7 @@ export interface DatabaseState {
   gruas: Grua[];
   cargos: string[];
   zonas: string[];
+  adminSettings: AdminSettings | null;
   currentUser: User | null;
 
   // Workers CRUD
@@ -315,6 +322,10 @@ export interface DatabaseState {
   addZona: (zona: string) => Promise<void>;
   updateZona: (oldZona: string, newZona: string) => Promise<void>;
   deleteZona: (zona: string) => Promise<void>;
+
+  // Admin Settings
+  updateAdminPassword: (newPassword: string) => Promise<void>;
+  getAdminPassword: () => string;
 
   // User management
   setCurrentUser: (user: User | null) => void;
