@@ -3,7 +3,7 @@
  * Automatically commits and pushes data changes to the repository
  */
 
-import { Worker, Cuadrilla, Camioneta, Grua, Signature } from '@/types';
+import { Worker, Cuadrilla, Camioneta, Grua, Signature, AdminSettings } from '@/types';
 
 interface GitCommitOptions {
   message: string;
@@ -191,6 +191,23 @@ export async function syncZonasToGit(zonas: string[]): Promise<boolean> {
       {
         path: 'public/data/zonas.json',
         content: JSON.stringify(zonas, null, 2),
+      },
+    ],
+  });
+}
+
+/**
+ * Sync admin settings to git
+ */
+export async function syncAdminSettingsToGit(adminSettings: AdminSettings): Promise<boolean> {
+  const timestamp = new Date().toISOString();
+
+  return await commitAndPushChanges({
+    message: `chore: Update admin settings - ${timestamp}`,
+    files: [
+      {
+        path: 'public/data/admin-settings.json',
+        content: JSON.stringify(adminSettings, null, 2),
       },
     ],
   });
