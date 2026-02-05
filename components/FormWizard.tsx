@@ -1,13 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useFormStore } from '@/store/useFormStore';
+import { useDatabaseStore } from '@/store/useDatabaseStore';
 import FieldRenderer from './FieldRenderer';
 import WorkerSection from './WorkerSection';
 import VehicleInfoSection from './VehicleInfoSection';
 import GruaInfoSection from './GruaInfoSection';
+import TurnoSelector from './TurnoSelector';
+import HerramientasInfoSection from './HerramientasInfoSection';
 import { ExcelGenerator, downloadExcelFile } from '@/lib/excelGenerator';
-import type { Field } from '@/types';
+import type { Field, Signature } from '@/types';
 
 export default function FormWizard() {
   const {
@@ -18,9 +21,22 @@ export default function FormWizard() {
     goToNextStep,
     goToPreviousStep,
     goToStep,
-    signatures,
     updateFieldValue,
   } = useFormStore();
+
+  const { workers } = useDatabaseStore();
+
+  // Construir firmas desde los workers que tienen signatureId
+  const signatures = useMemo((): Signature[] => {
+    return workers
+      .filter(w => w.isActive && w.signatureId)
+      .map(w => ({
+        id: w.signatureId!,
+        name: w.nombre,
+        dataUrl: w.signatureData || `/signatures/${w.signatureId}.png`,
+        createdAt: new Date(),
+      }));
+  }, [workers]);
 
   const [generating, setGenerating] = useState(false);
   const [quickFillMode, setQuickFillMode] = useState<'all_yes' | 'all_no' | 'all_na' | null>(null);
@@ -65,9 +81,57 @@ export default function FormWizard() {
     alert(`Se han marcado ${radioFields.length} items como "${value}"`);
   };
 
+  // Función para convertir URL de imagen a base64
+  const loadImageAsBase64 = async (url: string): Promise<string> => {
+    try {
+      // Construir URL absoluta si es relativa
+      let absoluteUrl = url;
+      if (url.startsWith('/') && typeof window !== 'undefined') {
+        absoluteUrl = `${window.location.origin}${url}`;
+      }
+
+      console.log(`[Firma] Cargando imagen: ${absoluteUrl}`);
+
+      const response = await fetch(absoluteUrl, {
+        cache: 'no-cache',  // Evitar problemas de caché
+      });
+
+      if (!response.ok) {
+        console.error(`[Firma] Error HTTP ${response.status} para: ${absoluteUrl}`);
+        throw new Error(`Failed to fetch image: HTTP ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      console.log(`[Firma] Imagen cargada, tamaño: ${blob.size} bytes`);
+
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          console.log(`[Firma] Convertida a base64, longitud: ${result.length}`);
+          resolve(result);
+        };
+        reader.onerror = (error) => {
+          console.error('[Firma] Error al leer blob:', error);
+          reject(error);
+        };
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('[Firma] Error cargando imagen:', url, error);
+      throw error;
+    }
+  };
+
   // Generar archivo Excel rellenado
   const handleGenerateExcel = async () => {
     if (!selectedFormat || !currentFormData) return;
+
+    // Verificar si el archivo es .xls (no soportado)
+    if (selectedFormat.fileType === 'xls') {
+      alert('El formato .xls no es compatible con la exportación automática. Por favor contacta al administrador para convertir el archivo a .xlsx');
+      return;
+    }
 
     setGenerating(true);
     try {
@@ -90,8 +154,34 @@ export default function FormWizard() {
 
       const originalBuffer = base64ToArrayBuffer(originalBufferBase64);
 
+      // Cargar firmas que son URLs (no base64) y convertirlas
+      console.log(`[Firmas] Procesando ${signatures.length} firmas...`);
+      const loadedSignatures: Signature[] = [];
+
+      for (const sig of signatures) {
+        if (sig.dataUrl.startsWith('data:')) {
+          // Ya es base64
+          console.log(`[Firma] ${sig.name} ya es base64`);
+          loadedSignatures.push(sig);
+        } else {
+          // Es una URL, cargar y convertir
+          try {
+            const base64 = await loadImageAsBase64(sig.dataUrl);
+            loadedSignatures.push({ ...sig, dataUrl: base64 });
+            console.log(`[Firma] ${sig.name} cargada exitosamente`);
+          } catch (error) {
+            console.error(`[Firma] Error cargando firma para ${sig.name}:`, error);
+            // NO incluir firmas que no se pudieron cargar
+            // Esto evita que se intente insertar una URL como base64
+            console.warn(`[Firma] ${sig.name} será omitida del Excel`);
+          }
+        }
+      }
+
+      console.log(`[Firmas] ${loadedSignatures.length}/${signatures.length} firmas cargadas exitosamente`);
+
       // Convertir signatures array a Map
-      const signaturesMap = new Map(signatures.map((sig) => [sig.id, sig]));
+      const signaturesMap = new Map(loadedSignatures.map((sig) => [sig.id, sig]));
 
       const blob = await generator.generateFilledExcel(
         originalBuffer,
@@ -177,8 +267,9 @@ export default function FormWizard() {
           </p>
         </div>
 
-        {/* Quick fill options for checklists */}
-        {currentWizardStep.section.type === 'checklist' && (
+        {/* Quick fill options for checklists - solo si tiene campos tipo radio (SI/NO/N/A) */}
+        {currentWizardStep.section.type === 'checklist' &&
+         currentWizardStep.section.fields.some(f => f.type === 'radio') && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm font-medium text-blue-900 mb-3">
               Opciones de llenado rápido:
@@ -372,6 +463,19 @@ export default function FormWizard() {
                 ))}
               </div>
             </>
+          ) : selectedFormat?.id === 'permiso-trabajo' && currentWizardStep.section.id === 'periodo_validez' ? (
+            // Renderizado especial para el período de validez con selector de turno
+            <TurnoSelector
+              sheetIndex={0}
+              sectionIndex={currentStep}
+            />
+          ) : selectedFormat?.id === 'inspeccion-herramientas' && currentWizardStep.section.id === 'basic_info' ? (
+            // Renderizado especial para la información básica de inspección de herramientas
+            <HerramientasInfoSection
+              sheetIndex={0}
+              sectionIndex={currentStep}
+              fields={currentWizardStep.section.fields}
+            />
           ) : (
             // Renderizado normal para otras secciones
             currentWizardStep.section.fields.map((field) => (

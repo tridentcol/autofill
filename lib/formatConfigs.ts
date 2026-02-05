@@ -139,6 +139,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // 3. FIRMA
+    // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
     sections.push({
       id: 'signatures',
       type: 'signatures',
@@ -155,6 +156,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           validation: {
             mergedRows: 2,   // Filas 39-40 (firma puede sobresalir naturalmente sobre la línea)
             mergedCols: 12,  // A39:L40 tiene 12 columnas (A-L), ancho total: 1116px
+            pattern: 'supervisor_only'
           },
         },
       ],
@@ -619,46 +621,36 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
   'permiso-trabajo': (worksheetData?: any) => {
     const sections: Section[] = [];
 
-    // PASO 1: FECHA DE DILIGENCIAMIENTO (Fila 6)
-    // Formato calendario con zona horaria Colombia (UTC-5)
-    // Auto-completado con fecha/hora actual, hora por defecto 7:00 AM
+    // Zona horaria Colombia (UTC-5)
     const now = new Date();
     const colombiaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }));
+    const colombiaDateStr = colombiaTime.toISOString().split('T')[0];
 
+    // PASO 1: FECHA DE DILIGENCIAMIENTO (Fila 6)
+    // FECHA DE DILIGENCIAMIENTO está en B6:E6 (etiqueta)
+    // Día: F6, Mes: G6, Año: H6
+    // HORA está en I6 (etiqueta), se rellena en J6:K6
+    // LUGAR está en M6:O6 (etiqueta), se rellena en P6:T6
     sections.push({
       id: 'fecha_diligenciamiento',
       type: 'basic_info',
       title: 'Paso 1: Fecha de Diligenciamiento',
       fields: [
         {
-          id: 'fecha_dia',
-          label: 'Día',
-          type: 'number',
+          id: 'fecha_completa',
+          label: 'Fecha',
+          type: 'date',
           cellRef: 'F6',
           row: 6,
           col: 6,
           required: true,
-          value: colombiaTime.getDate()
-        },
-        {
-          id: 'fecha_mes',
-          label: 'Mes',
-          type: 'number',
-          cellRef: 'G6',
-          row: 6,
-          col: 7,
-          required: true,
-          value: colombiaTime.getMonth() + 1
-        },
-        {
-          id: 'fecha_año',
-          label: 'Año',
-          type: 'number',
-          cellRef: 'H6',
-          row: 6,
-          col: 8,
-          required: true,
-          value: colombiaTime.getFullYear()
+          value: colombiaDateStr,
+          validation: {
+            pattern: 'decompose_date',
+            dayCellRef: 'F6',
+            monthCellRef: 'G6',
+            yearCellRef: 'H6'
+          }
         },
         {
           id: 'hora',
@@ -687,27 +679,15 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // PASO 2: EVALUACIÓN DE RIESGOS Y CONTROLES (Filas 9-19)
-    // 11 riesgos específicos + 1 campo "Otro"
-    // Una sola firma de responsable se aplica a todas las 12 filas (Q9:Q19)
+    // 12 peligros: B9:H9 hasta B19:H19 (descripciones)
+    // Medidas: I9:P9 hasta I19:P19
+    // Responsable (firma): Q9:T9 hasta Q19:T19
     const riesgosFields: Field[] = [];
-    const riesgos = [
-      '1. Tropezón o caída a nivel de suelo',
-      '2. Caída a distinto nivel: fractura, traumatismo, conmociones y muerte',
-      '3. Electrocución. Manipulación de líneas, herramientas y equipos',
-      '4. Quemaduras: explosión o incendio',
-      '5. Caída de objetos: Heridas, Fracturas, contusiones',
-      '6. Esfuerzo: manipulación manual de cargas',
-      '7. Heridas laceraciones perforaciones por herramientas',
-      '8. Cambios de temperatura: frío o calor',
-      '9. Accidentes de tránsito atropellamiento',
-      '10. Biológico: Mordeduras, picaduras',
-      '11. Otro (Describa):',
-    ];
 
-    // Campo de texto para el riesgo "Otro"
+    // Campo de texto para el riesgo "12. Otro (Describa):" en I19:P19
     riesgosFields.push({
       id: 'riesgo_otro_descripcion',
-      label: 'Descripción del otro riesgo',
+      label: 'Descripción del otro riesgo (Peligro 12)',
       type: 'text',
       cellRef: 'I19',
       row: 19,
@@ -715,17 +695,21 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       required: false
     });
 
-    // Una sola firma que se aplica a todas las filas (Q9:Q19)
+    // Una sola firma que se aplica a Q9:T9 hasta Q19:T19
     riesgosFields.push({
       id: 'riesgo_responsable',
-      label: 'Responsable de la evaluación de riesgos',
+      label: 'Responsable de los Controles',
       type: 'signature',
       cellRef: 'Q9',
       row: 9,
       col: 17,
       required: true,
       validation: {
-        applyToAll: true, // Esta firma se replica en Q9, Q10, Q11... hasta Q19
+        applyToAll: true,
+        applyToRows: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+        cellRef: 'Q',
+        mergedCols: 4,
+        pattern: 'supervisor_only'
       }
     });
 
@@ -741,32 +725,15 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // PASO 3: TRABAJADORES (Filas 22-25)
-    // Sistema de base de datos con cuadrillas predefinidas
-    // TODO: Implementar base de datos con las siguientes cuadrillas:
-    // CUAD1: Carlos Guzmán (Conductor, CC 1143359194), Kleiver Polo (Técnico, CC 9288327)
-    // CUAD61: Luis Hernández (Conductor), Jefferson Genes (Técnico, CC 1050967799)
-    // CUAD64: Andrés Puello (Conductor, CC 1050963621), Juan Carlos Romero (Técnico, CC 73228082), Leonardo Torres (Supervisor, CC 1124034299)
-    // CUAD65: Joseph Puello (Conductor, CC 9298718), Remberto Martínez (Técnico, CC 1047425281)
-    //
-    // Supervisores adicionales:
-    // - Antonio Cabarcas - Asistente técnico
-    // - Deivi Zabaleta - Coordinador de zona
-    // - Leonardo Torres - Supervisor de cuadrilla
-    //
-    // Sistema de permisos:
-    // - Usuario ADMIN: puede editar/agregar/eliminar trabajadores en la base de datos
-    // - Usuario REGULAR: solo puede ver y seleccionar trabajadores existentes para llenar formularios
-    // - Cada persona debe tener parámetro para asignar firma
-    // - Firma inicial = nombre de la persona
-
+    // Fila 21 tiene encabezados, Filas 22-25 son para 4 trabajadores
+    // NOMBRE: B#:E#, CARGO: F#:I#, CÉDULA: J#:M#, FIRMA: N#:T#
     const trabajadoresFields: Field[] = [];
 
-    // Selector de cuadrilla (dropdown principal)
     trabajadoresFields.push({
       id: 'cuadrilla_select',
       label: 'Seleccionar Cuadrilla',
       type: 'select',
-      cellRef: 'B21', // Fila antes de la tabla de trabajadores
+      cellRef: 'B21',
       row: 21,
       col: 2,
       required: false,
@@ -774,25 +741,24 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       group: 'cuadrilla_selector'
     });
 
-    // Campos para cada trabajador (hasta 4)
+    // 4 trabajadores en filas 22, 23, 24, 25
     for (let i = 0; i < 4; i++) {
       const row = 22 + i;
       trabajadoresFields.push(
         {
           id: `trabajador${i+1}_nombre`,
           label: `Trabajador ${i+1} - Nombre Completo`,
-          type: 'select', // Será dropdown desde base de datos
+          type: 'text',
           cellRef: `B${row}`,
           row,
           col: 2,
-          required: i === 0, // Primer trabajador obligatorio
-          options: [], // Se llenará desde la base de datos
+          required: i === 0,
           group: 'trabajadores_tabla'
         },
         {
           id: `trabajador${i+1}_cargo`,
           label: `Trabajador ${i+1} - Cargo`,
-          type: 'text', // Se auto-completa al seleccionar trabajador
+          type: 'text',
           cellRef: `F${row}`,
           row,
           col: 6,
@@ -802,7 +768,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         {
           id: `trabajador${i+1}_cedula`,
           label: `Trabajador ${i+1} - Cédula`,
-          type: 'text', // Se auto-completa al seleccionar trabajador
+          type: 'text',
           cellRef: `J${row}`,
           row,
           col: 10,
@@ -812,12 +778,16 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
         {
           id: `trabajador${i+1}_firma`,
           label: `Trabajador ${i+1} - Firma`,
-          type: 'signature', // Se auto-completa al seleccionar trabajador
+          type: 'signature',
           cellRef: `N${row}`,
           row,
           col: 14,
           required: false,
-          group: 'trabajadores_tabla'
+          group: 'trabajadores_tabla',
+          validation: {
+            mergedCols: 7,
+            pattern: 'tecnico_conductor'
+          }
         }
       );
     }
@@ -833,14 +803,40 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       endCol: 20,
     });
 
-    // PASO 4: ACTIVIDAD Y ALTURA (Filas 26-28)
+    // PASO 4: ACTIVIDAD Y ALTURA
+    // ACTIVIDAD A EJECUTAR: B26:T27 (celda combinada)
+    // ALTURA APROXIMADA: B28:T28 (celda combinada)
     sections.push({
       id: 'actividad_altura',
       type: 'basic_info',
       title: 'Paso 4: Actividad y Altura',
       fields: [
-        { id: 'actividad_ejecutar', label: 'Actividad a Ejecutar', type: 'textarea', cellRef: 'B26', row: 26, col: 2, required: true },
-        { id: 'altura_aproximada', label: 'Altura Aproximada (metros)', type: 'text', cellRef: 'B28', row: 28, col: 2, required: false },
+        {
+          id: 'actividad_ejecutar',
+          label: 'Actividad a Ejecutar',
+          type: 'textarea',
+          cellRef: 'B26',
+          row: 26,
+          col: 2,
+          required: true,
+          validation: {
+            appendToLabel: true,
+            labelText: 'ACTIVIDAD A EJECUTAR:'
+          }
+        },
+        {
+          id: 'altura_aproximada',
+          label: 'Altura Aproximada (metros)',
+          type: 'text',
+          cellRef: 'B28',
+          row: 28,
+          col: 2,
+          required: false,
+          validation: {
+            appendToLabel: true,
+            labelText: 'ALTURA APROXIMADA A LA CUAL SE VA DESARROLLAR LA ACTIVIDAD SI APLICA:'
+          }
+        },
       ],
       startRow: 26,
       endRow: 28,
@@ -849,71 +845,38 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // PASO 5: PERÍODO DE VALIDEZ (Fila 29)
-    // Botones de turno para auto-completar horarios:
-    // - Turno Mañana: 7:00 AM - 3:00 PM
-    // - Turno Noche: 3:00 PM - 11:00 PM
-    // Separar claramente DESDE y HASTA
-
-    // Botones de selección de turno (UI helper)
-    const turnoButtons = {
-      manana: { desde: '07:00', hasta: '15:00' },
-      noche: { desde: '15:00', hasta: '23:00' }
-    };
-
+    // VALIDO DESDE: B29:D29 (etiqueta)
+    // Día: F29, Mes: G29, Año: H29
+    // Hora: J29:L29 (combinada)
+    // HASTA: M29:N29 (etiqueta)
+    // Día: P29, Mes: Q29, Año: R29
+    // Hora: T29
     sections.push({
       id: 'periodo_validez',
       type: 'basic_info',
       title: 'Paso 5: Período de Validez',
       fields: [
-        // Selector de turno (helper UI, no va al Excel)
+        // Nota: turno_select es solo un helper de UI, no se exporta al Excel
         {
-          id: 'turno_select',
-          label: 'Seleccionar Turno',
-          type: 'radio',
-          cellRef: 'B28', // Fila antes del período
-          row: 28,
-          col: 2,
-          required: false,
-          options: ['Turno Mañana (7:00 AM - 3:00 PM)', 'Turno Noche (3:00 PM - 11:00 PM)', 'Personalizado'],
-          group: 'turno_selector'
-        },
-        // DESDE
-        {
-          id: 'desde_dia',
-          label: 'Desde - Día',
-          type: 'number',
+          id: 'desde_fecha',
+          label: 'Fecha Inicio',
+          type: 'date',
           cellRef: 'F29',
           row: 29,
           col: 6,
           required: true,
-          value: colombiaTime.getDate(),
-          group: 'desde'
-        },
-        {
-          id: 'desde_mes',
-          label: 'Desde - Mes',
-          type: 'number',
-          cellRef: 'G29',
-          row: 29,
-          col: 7,
-          required: true,
-          value: colombiaTime.getMonth() + 1,
-          group: 'desde'
-        },
-        {
-          id: 'desde_año',
-          label: 'Desde - Año',
-          type: 'number',
-          cellRef: 'H29',
-          row: 29,
-          col: 8,
-          required: true,
-          value: colombiaTime.getFullYear(),
-          group: 'desde'
+          value: colombiaDateStr,
+          group: 'desde',
+          validation: {
+            pattern: 'decompose_date',
+            dayCellRef: 'F29',
+            monthCellRef: 'G29',
+            yearCellRef: 'H29'
+          }
         },
         {
           id: 'desde_hora',
-          label: 'Desde - Hora',
+          label: 'Hora Inicio',
           type: 'time',
           cellRef: 'J29',
           row: 29,
@@ -922,43 +885,26 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           value: '07:00',
           group: 'desde'
         },
-        // HASTA
         {
-          id: 'hasta_dia',
-          label: 'Hasta - Día',
-          type: 'number',
+          id: 'hasta_fecha',
+          label: 'Fecha Fin',
+          type: 'date',
           cellRef: 'P29',
           row: 29,
           col: 16,
           required: true,
-          value: colombiaTime.getDate(),
-          group: 'hasta'
-        },
-        {
-          id: 'hasta_mes',
-          label: 'Hasta - Mes',
-          type: 'number',
-          cellRef: 'Q29',
-          row: 29,
-          col: 17,
-          required: true,
-          value: colombiaTime.getMonth() + 1,
-          group: 'hasta'
-        },
-        {
-          id: 'hasta_año',
-          label: 'Hasta - Año',
-          type: 'number',
-          cellRef: 'R29',
-          row: 29,
-          col: 18,
-          required: true,
-          value: colombiaTime.getFullYear(),
-          group: 'hasta'
+          value: colombiaDateStr,
+          group: 'hasta',
+          validation: {
+            pattern: 'decompose_date',
+            dayCellRef: 'P29',
+            monthCellRef: 'Q29',
+            yearCellRef: 'R29'
+          }
         },
         {
           id: 'hasta_hora',
-          label: 'Hasta - Hora',
+          label: 'Hora Fin',
           type: 'time',
           cellRef: 'T29',
           row: 29,
@@ -975,7 +921,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // PASO 6: PREPARACIÓN DEL ÁREA (Filas 31-40)
-    // 10 items con opciones SI/NO/N/A
+    // Descripción: B#:Q#, SI: R#, NO: S#, N/A: T#
     const preparacionFields: Field[] = [];
     const preparacionItems = [
       'SE HA INSTALADO SEÑALIZACIÓN PREVENTIVA QUE DELIMITE EL ÁREA DE TRABAJO (CINTA, CONOS, SEÑALES TUBULARES O POLISOMBRAS, DE TAL MANERA QUE SE PUEDA AISLAR O RESTRINGIR LA ZONA Y NO SE PERMITA EL PASO DE PERSONAS O VEHÍCULOS AJENOS A LA LABOR) EN CASO DE IZAJE.',
@@ -983,8 +929,8 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       'EL PERSONAL QUE EJECUTA LABORES EN ALTURAS POSEE CERTIFICACION DE TSA',
       'LOS ELEMENTOS DE PROTECCIÓN PERSONAL Y LOS SISTEMAS PROTECCION CONTRA CAIDAS A UTILIZAR EN LA LABOR FUERON INSPECCIONADOS Y SE ENCUENTRAN EN BUENAS CONDICIONES.',
       'SE REQUIERE LA PRESENCIA DE UNA PERSONA DE SEGURIDAD DE LA EMPRESA, UN BRIGADISTA O UN BOMBERO DURANTE LA EJECUCIÓN DE LA LABOR.',
-      'LOS TRABAJADORES REVISAN LOS ACCESOS AL ÁREA DE TRABAJO E IDENTIFICAN LAS SALIDAS DE EMERGENCIA SIGUIENDO LAS PAUTAS A TENER EN CUENTA EN CASO DE PRESENTARSE UNA EMERGENCIA: 1. NOTIFICAR DE INMEDIATO EN CASO DE PRESENTARSE UNA SITUACION DE EMERGENCIA. 2. MANTIENER LA CALMA. 3. SIGUEN LAS INSTRUCCIONES DEL LIDER DE BRIGADA VIGIA O RESPONSABLE EN CASO DE EMERGENCIAS 4. EVACUAR EL AREA EN ORDEN 5. DIRIGIRSE AL PUNTO DE ENCUENTRO.',
-      'SE GARANTIZA QUE LAS PERSONAS QUE REALIZARÁN EL DILIGENCIAMIENTO DEL PERMISO Y QUIENES EJECUTARÁN EL TRABAJO CONOCEN LOS EQUIPOS, Y SE HA SOCIALIZADO LOS PELIGROS A LOS QUE ESTAN EXPUESTOS.',
+      'LOS TRABAJADORES REVISAN LOS ACCESOS AL ÁREA DE TRABAJO E IDENTIFICAN LAS SALIDAS DE EMERGENCIA SIGUIENDO LAS PAUTAS A TENER EN CUENTA EN CASO DE PRESENTARSE UNA EMERGENCIA.',
+      'SE GARANTIZA QUE LAS PERSONAS QUE REALIZARÁN EL DILIGENCIAMIENTO DEL PERMISO Y QUIENES EJECUTARÁN EL TRABAJO CONOCEN LOS EQUIPOS.',
       'SE VERIFICARON LOS PUNTOS DE ANCLAJE A SER UTILIZADOS POR CADA TRABAJADOR DURANTE LA TAREA',
       'EL PERSONAL CUMPLE CON LOS REQUISITOS DE APTITUD PARA REALIZAR LA TAREA',
       'LOS EQUIPOS Y HERRAMIENTAS A UTILIZAR SE ENCUENTRAN EN BUEN ESTADO.',
@@ -1023,11 +969,15 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // PASO 7: SISTEMA DE ACCESO (Fila 43)
-    // Checkboxes simples - pueden seleccionar múltiples o ninguno
+    // ESCALERA: etiqueta B43:C43, check en D43
+    // ANDAMIO: etiqueta E43, check en F43
+    // CANASTA GRUA: etiqueta G43:H43, check en I43
+    // PLATAFORMAS MOVILES: etiqueta J43:M43, check en N43:O43
+    // OTRO: espacio Q43:T43 (texto)
     sections.push({
       id: 'sistema_acceso',
       type: 'basic_info',
-      title: 'Paso 7: ¿SE TIENE DEFINIDO EL SISTEMA DE ACCESO PARA TRABAJO EN ALTURAS Y SE ENCUENTRA EN OPTIMAS CONDICIONES?',
+      title: 'Paso 7: Sistema de Acceso para Trabajo en Alturas',
       fields: [
         { id: 'acceso_escalera', label: 'Escalera', type: 'checkbox', cellRef: 'D43', row: 43, col: 4, required: false },
         { id: 'acceso_andamio', label: 'Andamio', type: 'checkbox', cellRef: 'F43', row: 43, col: 6, required: false },
@@ -1042,10 +992,12 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // PASO 8: ELEMENTOS DE PROTECCIÓN PERSONAL - EPP (Filas 46-53)
-    // 24 checkboxes simples distribuidos en 3 columnas + campo "Otro"
-    // NO usar radio buttons SI/NO/N/A, solo marcar/desmarcar
+    // Columna G: checks (etiquetas en B#:F#)
+    // Columna M: checks (etiquetas en H#:L#)
+    // Columna T: checks (etiquetas en N#:S#)
+    // OTRO(S): H53:T53 (texto)
     const eppFields: Field[] = [
-      // Columna G (8 items)
+      // Columna G - checks
       { id: 'epp_casco', label: 'Casco de Seguridad con Barbuquejo', type: 'checkbox', cellRef: 'G46', row: 46, col: 7, required: false },
       { id: 'epp_gafas_oscuro', label: 'Gafas de Seguridad Lente Oscuro', type: 'checkbox', cellRef: 'G47', row: 47, col: 7, required: false },
       { id: 'epp_guantes_vaqueta', label: 'Guantes de Vaqueta', type: 'checkbox', cellRef: 'G48', row: 48, col: 7, required: false },
@@ -1055,7 +1007,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       { id: 'epp_botas_dielectricas', label: 'Botas Dieléctricas', type: 'checkbox', cellRef: 'G52', row: 52, col: 7, required: false },
       { id: 'epp_arnes', label: 'Arnés de Cuerpo Completo', type: 'checkbox', cellRef: 'G53', row: 53, col: 7, required: false },
 
-      // Columna M (8 items)
+      // Columna M - checks
       { id: 'epp_eslinga_absorbedor', label: 'Eslinga con Absorbedor de Impactos', type: 'checkbox', cellRef: 'M46', row: 46, col: 13, required: false },
       { id: 'epp_eslinga_posicionamiento', label: 'Eslinga de Posicionamiento', type: 'checkbox', cellRef: 'M47', row: 47, col: 13, required: false },
       { id: 'epp_delantal', label: 'Delantal o Pechera para Soldadura', type: 'checkbox', cellRef: 'M48', row: 48, col: 13, required: false },
@@ -1063,9 +1015,8 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       { id: 'epp_guantes_dielectricos', label: 'Guantes Dieléctricos', type: 'checkbox', cellRef: 'M50', row: 50, col: 13, required: false },
       { id: 'epp_faja', label: 'Faja Sacrolumbar', type: 'checkbox', cellRef: 'M51', row: 51, col: 13, required: false },
       { id: 'epp_casco_sin_barbuquejo', label: 'Casco de Seguridad sin Barbuquejo', type: 'checkbox', cellRef: 'M52', row: 52, col: 13, required: false },
-      { id: 'epp_otro_m53', label: 'Otro', type: 'checkbox', cellRef: 'M53', row: 53, col: 13, required: false },
 
-      // Columna T (8 items)
+      // Columna T - checks
       { id: 'epp_kit_rescate', label: 'Kit de Rescate', type: 'checkbox', cellRef: 'T46', row: 46, col: 20, required: false },
       { id: 'epp_autorretractil', label: 'Autorretráctil', type: 'checkbox', cellRef: 'T47', row: 47, col: 20, required: false },
       { id: 'epp_silla_suspension', label: 'Silla para Trabajo en Suspensión', type: 'checkbox', cellRef: 'T48', row: 48, col: 20, required: false },
@@ -1073,16 +1024,15 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
       { id: 'epp_freno', label: 'Freno o Arrestador de Caída', type: 'checkbox', cellRef: 'T50', row: 50, col: 20, required: false },
       { id: 'epp_gafas_claro', label: 'Gafas de Lente Claro', type: 'checkbox', cellRef: 'T51', row: 51, col: 20, required: false },
       { id: 'epp_linea_vida', label: 'Línea de Vida', type: 'checkbox', cellRef: 'T52', row: 52, col: 20, required: false },
-      { id: 'epp_otro_t53', label: 'Otro', type: 'checkbox', cellRef: 'T53', row: 53, col: 20, required: false },
 
-      // Campo de texto para especificar "Otro"
+      // Campo de texto para "OTRO(S)" en H53:T53
       { id: 'epp_otro_descripcion', label: 'Otro(s) - Especificar', type: 'text', cellRef: 'H53', row: 53, col: 8, required: false },
     ];
 
     sections.push({
       id: 'epp',
       type: 'checklist',
-      title: 'Paso 8: ELEMENTOS DE PROTECCIÓN PERSONAL Y SISTEMAS DE PROTECCIÓN CONTRA CAÍDAS',
+      title: 'Paso 8: Elementos de Protección Personal y Sistemas de Protección Contra Caídas',
       fields: eppFields,
       startRow: 46,
       endRow: 53,
@@ -1091,25 +1041,26 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // PASO 9: HERRAMIENTAS Y OBSERVACIONES
+    // HERRAMIENTAS: B55:T57 (combinada, título en B54)
+    // OBSERVACIONES: B59:T63 (combinada, título en B58)
     sections.push({
       id: 'herramientas_observaciones',
       type: 'observations',
       title: 'Paso 9: Herramientas y Observaciones',
       fields: [
-        { id: 'herramientas', label: 'Herramientas a Utilizar', type: 'textarea', cellRef: 'B56', row: 56, col: 2, required: false },
+        { id: 'herramientas', label: 'Herramientas a Utilizar', type: 'textarea', cellRef: 'B55', row: 55, col: 2, required: false },
         { id: 'observaciones', label: 'Observaciones', type: 'textarea', cellRef: 'B59', row: 59, col: 2, required: false },
       ],
-      startRow: 56,
+      startRow: 55,
       endRow: 63,
       startCol: 2,
       endCol: 20,
     });
 
     // PASO 10: FIRMAS FINALES (Filas 65-67)
-    // Filtrado por rol de usuario desde base de datos:
-    // - N65: Solo supervisores (Antonio Cabarcas, Deivi Zabaleta, Leonardo Torres)
-    // - N66: Solo conductores (Carlos Guzmán, Luis Hernández, Andrés Puello, Joseph Puello)
-    // - N67: Solo supervisores
+    // AUTORIZA EL TRABAJO: N65:T65
+    // ACTIVA EL PLAN DE EMERGENCIA: N66:T66
+    // COORDINADOR DE TSA: N67:T67
     sections.push({
       id: 'firmas_autorizacion',
       type: 'signatures',
@@ -1124,7 +1075,8 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           col: 14,
           required: true,
           validation: {
-            pattern: 'supervisor_only' // Solo supervisores
+            mergedCols: 7,
+            pattern: 'supervisor_only'
           }
         },
         {
@@ -1136,7 +1088,8 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           col: 14,
           required: true,
           validation: {
-            pattern: 'conductor_only' // Solo conductores
+            mergedCols: 7,
+            pattern: 'conductor_ayudante'
           }
         },
         {
@@ -1148,7 +1101,8 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           col: 14,
           required: true,
           validation: {
-            pattern: 'supervisor_only' // Solo supervisores
+            mergedCols: 7,
+            pattern: 'supervisor_only'
           }
         },
       ],
@@ -1655,6 +1609,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
     });
 
     // 4. FIRMA ÚNICA (Se aplicará a todas las firmas)
+    // Solo supervisores: Asistente técnico de mantenimiento, Coordinador de zona, Supervisor de cuadrilla
     sections.push({
       id: 'signatures',
       type: 'signatures',
@@ -1671,6 +1626,7 @@ export const FORMAT_CONFIGS: Record<string, (worksheetData?: any) => Section[]> 
           validation: {
             mergedRows: 3,
             applyToAll: true, // Nueva propiedad para indicar que se replica
+            pattern: 'supervisor_only'
           },
         },
       ],
