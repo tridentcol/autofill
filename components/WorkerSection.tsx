@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDatabaseStore } from '@/store/useDatabaseStore';
 import { useFormStore } from '@/store/useFormStore';
 import CuadrillaSelector from './CuadrillaSelector';
 import WorkerSelector from './WorkerSelector';
-import type { Worker } from '@/types';
+import type { Worker, Signature } from '@/types';
 
 interface WorkerSectionProps {
   sheetIndex: number;
@@ -13,8 +13,20 @@ interface WorkerSectionProps {
 }
 
 export default function WorkerSection({ sheetIndex, sectionIndex }: WorkerSectionProps) {
-  const { getWorkerById, getCuadrillaById } = useDatabaseStore();
-  const { updateFieldValue, currentFormData, signatures } = useFormStore();
+  const { getWorkerById, getCuadrillaById, workers } = useDatabaseStore();
+  const { updateFieldValue, currentFormData } = useFormStore();
+
+  // Construir firmas desde los workers que tienen signatureId
+  const signatures = useMemo((): Signature[] => {
+    return workers
+      .filter(w => w.isActive && w.signatureId)
+      .map(w => ({
+        id: w.signatureId!,
+        name: w.nombre,
+        dataUrl: w.signatureData || `/signatures/${w.signatureId}.png`,
+        createdAt: new Date(),
+      }));
+  }, [workers]);
 
   const [selectedCuadrillaId, setSelectedCuadrillaId] = useState<string>('');
   const [selectedWorkers, setSelectedWorkers] = useState<(Worker | null)[]>([null, null, null, null]);

@@ -1,10 +1,20 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { db } from '@/lib/db';
-import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer, syncCargosToServer } from '@/lib/dataSync';
+import { syncWorkersToServer, syncCuadrillasToServer, syncCamionetasToServer, syncGruasToServer, syncCargosToServer, syncZonasToServer } from '@/lib/dataSync';
 import { loadAllDefaultData } from '@/lib/dataLoader';
 import type { DatabaseState, Worker, Cuadrilla, User, Camioneta, Grua } from '@/types';
 import { DEFAULT_CARGOS } from '@/types';
+
+const DEFAULT_ZONAS = [
+  'Clemencia',
+  'Arjona',
+  'Turbaco',
+  'Turbana',
+  'San Estanislao',
+  'Santa Rosa de Lima',
+  'Villanueva',
+];
 
 export const useDatabaseStore = create<DatabaseState>()(
   persist(
@@ -15,6 +25,7 @@ export const useDatabaseStore = create<DatabaseState>()(
       camionetas: [],
       gruas: [],
       cargos: [...DEFAULT_CARGOS],
+      zonas: [...DEFAULT_ZONAS],
       currentUser: null,
 
       // ==================== WORKERS CRUD ====================
@@ -435,6 +446,53 @@ export const useDatabaseStore = create<DatabaseState>()(
         }
       },
 
+      // ==================== ZONAS CRUD ====================
+
+      addZona: async (zona) => {
+        const trimmed = zona.trim();
+        if (!trimmed) return;
+
+        const currentZonas = get().zonas;
+        if (currentZonas.includes(trimmed)) return; // Already exists
+
+        const newZonas = [...currentZonas, trimmed];
+        set({ zonas: newZonas });
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncZonasToServer(newZonas);
+        }
+      },
+
+      updateZona: async (oldZona, newZona) => {
+        const trimmedNew = newZona.trim();
+        if (!trimmedNew || oldZona === trimmedNew) return;
+
+        const currentZonas = get().zonas;
+        if (currentZonas.includes(trimmedNew)) return; // New name already exists
+
+        const newZonas = currentZonas.map(z => z === oldZona ? trimmedNew : z);
+        set({ zonas: newZonas });
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncZonasToServer(newZonas);
+        }
+      },
+
+      deleteZona: async (zona) => {
+        const currentZonas = get().zonas;
+        if (currentZonas.length <= 1) return; // Keep at least one zona
+
+        const newZonas = currentZonas.filter(z => z !== zona);
+        set({ zonas: newZonas });
+
+        // Sync to server if admin
+        if (get().isAdmin()) {
+          await syncZonasToServer(newZonas);
+        }
+      },
+
       // ==================== USER MANAGEMENT ====================
 
       setCurrentUser: (user) => {
@@ -544,13 +602,14 @@ export const useDatabaseStore = create<DatabaseState>()(
             await db.gruas.bulkAdd(serverData.gruas);
           }
 
-          // Update Zustand state (including cargos from server)
+          // Update Zustand state (including cargos and zonas from server)
           set({
             workers: serverData.workers,
             cuadrillas: serverData.cuadrillas,
             camionetas: serverData.camionetas,
             gruas: serverData.gruas,
             cargos: serverData.cargos.length > 0 ? serverData.cargos : get().cargos,
+            zonas: serverData.zonas.length > 0 ? serverData.zonas : get().zonas,
           });
 
           console.log('✅ Sincronización completada');
@@ -559,6 +618,7 @@ export const useDatabaseStore = create<DatabaseState>()(
           console.log(`   - ${serverData.camionetas.length} camionetas`);
           console.log(`   - ${serverData.gruas.length} grúas`);
           console.log(`   - ${serverData.cargos.length} cargos`);
+          console.log(`   - ${serverData.zonas.length} zonas`);
 
           return true;
         } catch (error) {
@@ -573,6 +633,7 @@ export const useDatabaseStore = create<DatabaseState>()(
       partialize: (state) => ({
         currentUser: state.currentUser,
         cargos: state.cargos,
+        zonas: state.zonas,
       }),
     }
   )

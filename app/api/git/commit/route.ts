@@ -63,12 +63,15 @@ export async function POST(request: NextRequest) {
     // 3. Create blobs for each file
     const blobs = await Promise.all(
       files.map(async (file) => {
+        // Detect if file is binary (PNG, JPG, etc.)
+        const isBinary = /\.(png|jpg|jpeg|gif|ico|webp)$/i.test(file.path);
+
         const blobResponse = await fetch(`${baseUrl}/git/blobs`, {
           method: 'POST',
           headers,
           body: JSON.stringify({
             content: file.content,
-            encoding: 'utf-8',
+            encoding: isBinary ? 'base64' : 'utf-8',
           }),
         });
 
